@@ -1960,7 +1960,7 @@ end
 local function eventHandler(self, event, ...)
 	local arg1 = ...
 	if event == "ADDON_LOADED" then
-		if (arg1 == "[PixelMagic]") then
+		if (arg1 == "[Frozen]") then
 			InitializeOne()
             InitializeTwo()
 		end
