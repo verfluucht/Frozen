@@ -4,9 +4,9 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class DemonHunterVeng : CombatRoutine
     {
@@ -16,7 +16,7 @@ namespace PixelMagic.Rotation
 		{
 			get
 			{
-				return "PixelMagic DemonHunter";
+				return "Frozen DemonHunter";
 			}
 		}
 
@@ -170,7 +170,7 @@ namespace PixelMagic.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=WiNiFiX
-AddonName=PixelMagic
+AddonName=Frozen
 WoWVersion=Legion - 70200
 [SpellBook.db]
 Spell,203782,Shear,T

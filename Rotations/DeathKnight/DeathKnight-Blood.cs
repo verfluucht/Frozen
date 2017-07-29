@@ -9,11 +9,10 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using System.Threading;
 
-namespace PixelMagic.Rotation.DeathKnight.DK
-
+namespace Frozen.Rotation
 {
     public class DK_Blood_FmFlex : CombatRoutine
     {

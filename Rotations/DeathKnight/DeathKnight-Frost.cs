@@ -18,11 +18,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using System.Threading;
-using PixelMagic.Rotation;
+using Frozen.Rotation;
 
-namespace PixelMagic.RotationX
+namespace Frozen.RotationX
 {
     public class DKFrostMGFmflex : CombatRoutine
     {

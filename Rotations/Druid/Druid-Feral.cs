@@ -16,7 +16,7 @@
 // - Bleed strenght tracking not yet implemented.
 // - PvP Missing
 
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using System.Drawing;
 using System.Threading;
 using System;
@@ -24,7 +24,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
 
     public class Feral_Scotishdwarf : CombatRoutine
@@ -373,7 +373,7 @@ namespace PixelMagic.Rotation
             Incarnation = IncarnationBox.Checked;
             Renewal = RenewalBox.Checked;
 
-            MessageBox.Show("Settings saved", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Settings saved", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
         }
 

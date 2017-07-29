@@ -4,9 +4,9 @@
 
 using System.Drawing;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class Elemental : CombatRoutine
     {
@@ -26,7 +26,7 @@ namespace PixelMagic.Rotation
         {
             Log.Write("Welcome to Elemental Shaman by Toomicek", Color.Green);
             Log.Write("Suggested build: 3112211", Color.Green);
-            Log.Write("PixelMagic Elemental");
+            Log.Write("Frozen Elemental");
         }
 
         public override void Stop()
@@ -194,7 +194,7 @@ namespace PixelMagic.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Toomicek
-AddonName=PixelMagic
+AddonName=Frozen
 WoWVersion=Legion - 70100
 [SpellBook.db]  
 Spell,188389,Flame Shock,D3

@@ -5,9 +5,9 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class PaladinProtWinifix : CombatRoutine
     {
@@ -15,7 +15,7 @@ namespace PixelMagic.Rotation
         {
             get
             {
-                return "PixelMagic Protection";
+                return "Frozen Protection";
             }
         }
 

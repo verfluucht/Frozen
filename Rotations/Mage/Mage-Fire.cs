@@ -8,10 +8,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using System.Threading;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class FireMage : CombatRoutine
     {
@@ -342,7 +342,7 @@ namespace PixelMagic.Rotation
         {
             MessageBox.Show(
                 "README:\n \n \n Toogle Cooldown Hotkey : NUMPAD0 - Make sure to disable the Jump bind from keybindings. \n The rotation is pooling 3 charges of Fire Blast and minimum 2 Phoenix's Flames before using Combustion. \n In the opener, the first of 3 charges of Phoenix's Flames will be used on the first Heating Up proc. \n If Cooldowns are disabled, the rotation will always keep one charge of Phoenix's Flames. \n \n Make sure you've set your keybindings corresponding the Spellbook and viceversa. \n \n \n Please report any bugs on Discord Mage channel. ",
-                "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void CmdSave_Click(object sender, EventArgs e)
@@ -359,7 +359,7 @@ namespace PixelMagic.Rotation
             Cinderstorm = CinderstormBox.Checked;
             ROF = ROFBox.Checked;
             Barrier = BarrierBox.Checked;
-            MessageBox.Show("Settings saved.", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Settings saved.", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
         }
 

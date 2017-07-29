@@ -4,13 +4,13 @@ using System.Windows.Forms;
 using System;
 using System.Text;
 using System.Threading;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {//Data tables
     public class Enhancement : CombatRoutine
     {

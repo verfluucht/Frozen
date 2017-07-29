@@ -4,7 +4,7 @@
 
 // Balance Druid rotation by Scotishdwarf and Daniel
 // Known Bugs / TODO :
-// - Sometimes overcapping Astral Power due PixelMagic not detecting Astral Power fast enough.
+// - Sometimes overcapping Astral Power due Frozen not detecting Astral Power fast enough.
 // - Oneth's Intuition not yet coded to normal rotation, will do it next.
 // Changelog :
 // Version r33
@@ -73,14 +73,14 @@
 // Completly reworked how rotation works
 // Version r1
 // Start building the rotation
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using System.Diagnostics;
 using System.Drawing;
 using System;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class BalanceDruid : CombatRoutine
     {
@@ -418,7 +418,7 @@ namespace PixelMagic.Rotation
             StarfallMacro = StarfallMacroBox.Checked;
             KBW = KBWBox.Checked;
             StarsurgeAsP = (int)StarsurgeNum.Value;
-            MessageBox.Show("Settings saved", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Settings saved", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
         }
 

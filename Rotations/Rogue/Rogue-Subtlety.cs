@@ -5,12 +5,12 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
 	
 	public class SubRogueVectarius : CombatRoutine
@@ -642,14 +642,14 @@ SettingsForm = new Form {Text = "Subtlety Rogue", StartPosition = FormStartPosit
             ConfigFile.WriteValue("Rogue", "CloakOfShadows Percent", nudCloakOfShadowsPercentValue.Value.ToString());			
 			
 			
-            MessageBox.Show("Settings saved.", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Settings saved.", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
         }
 		private void CmdReadme_Click(object sender, EventArgs e)
         {
             MessageBox.Show(
                 " make sure you make macros of Kill Command and Dire Frenzy/Beast /petattack",
-                "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 	
 

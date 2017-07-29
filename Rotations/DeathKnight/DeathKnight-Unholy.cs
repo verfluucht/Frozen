@@ -14,10 +14,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using System.Threading;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class DKUnholysmartie : CombatRoutine
     {

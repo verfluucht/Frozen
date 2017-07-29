@@ -134,11 +134,11 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 using Timer = System.Timers.Timer;
 #pragma warning disable 414
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     public class Restoration : CombatRoutine
@@ -147,7 +147,7 @@ namespace PixelMagic.Rotation
 
         // Overlay text
         public static string DisplayText;
-        private static readonly string AddonName = ConfigFile.ReadValue("PixelMagic", "AddonName");
+        private static readonly string AddonName = ConfigFile.ReadValue("Frozen", "AddonName");
         private static bool AddonEdited;
         private static bool Initialized;
         private static int Self = 0;
@@ -1288,7 +1288,7 @@ namespace PixelMagic.Rotation
         public override void Initialize()
         {
             Log.DrawHorizontalLine();
-            Log.Write("Welcome to PixelMagic Restoration");
+            Log.Write("Welcome to Frozen Restoration");
             Log.WriteFrozen("Welcome to Frozen Restoration Rotation v0.6 beta by Inhade", Color.Black);
             Log.Write("Supports all talent choices. However, recommended talents are 11313312 and 11313313", Color.Green);
             Log.Write("Make sure you have \"Force Addon Reload\" checked the first time you start the rotation");
@@ -2355,7 +2355,7 @@ namespace PixelMagic.Rotation
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Settings saved", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Settings saved", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
             foreach (var value in DisplayInfoForm.Processes)
             {
@@ -2365,7 +2365,7 @@ namespace PixelMagic.Rotation
 
         private void DefaultsButton_Click(object sender, EventArgs e)
         {
-            var dialogResult = MessageBox.Show("Restore default values?\r\nRestart rotation for changes to take effect", "PixelMagic", MessageBoxButtons.YesNo);
+            var dialogResult = MessageBox.Show("Restore default values?\r\nRestart rotation for changes to take effect", "Frozen", MessageBoxButtons.YesNo);
             switch (dialogResult)
             {
                 case DialogResult.Yes:
@@ -2451,7 +2451,7 @@ namespace PixelMagic.Rotation
             }
             catch (Exception ex)
             {
-                MessageBox.Show("" + ex, "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("" + ex, "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -2479,11 +2479,11 @@ namespace PixelMagic.Rotation
             {
                 var macroCache = File.ReadAllText("" + WoW.InstallPath + "\\" + "WTF\\Account" + "\\" + AccountName + "\\" + "macros-cache.txt");
                 File.WriteAllText("" + WoW.InstallPath + "\\" + "WTF\\Account" + "\\" + AccountName + "\\" + "macros-cache.txt", macroCache + Macros);
-                MessageBox.Show("Saving account wide macros succeded. Please relog and assign keybinds", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Saving account wide macros succeded. Please relog and assign keybinds", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception)
             {
-                MessageBox.Show("Saving account wide macros failed, trying character specific. Make sure you have space for the extra macros", "PixelMagic", MessageBoxButtons.OK,
+                MessageBox.Show("Saving account wide macros failed, trying character specific. Make sure you have space for the extra macros", "Frozen", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 try
                 {
@@ -2493,7 +2493,7 @@ namespace PixelMagic.Rotation
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Saving character specific macros failed. Please manually create macros", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Saving character specific macros failed. Please manually create macros", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             finally
@@ -3924,7 +3924,7 @@ namespace PixelMagic.Rotation
             }
             catch (Exception ex)
             {
-                MessageBox.Show("" + ex, "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("" + ex, "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -4789,7 +4789,7 @@ namespace PixelMagic.Rotation
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("" + ex, "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("" + ex, "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return null;
                 }
             }
@@ -4883,7 +4883,7 @@ namespace PixelMagic.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Inhade
-AddonName=PixelMagic
+AddonName=Frozen
 WoWVersion=Legion - 70100
 [SpellBook.db]
 Spell,774,Rejuvenation,NumPad0

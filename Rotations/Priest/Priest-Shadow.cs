@@ -7,10 +7,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Threading;
 using System;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class TWonderchildSP2 : CombatRoutine
     {

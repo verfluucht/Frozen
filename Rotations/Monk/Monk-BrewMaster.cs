@@ -4,9 +4,9 @@
 
 using System.Drawing;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class BrewMaster : CombatRoutine
     {
@@ -170,7 +170,7 @@ namespace PixelMagic.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=BrewDrinkCode
-AddonName=PixelMagic
+AddonName=Frozen
 WoWVersion=Legion - 70100
 [SpellBook.db]
 Spell,121253,Keg Smash,D1

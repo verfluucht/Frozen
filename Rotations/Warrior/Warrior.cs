@@ -5,9 +5,9 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class ProtectionLesion : CombatRoutine
     {
@@ -389,7 +389,7 @@ namespace PixelMagic.Rotation
             ConfigFile.WriteValue("ProtectionLesion", "HS HP Percent", HSHPPercentValue.Value.ToString());
             ConfigFile.WriteValue("ProtectionLesion", "IV HP Percent", IVHPPercentValue.Value.ToString());
 
-            MessageBox.Show("Settings saved", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Settings saved", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
         }
 
@@ -1128,7 +1128,7 @@ namespace PixelMagic.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Lesion
-AddonName=PixelMagic
+AddonName=Frozen
 WoWVersion=Legion - 70200
 [SpellBook.db]
 Spell,23922,Shield Slam,D1

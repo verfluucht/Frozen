@@ -82,11 +82,11 @@ using Timer = System.Timers.Timer;
 using System.Windows.Forms;
 using System.Text;
 using System.Runtime.InteropServices;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 #pragma warning disable 1998
 
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class Guardian : CombatRoutine
     {
@@ -2136,7 +2136,7 @@ namespace PixelMagic.Rotation
 
         private void CmdSave_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Settings saved", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Settings saved", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
 			foreach (Process value in DisplayInfoForm.Processes)
 			{
@@ -3354,7 +3354,7 @@ namespace PixelMagic.Rotation
 				}
 				catch (Exception ex)
 				{
-					MessageBox.Show("" + ex, "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					MessageBox.Show("" + ex, "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
 					return null;
 				}
 			}

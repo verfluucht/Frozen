@@ -8,7 +8,7 @@
 		-	In AOE mode, cycle your targets to apply Mark of the Crane debuff to everything.
 		-	Serenity/SEF will have to be activated manually in AOE mode, if you want to use it.
 
-	Feedback is appreciated in the Monk section on PixelMagic's Discord. Tag it with @[EU]Mixo :)
+	Feedback is appreciated in the Monk section on Frozen's Discord. Tag it with @[EU]Mixo :)
 
 	Talent Tree:
 		Tier 1:	Chi Wave
@@ -45,9 +45,9 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class WindwalkerMonk : CombatRoutine
     {
@@ -131,7 +131,7 @@ namespace PixelMagic.Rotation
             Log.Write("", Color.SpringGreen);
             Log.Write("Don't forget to change the Rotation settings based on your preferences.", Color.SpringGreen);
             Log.Write("", Color.SpringGreen);
-            Log.Write("Feedback is appreciated in the Monk section on PixelMagic's Discord.", Color.SpringGreen);
+            Log.Write("Feedback is appreciated in the Monk section on Frozen's Discord.", Color.SpringGreen);
             Log.Write("Tag it with @[EU] Mixo to notify me. :)", Color.SpringGreen);
             Log.DrawHorizontalLine();            
 
@@ -194,7 +194,7 @@ namespace PixelMagic.Rotation
 
         private void CmdReadme_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(readme, "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(readme, "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void CmdSave_Click(object sender, EventArgs e)
@@ -202,7 +202,7 @@ namespace PixelMagic.Rotation
             Katsuo = KatsuoBox.Checked;
             Serenity = SerenityBox.Checked;
             GaleBurst = GaleBurstBox.Checked;
-            MessageBox.Show("Settings saved.", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Settings saved.", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
         }
 

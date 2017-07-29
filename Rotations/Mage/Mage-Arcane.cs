@@ -5,9 +5,9 @@
 
 using System.Drawing;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
+using Frozen.Helpers;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class ArcaneMage : CombatRoutine
     {
@@ -20,7 +20,7 @@ namespace PixelMagic.Rotation
         public override void Initialize()
         {
             Log.Write("Welcome to Arcane Mage", Color.Green);
-            Log.Write("Welcome to PixelMagic Arcane");
+            Log.Write("Welcome to Frozen Arcane");
         }
 
         public override void Stop()
@@ -147,7 +147,7 @@ namespace PixelMagic.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Dupe-aka-Lesion
-AddonName=PixelMagic
+AddonName=Frozen
 WoWVersion=Legion - 70100
 [SpellBook.db]
 Spell,11426,Ice Barrier,S

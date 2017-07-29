@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,10 +12,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Windows.Forms;
-using PixelMagic.Helpers;
-using PixelMagic.GUI;
+using Frozen.Helpers;
+using Frozen.GUI;
 
-namespace PixelMagic.Rotation
+namespace Frozen.Rotation
 {
     public class WarlockDemonology : CombatRoutine
     {
@@ -581,8 +581,8 @@ namespace PixelMagic.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Sorcerer
-AddonName=RGB
-WoWVersion=Legion - 70200
+AddonName=Quartz
+WoWVersion=Legion - 72000
 [SpellBook.db]
 Spell,686,Shadow Bolt,NumPad1
 Spell,157695,Demonbolt,NumPad1
