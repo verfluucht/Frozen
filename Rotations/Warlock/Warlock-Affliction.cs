@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -477,8 +477,8 @@ namespace PixelMagic.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Sorcerer
-AddonName=Quartz
-WoWVersion=Legion - 72000
+AddonName=RGB
+WoWVersion=Legion - 70200
 [SpellBook.db]
 Spell,980,Agony,NumPad1
 Spell,63106,Siphon Life,NumPad2
