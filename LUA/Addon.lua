@@ -156,7 +156,7 @@ local currentResolution = select(index, GetScreenResolutions());  -- this will r
 local resWidth, resHeight = strsplit("x", currentResolution, 2)
 local scale = GetScreenWidth() / resWidth 
 
-local parent = CreateFrame("frame", "Recount", UIParent)
+parent = CreateFrame("frame", "Recount", UIParent)
 parent:SetSize(55 * size, 20 * size);  -- Width, Height
 parent:SetPoint("TOPLEFT", 0, 0)
 parent:SetScale(scale) 
@@ -1508,6 +1508,22 @@ local function updateIsSpellOverlayedFrames(self, event)
         end
     end
 end
+
+inGame = CreateFrame("frame", "", parent)
+inGame:SetSize(size, size)
+inGame:SetPoint("TOPLEFT", 30 * size, 0)
+inGame.t = inGame:CreateTexture()        
+inGame.t:SetColorTexture(0, 1, 0, alphaColor)
+inGame.t:SetAllPoints(inGame)	
+inGame:Show()
+
+startStopFrame = CreateFrame("frame", "", parent)
+startStopFrame:SetSize(size, size)
+startStopFrame:SetPoint("TOPLEFT", 29 * size, 0)
+startStopFrame.t = startStopFrame:CreateTexture()        
+startStopFrame.t:SetColorTexture(0, 0, 0, alphaColor)
+startStopFrame.t:SetAllPoints(startStopFrame)	
+startStopFrame:Show()
 
 local function InitializeOne()
     local i = 0
