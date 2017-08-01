@@ -2195,7 +2195,7 @@ namespace Frozen.Rotation
 
 /*
 [AddonDetails.db]
-AddonAuthor=Daniel and Scotishdwarf
+AddonAuthor=Daniel
 AddonName=HideOrderHallBar
 WoWVersion=Legion - 72000
 [SpellBook.db]
