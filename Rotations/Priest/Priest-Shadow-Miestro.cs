@@ -1,25 +1,8 @@
-﻿/**
- * Shadow rotation written by Miestro.
- * 
- * TODO:
- *  Add support for other talents.
- *  Add direct support for surrender to madness.
- *  Add support for a list of spells to interrupt.
- *  Check haste for rotation changes
- *  
- * 
- * Published November 27th, 2016
- */
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Frozen.Helpers;
-
-/**
- * Shadow priest rotation.
-*/
 
 namespace Frozen.Rotation
 {
@@ -27,15 +10,16 @@ namespace Frozen.Rotation
     {
         //General constants
         private const int HEALTH_PERCENT_FOR_SWD = 20;
+
         private const int PANIC_INSANITY_VALUE = 45;
         private const int INTERRUPT_DELAY = 650;
 
         //Spell Constants
         private const string SHADOW_PAIN = "Shadow Word: Pain";
+
         private const string VAMPIRIC_TOUCH = "Vampiric Touch";
         private const string VOID_TORRENT = "Void Torrent";
         private const string MIND_FLAY = "Mind Flay";
-        private const string MIND_SEAR = "Mind Sear";
         private const string MIND_BLAST = "Mind Blast";
         private const string SHADOW_MEND = "Shadow Mend";
         private const string POWER_WORD_SHIELD = "Power Word: Shield";
@@ -49,6 +33,7 @@ namespace Frozen.Rotation
 
         //Aura Constants
         private const string VOIDFORM_AURA = "Voidform";
+
         private const string SHADOWFORM_AURA = "Shadowform";
 
         /// <summary>
@@ -74,7 +59,8 @@ namespace Frozen.Rotation
         {
             Log.Write("Welcome to Miestro's Shadow rotation", Color.Orange);
             Log.Write("Please make sure your specialization is as follows: http://us.battle.net/wow/en/tool/talent-calculator#Xba!0100000", Color.Orange);
-            Log.Write("Note: legendaries are not supported. If you need one supported or something fixed, please make note of it in the discord.", Color.Orange);
+            Log.Write("Note: legendaries are not supported. If you need one supported or something fixed, please make note of it in the discord.",
+                Color.Orange);
         }
 
         public override void Stop()
@@ -85,31 +71,22 @@ namespace Frozen.Rotation
         public override void Pulse()
         {
             if (WoW.HealthPercent <= 1)
-            {
-                //Dead
                 return;
-            }
 
             //Heal yourself, Can't do damage if you're dead.
             if (WoW.HealthPercent <= 60)
             {
                 if (isPlayerBusy(true, false) && !WoW.PlayerHasBuff(POWER_WORD_SHIELD))
-                {
                     castWithRangeCheck(POWER_WORD_SHIELD);
-                }
                 castWithRangeCheck(SHADOW_MEND);
             }
             //Shield if health is dropping.
             if (WoW.HealthPercent <= 80 && !WoW.PlayerHasBuff(POWER_WORD_SHIELD))
-            {
                 castWithRangeCheck(POWER_WORD_SHIELD, true);
-            }
 
             //Always have shadowform.
             if (!(WoW.PlayerHasBuff(SHADOWFORM_AURA) || WoW.PlayerHasBuff(VOIDFORM_AURA)))
-            {
                 castWithRangeCheck(SHADOWFORM);
-            }
 
             if (WoW.HasTarget && WoW.TargetIsEnemy)
             {
@@ -135,14 +112,13 @@ namespace Frozen.Rotation
                     //Against 2 or more
                     case RotationType.AOE:
                     case RotationType.SingleTargetCleave:
-                        doRotation(false);
+                        doRotation();
                         break;
                 }
             }
 
             //Interrupt after a delay.
             if (WoW.TargetIsCasting && WoW.TargetIsEnemy)
-            {
                 if (timer.ElapsedMilliseconds >= INTERRUPT_DELAY)
                 {
                     castWithRangeCheck(SILENCE);
@@ -152,13 +128,12 @@ namespace Frozen.Rotation
                     timer.Reset();
                     timer.Start();
                 }
-            }
         }
 
         /// <summary>
         ///     Do the rotation.
         /// </summary>
-        private void doRotation(bool isSingleTarget = true)
+        private void doRotation()
         {
             var ignoreMovement = WoW.PlayerHasBuff(SURRENDER_MADNESS);
 
@@ -179,27 +154,16 @@ namespace Frozen.Rotation
 
                     //If the boss health is at or below our set threshold SW:D
                     if (WoW.TargetHealthPercent <= HEALTH_PERCENT_FOR_SWD)
-                    {
                         if (WoW.PlayerSpellCharges(SHADOW_DEATH) == 2 && WoW.Insanity <= 70)
-                        {
-                            //If we have 2 charges, always cast
                             castWithRangeCheck(SHADOW_DEATH);
-                        }
                         else if (WoW.PlayerSpellCharges(SHADOW_DEATH) == 1)
-                        {
-                            //If we have 1 charge, only cast if at high insanity and mindblast is off CD or extremely low insanity
-                            if ((WoW.Insanity > PANIC_INSANITY_VALUE && !(WoW.IsSpellOnCooldown(MIND_BLAST) || WoW.IsSpellOnCooldown(VOID_BOLT))) || WoW.Insanity <= calculateInsanityDrain())
-                            {
+                            if (WoW.Insanity > PANIC_INSANITY_VALUE && !(WoW.IsSpellOnCooldown(MIND_BLAST) || WoW.IsSpellOnCooldown(VOID_BOLT)) ||
+                                WoW.Insanity <= calculateInsanityDrain())
                                 castWithRangeCheck(SHADOW_DEATH);
-                            }
-                        }
-                    }
 
                     //Cast shadowfiend if we have more than 15 stacks of voidform aura.
                     if (WoW.PlayerBuffStacks(VOIDFORM_AURA) >= 15)
-                    {
                         castWithRangeCheck(SHADOW_FIEND);
-                    }
 
                     //If we can, cast it.
                     castWithRangeCheck(MIND_BLAST);
@@ -212,10 +176,7 @@ namespace Frozen.Rotation
                     */
 
                     if (!isPlayerBusy(ignoreChanneling: false))
-                    {
-                        //Always fill with mind flay on single target.
                         castWithRangeCheck(MIND_FLAY);
-                    }
                 }
             }
             else
@@ -225,15 +186,11 @@ namespace Frozen.Rotation
                 {
                     //If we can, cast mind blast.
                     if (castWithRangeCheck(MIND_BLAST))
-                    {
                         return;
-                    }
 
                     //If we don't have anything else to do, cast Mind flay.
                     if (!isPlayerBusy(ignoreChanneling: false))
-                    {
                         castWithRangeCheck(MIND_FLAY);
-                    }
                 }
             }
         }
@@ -244,7 +201,7 @@ namespace Frozen.Rotation
         /// <returns>The amount of insanity drained per second</returns>
         private float calculateInsanityDrain()
         {
-            return 9 + (WoW.PlayerBuffStacks(VOIDFORM_AURA) - 1/2);
+            return 9 + (WoW.PlayerBuffStacks(VOIDFORM_AURA) - 1 / 2);
         }
 
         /// <summary>
@@ -255,7 +212,8 @@ namespace Frozen.Rotation
         /// <returns>True if we can not currently cast another spell.</returns>
         private bool isPlayerBusy(bool ignoreMovement = false, bool ignoreChanneling = true)
         {
-            var canCast = WoW.PlayerIsCasting || (WoW.PlayerIsChanneling && !(ignoreChanneling && !WoW.WasLastCasted(VOID_TORRENT))) || (WoW.IsMoving && ignoreMovement);
+            var canCast = WoW.PlayerIsCasting || WoW.PlayerIsChanneling && !(ignoreChanneling && !WoW.WasLastCasted(VOID_TORRENT)) ||
+                          WoW.IsMoving && ignoreMovement;
             return canCast;
         }
 
@@ -274,9 +232,7 @@ namespace Frozen.Rotation
             {
                 WoW.CastSpell(spellName);
                 if (WoW.IsSpellOnGCD(spellName))
-                {
                     Thread.Sleep(WoW.SpellCooldownTimeRemaining(spellName));
-                }
                 return true;
             }
             return false;
@@ -291,10 +247,8 @@ namespace Frozen.Rotation
         /// <returns>True if the debuff was renewed, otherwise fasle.</returns>
         private void maintainDebuff(string debuffName, string spellName, float minTimeToExpire)
         {
-            if (!WoW.TargetHasDebuff(debuffName) || (WoW.TargetDebuffTimeRemaining(debuffName) < minTimeToExpire))
-            {
+            if (!WoW.TargetHasDebuff(debuffName) || WoW.TargetDebuffTimeRemaining(debuffName) < minTimeToExpire)
                 castWithRangeCheck(spellName);
-            }
         }
     }
 }

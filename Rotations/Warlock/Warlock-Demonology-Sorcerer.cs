@@ -1,38 +1,22 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Timers;
+﻿using System.Drawing;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 using System.Windows.Forms;
 using Frozen.Helpers;
-using Frozen.GUI;
 
 namespace Frozen.Rotation
 {
     public class WarlockDemonology : CombatRoutine
     {
-        public override string Name
-        { get { return "Demonology Warlock"; } }
+        public override string Name => "Demonology Warlock";
 
-        public override string Class
-        { get { return "Warlock"; } }
+        public override string Class => "Warlock";
 
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()
         {
             Log.Write("Welcome to the Demonology Warlock rotation", Color.Purple);
-            Log.Write("Use Scroll Lock key to toggle ST/AOE/CLEAVE auto detection", Color.Blue);
-            Log.Write("If Scroll Lock LED is ON ST/AOE/CLEAVE auto detection is ENABLED", Color.Blue);
-            Log.Write("If Scroll Lock LED is OFF ST/AOE/CLEAVE auto detection is DISABLED use the manual mode to select ST/AOE/CLEAVE (Default: ALT+S, ALT+A)", Color.Blue);
+            Log.Write("If Scroll Lock is on the Auto-AOE is enabled", Color.Blue);
         }
 
         public override void Stop()
@@ -42,9 +26,7 @@ namespace Frozen.Rotation
         public override void Pulse() // Updated for Legion (tested and working for single target)
         {
             if (WoW.IsInCombat && Control.IsKeyLocked(Keys.Scroll) && !WoW.TargetIsPlayer && !WoW.IsMounted)
-            {
                 SelectRotation(4, 9999, 1);
-            }
 
             //Dark Pact
             if (WoW.CanCast("Dark Pact")
@@ -67,7 +49,6 @@ namespace Frozen.Rotation
             }
 
             if (UseCooldowns)
-            {
                 if (WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsChanneling && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.IsMounted)
                 {
                     //Doomguard
@@ -95,16 +76,15 @@ namespace Frozen.Rotation
                         && WoW.Talent(4) == 3
                         && !WoW.IsMoving
                         && WoW.IsSpellInRange("Doom")
-                        && (WoW.PlayerHasBuff("Bloodlust") || WoW.PlayerHasBuff("Time Warp") || WoW.PlayerHasBuff("Netherwinds") || WoW.PlayerHasBuff("Drums of War") || WoW.PlayerHasBuff("Heroism")))
+                        && (WoW.PlayerHasBuff("Bloodlust") || WoW.PlayerHasBuff("Time Warp") || WoW.PlayerHasBuff("Netherwinds") ||
+                            WoW.PlayerHasBuff("Drums of War") || WoW.PlayerHasBuff("Heroism")))
                     {
                         WoW.CastSpell("Soul Harvest");
                         return;
                     }
                 }
-            }
 
             if (combatRoutine.Type == RotationType.SingleTarget) // Do Single Target Stuff here
-            {
                 if (WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsChanneling && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.IsMounted)
                 {
                     if ((!WoW.TargetHasDebuff("Doom") || WoW.TargetDebuffTimeRemaining("Doom") <= 150)
@@ -146,7 +126,8 @@ namespace Frozen.Rotation
                         && !WoW.IsMoving
                         && !WoW.WasLastCasted("Demonic Empowerment")
                         && (!WoW.PetHasBuff("Demonic Empowerment") || WoW.PetBuffTimeRemaining("Demonic Empowerment") <= 1.5
-                        || WoW.WasLastCasted("Call Dreadstalkers") || WoW.WasLastCasted("Grimoire: Felguard") || WoW.WasLastCasted("Doomguard") || WoW.WasLastCasted("Hand of Guldan")))
+                            || WoW.WasLastCasted("Call Dreadstalkers") || WoW.WasLastCasted("Grimoire: Felguard") || WoW.WasLastCasted("Doomguard") ||
+                            WoW.WasLastCasted("Hand of Guldan")))
                     {
                         WoW.CastSpell("Demonic Empowerment");
                         Thread.Sleep(1000);
@@ -208,9 +189,7 @@ namespace Frozen.Rotation
                         return;
                     }
                 }
-            }
             if (combatRoutine.Type == RotationType.AOE)
-            {
                 if (WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsChanneling && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.IsMounted)
                 {
                     if (WoW.CanCast("Hand of Guldan")
@@ -241,10 +220,10 @@ namespace Frozen.Rotation
                     }
 
                     if (WoW.CanCast("Demonic Empowerment")
-                       && WoW.CanCast("Felstorm")
-                       && !WoW.IsMoving
-                       && !WoW.WasLastCasted("Demonic Empowerment")
-                       && (!WoW.PetHasBuff("Demonic Empowerment") || WoW.PetBuffTimeRemaining("Demonic Empowerment") <= 6))
+                        && WoW.CanCast("Felstorm")
+                        && !WoW.IsMoving
+                        && !WoW.WasLastCasted("Demonic Empowerment")
+                        && (!WoW.PetHasBuff("Demonic Empowerment") || WoW.PetBuffTimeRemaining("Demonic Empowerment") <= 6))
                     {
                         WoW.CastSpell("Demonic Empowerment");
                         Thread.Sleep(2000);
@@ -274,9 +253,7 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Demonwrath");
                         return;
                     }
-
                 }
-            }
 
             if (combatRoutine.Type == RotationType.SingleTargetCleave)
             {
@@ -284,106 +261,11 @@ namespace Frozen.Rotation
             }
         }
 
-        #region Functions
-
-        private float GCD
-        {
-            get
-            {
-                if (Convert.ToSingle(150f / (1 + (WoW.HastePercent / 100f))) > 75f)
-                {
-                    return Convert.ToSingle(150f / (1 + (WoW.HastePercent / 100f)));
-                }
-                else
-                {
-                    return 75f;
-                }
-            }
-        }
-
-        private void interruptcast()
-        {
-            Random random = new Random();
-            int randomNumber = random.Next(60, 80);
-            if (WoW.TargetPercentCast > randomNumber && WoW.TargetIsCastingAndSpellIsInterruptible)
-            {
-                if (WoW.PlayerRace == "BloodElf" && WoW.CanCast("Arcane Torrent", true, true, false, false, true) && !WoW.IsSpellOnCooldown("Wind Shear") && WoW.TargetIsCastingAndSpellIsInterruptible) //interupt every spell, not a boss.
-                {
-                    WoW.CastSpell("Arcane Torrent");
-                    return;
-                }
-                if (WoW.PlayerRace == "Pandaren" && WoW.CanCast("Quaking palm", true, true, true, false, true)) //interupt every spell, not a boss.
-                {
-                    WoW.CastSpell("Quaking palm");
-                    return;
-                }
-            }
-        }
-
-        private void DBMPrePull()
-        {
-            if (dbmOn && dbmTimer <= 18 && dbmTimer > 0 && WoW.HasTarget)
-            {
-                if (!WoW.ItemOnCooldown("Prolonged Power"))
-                {
-                    WoW.CastSpell("Prolonged Power");
-                    return;
-                }
-            }
-        }
-
-        private void Defensive()
-        {
-            if (WoW.PlayerRace == "Dreanei" && WoW.HealthPercent < 80 && !WoW.IsSpellOnCooldown("Gift Naaru"))
-            {
-                WoW.CastSpell("Gift Naaru");
-            }
-        }
-
-        private void Stuns()
-        {
-            if (!WoW.PlayerIsCasting)
-            {
-                if (WoW.PlayerRace == "Tauren​" && !WoW.IsMoving && WoW.CanCast("War Stomp") && !WoW.IsSpellOnCooldown("War Stomp"))
-                {
-                    WoW.CastSpell("War Stomp");
-                    return;
-                }
-            }
-        }
-
-        private void DPSRacial()
-        {
-            if (!WoW.PlayerIsCasting)
-            {
-                if (WoW.PlayerRace == "Troll" && WoW.CanCast("Berserking") && !WoW.IsSpellOnCooldown("Berserking"))
-                {
-                    WoW.CastSpell("Berserking");
-                    return;
-                }
-
-                if (WoW.PlayerRace == "Orc" && WoW.CanCast("Blood Fury") && !WoW.IsSpellOnCooldown("Blood Fury"))
-                {
-                    WoW.CastSpell("Blood Fury");
-                    return;
-                }
-            }
-
-        }
-
-        private void UsePotion()
-        {
-            if (!WoW.ItemOnCooldown("Prolonged Power"))
-            {
-                WoW.CastSpell("Prolonged Power");
-                return;
-            }
-        }
-
         private static bool lastNamePlate = true;
+
         public void SelectRotation(int aoe, int cleave, int single)
         {
-            int count = WoW.CountEnemyNPCsInRange;
+            var count = WoW.CountEnemyNPCsInRange;
             if (!lastNamePlate)
             {
                 combatRoutine.ChangeType(RotationType.SingleTarget);
@@ -396,184 +278,7 @@ namespace Frozen.Rotation
                 combatRoutine.ChangeType(RotationType.SingleTargetCleave);
             if (count <= single)
                 combatRoutine.ChangeType(RotationType.SingleTarget);
-
         }
-
-
-        private static bool setBonus2Pc
-        {
-            get
-            {
-                var control = WoW.GetBlockColor(9, 24);
-                if (Convert.ToInt32(Math.Round(Convert.ToSingle(control.G))) == 0 && Convert.ToInt32(Math.Round(Convert.ToSingle(control.R) * 100 / 255)) >= 2)
-                {
-
-                    return true;
-                }
-                else
-                    return false;
-            }
-        }
-
-        private static bool setBonus4Pc
-        {
-            get
-            {
-                var control = WoW.GetBlockColor(9, 24);
-                //Log.Write("Bonus location: " + Convert.ToInt32(Math.Round(Convert.ToSingle(control.R) * 100 / 255)));
-                if (Convert.ToInt32(Math.Round(Convert.ToSingle(control.G))) == 0 && Convert.ToInt32(Math.Round(Convert.ToSingle(control.R) * 100 / 255)) >= 4)
-                {
-
-                    return true;
-                }
-                else
-                    return false;
-            }
-        }
-
-        private static string PlayerSpec
-        {
-            get
-            {
-                var c = WoW.GetBlockColor(10, 24);
-                try
-                {
-                    if (c.B == 0) return "none";
-                    string[] Spec = new string[] { "None", "Blood", "Frost", "Unholy", "Havoc", "Vengeance", "Balance", "Feral", "Guardian", "Restoration", "Beast Mastery", "Marksmanship", "Survival", "Arcane", "Fire", "Frost", "Brewmaster", "Mistweaver", "Windwalker", "Holy", "Protection", "Retribution", "Discipline", "HolyPriest", "Shadow", "Assassination", "Outlaw", "Subtlety", "Elemental", "Enhancement", "RestorationShaman", "Affliction", "Arms", "Fury", "Protection", "Demonology", "Destruction", "none" };
-                    var race = Convert.ToInt32(Math.Round(Convert.ToSingle(c.G))) * 100 / 255;
-                    var spec = Spec[race];
-
-                    return spec;
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("Error in Spec  Green = " + c.G);
-
-                    Log.Write(ex.Message, Color.Red);
-                }
-                return "none";
-            }
-        }
-
-        private static int npcCount
-        {
-            get
-            {
-                var c = WoW.GetBlockColor(11, 23);
-                try
-                {
-                    return Convert.ToInt32(Math.Round(Convert.ToSingle(c.G) * 100 / 255));
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("Error in NamePlate  Green = " + c.G);
-
-                    Log.Write(ex.Message, Color.Red);
-                }
-                return 1;
-            }
-        }
-
-        private static bool Nameplates
-        {
-            get
-            {
-                var c = WoW.GetBlockColor(11, 23);
-                try
-                {
-                    if (Convert.ToInt32(Math.Round(Convert.ToSingle(c.B) / 255)) == 1)
-                        return true;
-                    else
-                        return false;
-
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("Error in NamePlate  Green = " + c.G);
-
-                    Log.Write(ex.Message, Color.Red);
-                }
-                return false;
-            }
-        }
-
-        private static int RaidSize
-        {
-            get
-            {
-                var c = WoW.GetBlockColor(11, 23);
-                try
-                {
-                    int players = 0;
-                    if (Convert.ToInt32(Math.Round(Convert.ToSingle(c.R)) * 100 / 255) > 0)
-                        players = (Convert.ToInt32(Math.Round(Convert.ToSingle(c.R)) * 100 / 255));
-                    if (Convert.ToInt32(Math.Round(Convert.ToSingle(c.R)) * 100 / 255) == 100)
-                        players = 1;
-                    if (players > 30)
-                        players = 30;
-                    if (players <= 5)
-                        players = players - 1;
-                    return players;
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("Error in Players  Green = " + c.G);
-
-                    Log.Write(ex.Message, Color.Red);
-                }
-                return 1;
-            }
-        }
-
-        private static bool dbmOn
-        {
-            get
-            {
-                Color pixelColor = Color.FromArgb(0);
-                var c = WoW.GetBlockColor(6, 24);
-                try
-                {
-                    if (Convert.ToInt32(Math.Round(Convert.ToSingle(pixelColor.R) / 255)) == 1)
-                        return true;
-                    else
-                        return false;
-
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("Error in DBMON  Green = " + c.G);
-
-                    Log.Write(ex.Message, Color.Red);
-                }
-                return false;
-            }
-        }
-
-        private static int dbmTimer
-        {
-            get
-            {
-                Color pixelColor = Color.FromArgb(0);
-                var c = WoW.GetBlockColor(6, 24);
-                try
-                {
-                    if (Convert.ToInt32(Math.Round(Convert.ToSingle(pixelColor.R) / 255)) == 1)
-                        return Convert.ToInt32(Math.Round(Convert.ToSingle(pixelColor.G) * 100 / 255));
-                    else
-                        return 0;
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("Error in Dbm Timer Green = " + c.G);
-
-                    Log.Write(ex.Message, Color.Red);
-                }
-                return 0;
-            }
-        }
-
-        #endregion
-
     }
 }
 

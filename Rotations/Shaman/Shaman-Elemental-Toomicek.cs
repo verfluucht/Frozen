@@ -1,7 +1,3 @@
-// winifix@gmail.com
-// ReSharper disable UnusedMember.Global
-
-
 using System.Drawing;
 using System.Windows.Forms;
 using Frozen.Helpers;
@@ -10,15 +6,9 @@ namespace Frozen.Rotation
 {
     public class Elemental : CombatRoutine
     {
-		public override string Name
-        {
-            get { return "Elemental Toomicek"; }
-        }
+        public override string Name => "Elemental Toomicek";
 
-        public override string Class
-        {
-            get { return "Shaman"; }
-        }
+        public override string Class => "Shaman";
 
         public override Form SettingsForm { get; set; }
 
@@ -36,7 +26,6 @@ namespace Frozen.Rotation
         public override void Pulse()
         {
             if (combatRoutine.Type == RotationType.SingleTarget) // Do Single Target Stuff here
-            {
                 if (WoW.HasTarget && WoW.TargetIsEnemy) //First things go first
                 {
                     if (WoW.TargetIsCasting && WoW.IsSpellInRange("Wind Shear")) //interupt every spell - need to add kickable spells
@@ -64,16 +53,15 @@ namespace Frozen.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Stormkeeper") && !WoW.IsSpellOnCooldown("Stormkeeper") && !WoW.PlayerHasBuff("Ascendance")) //use stormkeeper after ascendance
+                    if (WoW.CanCast("Stormkeeper") && !WoW.IsSpellOnCooldown("Stormkeeper") &&
+                        !WoW.PlayerHasBuff("Ascendance")) //use stormkeeper after ascendance
                     {
                         WoW.CastSpell("Stormkeeper");
                         return;
                     }
 
                     if (WoW.CanCast("Lightning Bolt") && WoW.PlayerHasBuff("Stormkeeper") && !WoW.IsMoving) //Filler with stormkeeper
-                    {
                         WoW.CastSpell("Lightning Bolt");
-                    }
 
                     if (WoW.CanCast("Elemental Mastery") && WoW.IsSpellOnCooldown("Elemental Mastery")) //use Elemental Mastery on CD
                     {
@@ -111,15 +99,14 @@ namespace Frozen.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 40 && !WoW.IsSpellOnCooldown("Astral Shift")) //ASTRAL SHIFT - DMG REDUCTION if we are below 40% of HP
+                    if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 40 && !WoW.IsSpellOnCooldown("Astral Shift")
+                    ) //ASTRAL SHIFT - DMG REDUCTION if we are below 40% of HP
                     {
                         WoW.CastSpell("Astral Shift");
                         return;
                     }
                 }
-            }
             if (combatRoutine.Type == RotationType.AOE) //cast chain light and earthguake, using CDs without fire elemental   
-            {
                 if (WoW.HasTarget && WoW.TargetIsEnemy) //First things go first
                 {
                     if (WoW.TargetIsCasting && WoW.IsSpellInRange("Wind Shear")) //interupt every spell - need to add kickable spells
@@ -147,9 +134,7 @@ namespace Frozen.Rotation
                     }
 
                     if (WoW.CanCast("Lava Beam") && WoW.PlayerHasBuff("Ascendance") && !WoW.IsMoving) //Filler
-                    {
                         WoW.CastSpell("Lava Beam");
-                    }
 
                     if (WoW.CanCast("Lava Burst") && WoW.TargetHasDebuff("Flame Shock") && WoW.PlayerHasBuff("Lava Surge")) //lava burst when we have lava surge
                     {
@@ -166,9 +151,7 @@ namespace Frozen.Rotation
                     }
 
                     if (WoW.CanCast("Chain Lightning") && WoW.PlayerHasBuff("Stormkeeper") && !WoW.IsMoving) //Chain with stormkeeper
-                    {
                         WoW.CastSpell("Chain Lightning");
-                    }
 
                     if (WoW.CanCast("Elemental Mastery") && !WoW.IsSpellOnCooldown("Elemental Mastery")) //use Elemental Mastery on CD
                     {
@@ -177,16 +160,12 @@ namespace Frozen.Rotation
                     }
 
                     if (WoW.CanCast("Chain Lightning") && !WoW.IsMoving) //Filler
-                    {
                         WoW.CastSpell("Chain Lightning");
-                    }
 
-                    if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 40 && !WoW.IsSpellOnCooldown("Astral Shift")) //ASTRAL SHIFT - DMG REDUCTION if we are below 40% of HP
-                    {
+                    if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 40 && !WoW.IsSpellOnCooldown("Astral Shift")
+                    ) //ASTRAL SHIFT - DMG REDUCTION if we are below 40% of HP
                         WoW.CastSpell("Astral Shift");
-                    }
                 }
-            }
         }
     }
 }

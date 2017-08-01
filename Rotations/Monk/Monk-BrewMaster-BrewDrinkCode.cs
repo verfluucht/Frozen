@@ -12,26 +12,14 @@ namespace Frozen.Rotation
     {
         private static bool _ironSkinFired;
 
-		public override string Name 
-		{
-			get		
-			{
-				return "BrewMaster Rotation";
-			}
-		}
-		
-		public override string Class 
-		{
-			get		
-			{
-				return "Monk";
-			}
-		}
+        public override string Name => "BrewMaster Rotation";
+
+        public override string Class => "Monk";
 
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()
-        {            
+        {
             Log.Write("Welcome to Monk BM rotation", Color.Green);
         }
 
@@ -45,11 +33,8 @@ namespace Frozen.Rotation
             if (combatRoutine.Type == RotationType.SingleTarget)
             {
                 //Heal if not in combat
-                if (!WoW.IsInCombat && WoW.HealthPercent <= 95 & WoW.Energy >= 30 && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
-                {
-                    //WoW.SendMacro("/cast [@player] Effuse");
+                if (!WoW.IsInCombat && (WoW.HealthPercent <= 95) & (WoW.Energy >= 30) && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
                     return;
-                }
 
                 //Sanity Checks
                 if (WoW.PlayerIsChanneling) return;
@@ -68,7 +53,8 @@ namespace Frozen.Rotation
             }
 
             //Interrupts or Damage negation
-            if (WoW.TargetIsCasting && WoW.CanCast("Spear Hand Strike") && !WoW.IsSpellOnCooldown("Spear Hand Strike") && WoW.IsSpellInRange("Spear Hand Strike"))
+            if (WoW.TargetIsCasting && WoW.CanCast("Spear Hand Strike") && !WoW.IsSpellOnCooldown("Spear Hand Strike") &&
+                WoW.IsSpellInRange("Spear Hand Strike"))
             {
                 WoW.CastSpell("Spear Hand Strike");
                 return;
@@ -89,7 +75,8 @@ namespace Frozen.Rotation
             }
 
             //If Target is almost dead, and we have Expel Harm charges use up -- we don't want to leave it 
-            if (WoW.TargetHealthPercent <= 10 && WoW.PlayerSpellCharges("Expel Harm") != 100 && WoW.CanCast("Expel Harm") && !WoW.IsSpellOnCooldown("Expel Harm") && WoW.Energy >= 15)
+            if (WoW.TargetHealthPercent <= 10 && WoW.PlayerSpellCharges("Expel Harm") != 100 && WoW.CanCast("Expel Harm") &&
+                !WoW.IsSpellOnCooldown("Expel Harm") && WoW.Energy >= 15)
             {
                 Log.Write(string.Format("Expel Harm Count {0}", WoW.PlayerSpellCharges("Expel Harm")));
                 WoW.CastSpell("Expel Harm");
@@ -106,7 +93,8 @@ namespace Frozen.Rotation
 
 
             //Breath of fire if Vulnerable
-            if (WoW.TargetHasDebuff("Keg Smash") && !WoW.TargetHasDebuff("Breath of Fire") && WoW.CanCast("Breath of Fire") && !WoW.IsSpellOnCooldown("Breath of Fire"))
+            if (WoW.TargetHasDebuff("Keg Smash") && !WoW.TargetHasDebuff("Breath of Fire") && WoW.CanCast("Breath of Fire") &&
+                !WoW.IsSpellOnCooldown("Breath of Fire"))
             {
                 WoW.CastSpell("Breath of Fire");
                 return;
@@ -145,24 +133,16 @@ namespace Frozen.Rotation
 
             //if We Can Cast Exploding Keg and in Melee range then do so
             if (WoW.CanCast("Exploding Keg") && !WoW.IsSpellOnCooldown("Exploding Keg") && WoW.IsSpellInRange("Tiger Palm"))
-            {
-                //WoW.SendMacro("/cast [@player] Exploding Keg");
                 return;
-            }
 
-            //TODO NEED Fucking ability to detect staggers so we can use our spare Purifying Brew here.. We are not 
-            //Optimized until this behavior exists.  We need to use it, then pop Fortifying Brew
-
+            // NEED ability to detect staggers so we can use our spare Purifying Brew here.. We are not 
+            // Optimized until this behavior exists.  We need to use it, then pop Fortifying Brew
 
             if (WoW.CanCast("Blackout Strike") && !WoW.IsSpellOnCooldown("Blackout Strike") && WoW.IsSpellInRange("Tiger Palm"))
-            {
                 WoW.CastSpell("Blackout Strike");
-            }
 
             if (WoW.CanCast("Tiger Palm") && !WoW.IsSpellOnCooldown("Tiger Palm") && WoW.IsSpellInRange("Tiger Palm") && WoW.TargetHasDebuff("Keg Smash"))
-            {
                 WoW.CastSpell("Tiger Palm");
-            }
         }
     }
 }

@@ -1,52 +1,34 @@
-// winifix@gmail.com
-// ReSharper disable UnusedMember.Global
-// ReSharper disable ConvertPropertyToExpressionBody
-
-using Frozen.Helpers;
-using System.Drawing;
-using System.Threading;
 using System;
-using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Frozen.Helpers;
 
 namespace Frozen.Rotation
 {
-
-    public class Feral_Daniel : CombatRoutine
+    public class Feral : CombatRoutine
     {
         private static readonly Stopwatch pullwatch = new Stopwatch();
         private static readonly Stopwatch ripunbuffed = new Stopwatch();
         private static readonly Stopwatch ripbuffed = new Stopwatch();
         private static readonly Stopwatch superrip = new Stopwatch();
-        private CheckBox BloodtalonsBox;
-        private CheckBox ElunesGuidanceBox;
-        private CheckBox SabertoothBox;
         private CheckBox AiluroPouncersBox;
-        private CheckBox SavageRoarBox;
-        private CheckBox JaggedWoundsBox;
-        private CheckBox NightElfBox;
+        private CheckBox BloodtalonsBox;
         private CheckBox BrutalSlashBox;
-        private CheckBox LunarInspirationBox;
+        private CheckBox ElunesGuidanceBox;
         private CheckBox IncarnationBox;
-        private CheckBox RenewalBox;
+        private CheckBox JaggedWoundsBox;
         private CheckBox KBWBox;
+        private CheckBox LunarInspirationBox;
+        private CheckBox NightElfBox;
+        private CheckBox RenewalBox;
+        private CheckBox SabertoothBox;
+        private CheckBox SavageRoarBox;
 
-        public override string Name
-        {
-            get
-            {
-                return "Feral Rotation";
-            }
-        }
+        public override string Name => "Feral Rotation";
 
-        public override string Class
-        {
-            get
-            {
-                return "Druid";
-            }
-        }
+        public override string Class => "Druid";
 
         private static bool Bloodtalons
         {
@@ -58,6 +40,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "Bloodtalons", value.ToString()); }
         }
+
         private static bool ElunesGuidance
         {
             get
@@ -68,6 +51,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "ElunesGuidance", value.ToString()); }
         }
+
         private static bool Sabertooth
         {
             get
@@ -78,6 +62,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "Sabertooth", value.ToString()); }
         }
+
         private static bool AiluroPouncers
         {
             get
@@ -88,6 +73,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "AiluroPouncers", value.ToString()); }
         }
+
         private static bool SavageRoar
         {
             get
@@ -98,6 +84,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "SavageRoar", value.ToString()); }
         }
+
         private static bool JaggedWounds
         {
             get
@@ -108,6 +95,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "JaggedWounds", value.ToString()); }
         }
+
         private static bool NightElf
         {
             get
@@ -118,6 +106,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "NightElf", value.ToString()); }
         }
+
         private static bool BrutalSlash
         {
             get
@@ -128,6 +117,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "BrutalSlash", value.ToString()); }
         }
+
         private static bool LunarInspiration
         {
             get
@@ -138,6 +128,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "LunarInspiration", value.ToString()); }
         }
+
         private static bool Incarnation
         {
             get
@@ -148,6 +139,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "Incarnation", value.ToString()); }
         }
+
         private static bool Renewal
         {
             get
@@ -158,6 +150,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Feral_Scotishdwarf", "Renewal", value.ToString()); }
         }
+
         private static bool KBW
         {
             get
@@ -166,133 +159,150 @@ namespace Frozen.Rotation
 
                 return kBW != "" && Convert.ToBoolean(kBW);
             }
-            set { ConfigFile.WriteValue("BalanceDruid", "KBW", value.ToString()); }
         }
+
+        public override Form SettingsForm { get; set; }
+
         protected string Linkify(string SearchText)
         {
-            Regex regx = new Regex(@"\b(((\S+)?)(@|mailto\:|(news|(ht|f)tp(s?))\://)\S+)\b", RegexOptions.IgnoreCase);
+            var regx = new Regex(@"\b(((\S+)?)(@|mailto\:|(news|(ht|f)tp(s?))\://)\S+)\b", RegexOptions.IgnoreCase);
             SearchText = SearchText.Replace("&nbsp;", " ");
-            MatchCollection matches = regx.Matches(SearchText);
+            var matches = regx.Matches(SearchText);
 
             foreach (Match match in matches)
-            {
                 if (match.Value.StartsWith("http"))
-                { // if it starts with anything else then dont linkify -- may already be linked!
                     SearchText = SearchText.Replace(match.Value, "<a href='" + match.Value + "'>" + match.Value + "</a>");
-                }
-            }
 
             return SearchText;
         }
 
         public override void Initialize()
         {
-            MessageBox.Show("Welcome to Feral Druid by Scotishdwarf 2.0b5.\n\n- Suggested build : 3,2,2,1,3,2,2\n\n- Complete rebuild of rotation\n- Bleed strenght tracked trough workaround for Rip, still need code for Rake.\n- Basic pvp using Brutal Slash, Incarnation and Renewal\n\nPlease configure rotation trough Rotation Settings.\n\nThis is beta build, bugs, much doge.");
+            MessageBox.Show(
+                "Welcome to Feral Druid by Scotishdwarf 2.0b5.\n\n- Suggested build : 3,2,2,1,3,2,2\n\n- Complete rebuild of rotation\n- Bleed strenght tracked trough workaround for Rip, still need code for Rake.\n- Basic pvp using Brutal Slash, Incarnation and Renewal\n\nPlease configure rotation trough Rotation Settings.\n\nThis is beta build, bugs, much doge.");
             Log.Write("Welcome to Feral Druid by Scotishdwarf", Color.Purple);
             Log.Write("Suggested build : http://eu.battle.net/wow/en/tool/talent-calculator#UZa!2110211", Color.Purple);
 
-            SettingsForm = new Form { Text = "Settings", StartPosition = FormStartPosition.CenterScreen, Width = 500, Height = 250, ShowIcon = false };
+            SettingsForm = new Form {Text = "Settings", StartPosition = FormStartPosition.CenterScreen, Width = 500, Height = 250, ShowIcon = false};
 
             // TALENTS
-            var lblTalentsForm = new Label { Text = "Talents", Size = new Size(150, 13), Left = 12, Top = 14 };
-            lblTalentsForm.ForeColor = System.Drawing.Color.Red;
+            var lblTalentsForm = new Label
+            {
+                Text = "Talents",
+                Size = new Size(150, 13),
+                Left = 12,
+                Top = 14,
+                ForeColor = Color.Red
+            };
             SettingsForm.Controls.Add(lblTalentsForm);
 
             // Legendaries 
-            var lblLegendaryForm = new Label { Text = "Legendaries", Size = new Size(150, 13), Left = 292, Top = 14 };
-            lblLegendaryForm.ForeColor = System.Drawing.Color.Red;
+            var lblLegendaryForm = new Label
+            {
+                Text = "Legendaries",
+                Size = new Size(150, 13),
+                Left = 292,
+                Top = 14,
+                ForeColor = Color.Red
+            };
             SettingsForm.Controls.Add(lblLegendaryForm);
 
             // Misc
-            var lblMiscForm = new Label { Text = "Misc", Size = new Size(150, 13), Left = 292, Top = 59 };
-            lblMiscForm.ForeColor = System.Drawing.Color.Red;
+            var lblMiscForm = new Label
+            {
+                Text = "Misc",
+                Size = new Size(150, 13),
+                Left = 292,
+                Top = 59,
+                ForeColor = Color.Red
+            };
             SettingsForm.Controls.Add(lblMiscForm);
 
             // LUNAR INSPIRATION
-            var lblLunarInspirationText = new Label { Text = "L15: Lunar Inspiration", Size = new Size(100, 13), Left = 12, Top = 29 };
+            var lblLunarInspirationText = new Label {Text = "L15: Lunar Inspiration", Size = new Size(100, 13), Left = 12, Top = 29};
             SettingsForm.Controls.Add(lblLunarInspirationText);
 
-            LunarInspirationBox = new CheckBox { Checked = LunarInspiration, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 29 };
+            LunarInspirationBox = new CheckBox {Checked = LunarInspiration, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 29};
             SettingsForm.Controls.Add(LunarInspirationBox);
 
             // Renewal
-            var lblRenewalText = new Label { Text = "L30 : Renewal", Size = new Size(80, 13), Left = 12, Top = 44 };
+            var lblRenewalText = new Label {Text = "L30 : Renewal", Size = new Size(80, 13), Left = 12, Top = 44};
             SettingsForm.Controls.Add(lblRenewalText);
 
-            RenewalBox = new CheckBox { Checked = Renewal, TabIndex = 4, Size = new Size(15, 14), Left = 140, Top = 44 };
+            RenewalBox = new CheckBox {Checked = Renewal, TabIndex = 4, Size = new Size(15, 14), Left = 140, Top = 44};
             SettingsForm.Controls.Add(RenewalBox);
 
             // INCARNATION
-            var lblIncarnationText = new Label { Text = "L75 : Incarnation", Size = new Size(100, 13), Left = 12, Top = 59 };
+            var lblIncarnationText = new Label {Text = "L75 : Incarnation", Size = new Size(100, 13), Left = 12, Top = 59};
             SettingsForm.Controls.Add(lblIncarnationText);
 
-            IncarnationBox = new CheckBox { Checked = Incarnation, TabIndex = 4, Size = new Size(15, 14), Left = 140, Top = 59 };
+            IncarnationBox = new CheckBox {Checked = Incarnation, TabIndex = 4, Size = new Size(15, 14), Left = 140, Top = 59};
             SettingsForm.Controls.Add(IncarnationBox);
 
             // SAVAGE ROAR
-            var lblSavageRoarText = new Label { Text = "L75 : Savage Roar", Size = new Size(100, 13), Left = 12, Top = 74 };
+            var lblSavageRoarText = new Label {Text = "L75 : Savage Roar", Size = new Size(100, 13), Left = 12, Top = 74};
             SettingsForm.Controls.Add(lblSavageRoarText);
 
-            SavageRoarBox = new CheckBox { Checked = SavageRoar, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 74 };
+            SavageRoarBox = new CheckBox {Checked = SavageRoar, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 74};
             SettingsForm.Controls.Add(SavageRoarBox);
-            
+
             // SABERTOOTH
-            var lblSabertoothText = new Label { Text = "L90 : Sabertooth", Size = new Size(100, 13), Left = 12, Top = 89 };
+            var lblSabertoothText = new Label {Text = "L90 : Sabertooth", Size = new Size(100, 13), Left = 12, Top = 89};
             SettingsForm.Controls.Add(lblSabertoothText);
 
-            SabertoothBox = new CheckBox { Checked = Sabertooth, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 89 };
+            SabertoothBox = new CheckBox {Checked = Sabertooth, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 89};
             SettingsForm.Controls.Add(SabertoothBox);
 
             // JAGGED WOUNDS
-            var lblJaggedWoundsText = new Label { Text = "L90 : Jagged Wounds", Size = new Size(100, 13), Left = 12, Top = 104 };
+            var lblJaggedWoundsText = new Label {Text = "L90 : Jagged Wounds", Size = new Size(100, 13), Left = 12, Top = 104};
             SettingsForm.Controls.Add(lblJaggedWoundsText);
 
-            JaggedWoundsBox = new CheckBox { Checked = JaggedWounds, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 104 };
+            JaggedWoundsBox = new CheckBox {Checked = JaggedWounds, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 104};
             SettingsForm.Controls.Add(JaggedWoundsBox);
 
             // ELUNES GUIDANCE
-            var lblElunesGuidanceText = new Label { Text = "L90 : Elune's Guidance", Size = new Size(100, 13), Left = 12, Top = 119 };
+            var lblElunesGuidanceText = new Label {Text = "L90 : Elune's Guidance", Size = new Size(100, 13), Left = 12, Top = 119};
             SettingsForm.Controls.Add(lblElunesGuidanceText);
 
-            ElunesGuidanceBox = new CheckBox { Checked = ElunesGuidance, TabIndex = 4, Size = new Size(15, 14), Left = 140, Top = 119 };
+            ElunesGuidanceBox = new CheckBox {Checked = ElunesGuidance, TabIndex = 4, Size = new Size(15, 14), Left = 140, Top = 119};
             SettingsForm.Controls.Add(ElunesGuidanceBox);
 
             // BLOODTALONS
-            var lblBloodtalonsText = new Label { Text = "L100 : Bloodtalons", Size = new Size(100, 13), Left = 12, Top = 134 };
+            var lblBloodtalonsText = new Label {Text = "L100 : Bloodtalons", Size = new Size(100, 13), Left = 12, Top = 134};
             SettingsForm.Controls.Add(lblBloodtalonsText);
 
-            BloodtalonsBox = new CheckBox { Checked = Bloodtalons, TabIndex = 2, Size = new Size(15, 14), Left = 140, Top = 134 };
+            BloodtalonsBox = new CheckBox {Checked = Bloodtalons, TabIndex = 2, Size = new Size(15, 14), Left = 140, Top = 134};
             SettingsForm.Controls.Add(BloodtalonsBox);
 
             // BRUTAL SLASH
-            var lblBrutalSlashText = new Label { Text = "L100 : Brutal Slash", Size = new Size(100, 13), Left = 12, Top = 149 };
+            var lblBrutalSlashText = new Label {Text = "L100 : Brutal Slash", Size = new Size(100, 13), Left = 12, Top = 149};
             SettingsForm.Controls.Add(lblBrutalSlashText);
 
-            BrutalSlashBox = new CheckBox { Checked = BrutalSlash, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 149 };
+            BrutalSlashBox = new CheckBox {Checked = BrutalSlash, TabIndex = 6, Size = new Size(15, 14), Left = 140, Top = 149};
             SettingsForm.Controls.Add(BrutalSlashBox);
 
             // AILURO POUNCERS
-            var lblAiluroPouncersText = new Label { Text = "Ailuro Pouncers", Size = new Size(100, 13), Left = 292, Top = 29 };
+            var lblAiluroPouncersText = new Label {Text = "Ailuro Pouncers", Size = new Size(100, 13), Left = 292, Top = 29};
             SettingsForm.Controls.Add(lblAiluroPouncersText);
 
-            AiluroPouncersBox = new CheckBox { Checked = AiluroPouncers, TabIndex = 6, Size = new Size(15, 14), Left = 420, Top = 29 };
+            AiluroPouncersBox = new CheckBox {Checked = AiluroPouncers, TabIndex = 6, Size = new Size(15, 14), Left = 420, Top = 29};
             SettingsForm.Controls.Add(AiluroPouncersBox);
 
             // Kil'jaeden's Burning Wish
-            var lblKBWText = new Label { Text = "Item : Kil'jaeden's Burning Wish", Size = new Size(200, 13), Left = 292, Top = 44 };
+            var lblKBWText = new Label {Text = "Item : Kil'jaeden's Burning Wish", Size = new Size(200, 13), Left = 292, Top = 44};
             SettingsForm.Controls.Add(lblKBWText);
 
-            KBWBox = new CheckBox { Checked = KBW, TabIndex = 6, Size = new Size(15, 14), Left = 420, Top = 44 };
+            KBWBox = new CheckBox {Checked = KBW, TabIndex = 6, Size = new Size(15, 14), Left = 420, Top = 44};
             SettingsForm.Controls.Add(KBWBox);
 
             // NIGHT ELF
-            var lblNightElfText = new Label { Text = "Race : Night Elf", Size = new Size(100, 13), Left = 292, Top = 74 };
+            var lblNightElfText = new Label {Text = "Race : Night Elf", Size = new Size(100, 13), Left = 292, Top = 74};
             SettingsForm.Controls.Add(lblNightElfText);
 
-            NightElfBox = new CheckBox { Checked = NightElf, TabIndex = 6, Size = new Size(15, 14), Left = 420, Top = 74 };
+            NightElfBox = new CheckBox {Checked = NightElf, TabIndex = 6, Size = new Size(15, 14), Left = 420, Top = 74};
             SettingsForm.Controls.Add(NightElfBox);
 
-            var cmdSave = new Button { Text = "Save", Width = 65, Height = 25, Left = 350, Top = 164, Size = new Size(108, 31) };
+            var cmdSave = new Button {Text = "Save", Width = 65, Height = 25, Left = 350, Top = 164, Size = new Size(108, 31)};
 
             BloodtalonsBox.Checked = Bloodtalons;
             ElunesGuidanceBox.Checked = ElunesGuidance;
@@ -333,7 +343,7 @@ namespace Frozen.Rotation
             lblRenewalText.BringToFront();
 
             Log.Write("Bloodtalons = " + Bloodtalons);
-            Log.Write("Elunes Guidance = " +ElunesGuidance);
+            Log.Write("Elunes Guidance = " + ElunesGuidance);
             Log.Write("Sabertooth = " + Sabertooth);
             Log.Write("Ailuro Pouncers = " + AiluroPouncers);
             Log.Write("Savage Roar = " + SavageRoar);
@@ -368,45 +378,55 @@ namespace Frozen.Rotation
             Bloodtalons = BloodtalonsBox.Checked;
             BrutalSlash = BrutalSlashBox.Checked = false;
         }
+
         private void ElunesGuidance_Click(object sender, EventArgs e)
         {
             ElunesGuidance = ElunesGuidanceBox.Checked;
         }
+
         private void Sabertooth_Click(object sender, EventArgs e)
         {
             Sabertooth = SabertoothBox.Checked;
         }
+
         private void AiluroPouncers_Click(object sender, EventArgs e)
         {
             AiluroPouncers = AiluroPouncersBox.Checked;
         }
+
         private void SavageRoar_Click(object sender, EventArgs e)
         {
             SavageRoar = SavageRoarBox.Checked;
             Incarnation = IncarnationBox.Checked = false;
         }
+
         private void JaggedWounds_Click(object sender, EventArgs e)
         {
             JaggedWounds = JaggedWoundsBox.Checked;
         }
+
         private void NightElf_Click(object sender, EventArgs e)
         {
             NightElf = NightElfBox.Checked;
         }
+
         private void BrutalSlash_Click(object sender, EventArgs e)
         {
             BrutalSlash = BrutalSlashBox.Checked;
             Bloodtalons = BloodtalonsBox.Checked = false;
         }
+
         private void LunarInspiration_Click(object sender, EventArgs e)
         {
             LunarInspiration = LunarInspirationBox.Checked;
         }
+
         private void Incarnation_Click(object sender, EventArgs e)
         {
             Incarnation = IncarnationBox.Checked;
             SavageRoar = SavageRoarBox.Checked = false;
         }
+
         private void Renewal_Click(object sender, EventArgs e)
         {
             Renewal = RenewalBox.Checked;
@@ -449,13 +469,15 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Renewal");
                         return;
                     }
-                    if ((WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.CurrentComboPoints >= 5 && WoW.TargetHasDebuff("Rip")) && WoW.TargetDebuffTimeRemaining("Rip") >= 500 && (WoW.Energy >= 50 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
+                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.CurrentComboPoints >= 5 && WoW.TargetHasDebuff("Rip") &&
+                        WoW.TargetDebuffTimeRemaining("Rip") >= 500 && (WoW.Energy >= 50 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
                     {
                         WoW.CastSpell("FerociousBite");
                         return;
                     }
 
-                    if ((WoW.IsSpellInRange("Rake") && WoW.CanCast("Rake") && (!WoW.TargetHasDebuff("Rake") || WoW.TargetDebuffTimeRemaining("Rake") <= 300)) && (WoW.Energy >= 35 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
+                    if (WoW.IsSpellInRange("Rake") && WoW.CanCast("Rake") && (!WoW.TargetHasDebuff("Rake") || WoW.TargetDebuffTimeRemaining("Rake") <= 300) &&
+                        (WoW.Energy >= 35 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
                     {
                         WoW.CastSpell("Rake");
                         return;
@@ -466,13 +488,17 @@ namespace Frozen.Rotation
                         return;
                     }
 
-                    if ((WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.CurrentComboPoints >= 5 && (!WoW.TargetHasDebuff("Rip") || WoW.TargetDebuffTimeRemaining("Rip") <= 500)) && (WoW.Energy >= 30 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
+                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.CurrentComboPoints >= 5 &&
+                        (!WoW.TargetHasDebuff("Rip") || WoW.TargetDebuffTimeRemaining("Rip") <= 500) &&
+                        (WoW.Energy >= 30 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
                     {
                         WoW.CastSpell("Rip");
                         return;
                     }
 
-                    if ((WoW.IsSpellInRange("Shred") && WoW.CanCast("Shred") && WoW.CurrentComboPoints < 5 && WoW.TargetHasDebuff("Rake") && (WoW.IsSpellOnCooldown("BrutalSlash") || !BrutalSlash) && (WoW.Energy >= 40 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk"))))
+                    if (WoW.IsSpellInRange("Shred") && WoW.CanCast("Shred") && WoW.CurrentComboPoints < 5 && WoW.TargetHasDebuff("Rake") &&
+                        (WoW.IsSpellOnCooldown("BrutalSlash") || !BrutalSlash) &&
+                        (WoW.Energy >= 40 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
                     {
                         WoW.CastSpell("Shred");
                         return;
@@ -482,7 +508,8 @@ namespace Frozen.Rotation
                         WoW.CastSpell("TigersFury");
                         return;
                     }
-                    if (BrutalSlash && WoW.IsSpellInRange("Shred") && WoW.CanCast("BrutalSlash") && !WoW.IsSpellOnCooldown("BrutalSlash") && (WoW.Energy >= 20 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
+                    if (BrutalSlash && WoW.IsSpellInRange("Shred") && WoW.CanCast("BrutalSlash") && !WoW.IsSpellOnCooldown("BrutalSlash") &&
+                        (WoW.Energy >= 20 || WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("Berserk")))
                     {
                         WoW.CastSpell("BrutalSlash");
                         return;
@@ -509,7 +536,8 @@ namespace Frozen.Rotation
                             WoW.CastSpell("Regrowth");
                             return;
                         }
-                        if (WoW.CurrentComboPoints == 2 && !WoW.PlayerHasBuff("Bloodtalons") && WoW.SpellCooldownTimeRemaining("Ashamane") <= 100 && WoW.PlayerHasBuff("PredatorySwiftness"))
+                        if (WoW.CurrentComboPoints == 2 && !WoW.PlayerHasBuff("Bloodtalons") && WoW.SpellCooldownTimeRemaining("Ashamane") <= 100 &&
+                            WoW.PlayerHasBuff("PredatorySwiftness"))
                         {
                             WoW.CastSpell("Regrowth");
                             return;
@@ -567,11 +595,8 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Rake");
                         return;
                     }
-                    if (LunarInspiration && !WoW.TargetHasDebuff("Moonfire") && WoW.IsSpellInRange("SkullBash") && WoW.Energy >= 30 && WoW.CurrentComboPoints < 5)
-                    {
-                        WoW.CastSpell("Moonfire");
-                        return;
-                    }
+                    if (LunarInspiration && !WoW.TargetHasDebuff("Moonfire") && WoW.IsSpellInRange("SkullBash") && WoW.Energy >= 30 &&
+                        WoW.CurrentComboPoints < 5)
                     {
                         WoW.CastSpell("Moonfire");
                         return;
@@ -595,13 +620,11 @@ namespace Frozen.Rotation
 
                 // OPEN COMBAT WITH SHADOWMELD RAKE
                 if (WoW.TargetIsEnemy && WoW.IsInCombat && (WoW.PlayerHasBuff("Prowl") || WoW.PlayerHasBuff("Shadowmeld")))
-                {
                     if (WoW.IsSpellInRange("Rake") && WoW.CanCast("Rake"))
                     {
                         WoW.CastSpell("Rake");
                         return;
                     }
-                }
 
                 // COOLDOWN ROTATION
                 if (WoW.IsInCombat && WoW.TargetIsEnemy && UseCooldowns)
@@ -617,7 +640,7 @@ namespace Frozen.Rotation
                         return;
                     }
                 }
-       
+
                 // PRIMARY ROTATION
                 if (WoW.IsInCombat && WoW.TargetIsEnemy && !WoW.PlayerHasBuff("Prowl") && WoW.PlayerHasBuff("Cat Form"))
                 {
@@ -628,13 +651,14 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Keep Rip from falling off during execute range
-                    if (WoW.IsSpellInRange("Rake") && WoW.CanCast("FerociousBite") && WoW.TargetHasDebuff("Rip") && WoW.TargetHasDebuff("Rip") && WoW.PlayerHasBuff("SavageRoar") && WoW.TargetDebuffTimeRemaining("Rip") < 3 && WoW.TargetHealthPercent <= 25 && WoW.Energy >= 25)
+                    if (WoW.IsSpellInRange("Rake") && WoW.CanCast("FerociousBite") && WoW.TargetHasDebuff("Rip") && WoW.TargetHasDebuff("Rip") &&
+                        WoW.PlayerHasBuff("SavageRoar") && WoW.TargetDebuffTimeRemaining("Rip") < 3 && WoW.TargetHealthPercent <= 25 && WoW.Energy >= 25)
                     {
                         WoW.CastSpell("FerociousBite");
                         return;
                     }
                     // Regrowth logic with Bloodtalons talent enabled
-                    if (Bloodtalons && WoW.CanCast("Regrowth")) 
+                    if (Bloodtalons && WoW.CanCast("Regrowth"))
                     {
                         if (WoW.CurrentComboPoints >= 5 && WoW.PlayerHasBuff("PredatorySwiftness"))
                         {
@@ -646,7 +670,8 @@ namespace Frozen.Rotation
                             WoW.CastSpell("Regrowth");
                             return;
                         }
-                        if (WoW.CurrentComboPoints == 2 && !WoW.PlayerHasBuff("Bloodtalons") && WoW.SpellCooldownTimeRemaining("Ashamane") <= 100 && WoW.PlayerHasBuff("PredatorySwiftness"))
+                        if (WoW.CurrentComboPoints == 2 && !WoW.PlayerHasBuff("Bloodtalons") && WoW.SpellCooldownTimeRemaining("Ashamane") <= 100 &&
+                            WoW.PlayerHasBuff("PredatorySwiftness"))
                         {
                             WoW.CastSpell("Regrowth");
                             return;
@@ -671,16 +696,15 @@ namespace Frozen.Rotation
                     //{
 
                     //}
-           
+
                     // LEGENDARY LOGIC
                     if (AiluroPouncers)
-                    {
-                        if (Bloodtalons && WoW.CanCast("Regrowth") && WoW.PlayerBuffStacks("PredatorySwiftness") > 1 && !WoW.PlayerHasBuff("Bloodtalons") && WoW.PlayerHasBuff("PredatorySwiftness"))
+                        if (Bloodtalons && WoW.CanCast("Regrowth") && WoW.PlayerBuffStacks("PredatorySwiftness") > 1 && !WoW.PlayerHasBuff("Bloodtalons") &&
+                            WoW.PlayerHasBuff("PredatorySwiftness"))
                         {
                             WoW.CastSpell("Regrowth");
                             return;
                         }
-                    }
                     // FINISHER LOGIC
                     // FINISHER LOGIC
                     // If have Savage Roar and Rip under 3 seconds remaining and target above 25% hp, cast BUFFED rip.
@@ -710,25 +734,30 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Savage Roar if player have buff Savage Roar and is under 2 seconds remaining and is at 5 combo points.
-                    if (SavageRoar && WoW.CanCast("SavageRoar") && WoW.Energy >= 40 && WoW.PlayerBuffTimeRemaining("SavageRoar") <= 200 && WoW.PlayerHasBuff("SavageRoar") && WoW.CurrentComboPoints == 5)
+                    if (SavageRoar && WoW.CanCast("SavageRoar") && WoW.Energy >= 40 && WoW.PlayerBuffTimeRemaining("SavageRoar") <= 200 &&
+                        WoW.PlayerHasBuff("SavageRoar") && WoW.CurrentComboPoints == 5)
                     {
                         WoW.CastSpell("SavageRoar");
                         return;
                     }
                     // Ferocious Bite if HP under 25% and Rip Remaining under 3 seconds. (will extend Rip)
-                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.CurrentComboPoints > 1 && WoW.TargetDebuffTimeRemaining("Rip") < 300 && WoW.TargetHealthPercent < 25 && WoW.TargetHasDebuff("Rip"))
+                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.CurrentComboPoints > 1 &&
+                        WoW.TargetDebuffTimeRemaining("Rip") < 300 && WoW.TargetHealthPercent < 25 && WoW.TargetHasDebuff("Rip"))
                     {
                         WoW.CastSpell("FerociousBite");
                         return;
                     }
                     // If TigersFury running.
-                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.CurrentComboPoints == 5 && ripbuffed.IsRunning && WoW.TargetHasBuff("Rip") && WoW.PlayerHasBuff("SavageRoar") && WoW.PlayerBuffTimeRemaining("SavageRoar") <= 1000 && WoW.TargetDebuffTimeRemaining("Rip") > 7)
+                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.CurrentComboPoints == 5 && ripbuffed.IsRunning &&
+                        WoW.TargetHasBuff("Rip") && WoW.PlayerHasBuff("SavageRoar") && WoW.PlayerBuffTimeRemaining("SavageRoar") <= 1000 &&
+                        WoW.TargetDebuffTimeRemaining("Rip") > 7)
                     {
                         WoW.CastSpell("FerociousBite");
                         Log.Write("O mighty super bite.");
                     }
                     // Refresh Rip if not on target and tigersfury or berserk
-                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && !WoW.TargetHasDebuff("Rip") && WoW.CurrentComboPoints == 5 && WoW.PlayerHasBuff("TigersFury"))
+                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && !WoW.TargetHasDebuff("Rip") && WoW.CurrentComboPoints == 5 &&
+                        WoW.PlayerHasBuff("TigersFury"))
                     {
                         WoW.CastSpell("Rip");
                         ripbuffed.Start();
@@ -737,7 +766,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Refresh Rip for stronger Rip
-                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && ripunbuffed.IsRunning && WoW.PlayerHasBuff("TigersFury") && WoW.CurrentComboPoints == 5)
+                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && ripunbuffed.IsRunning && WoW.PlayerHasBuff("TigersFury") &&
+                        WoW.CurrentComboPoints == 5)
                     {
                         WoW.CastSpell("Rip");
                         ripbuffed.Start();
@@ -746,7 +776,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Refresh Rip at 8 seconds if have Tigers fury or Berserk buff.
-                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && !Sabertooth && WoW.TargetDebuffTimeRemaining("Rip") < 800 && WoW.TargetHealthPercent > 25 && WoW.CurrentComboPoints == 5 && WoW.PlayerHasBuff("TigersFury"))
+                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && !Sabertooth && WoW.TargetDebuffTimeRemaining("Rip") < 800 &&
+                        WoW.TargetHealthPercent > 25 && WoW.CurrentComboPoints == 5 && WoW.PlayerHasBuff("TigersFury"))
                     {
                         WoW.CastSpell("Rip");
                         ripbuffed.Start();
@@ -755,7 +786,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Refresh Rip at 8 seconds if no buff and no sabertooth talent and non-buffed rip is running.
-                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && !Sabertooth && WoW.TargetDebuffTimeRemaining("Rip") < 800 && WoW.TargetHealthPercent > 25 && WoW.CurrentComboPoints == 5 && !ripbuffed.IsRunning)
+                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && !Sabertooth && WoW.TargetDebuffTimeRemaining("Rip") < 800 &&
+                        WoW.TargetHealthPercent > 25 && WoW.CurrentComboPoints == 5 && !ripbuffed.IsRunning)
                     {
                         WoW.CastSpell("Rip");
                         ripunbuffed.Start();
@@ -773,7 +805,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Refresh Rip if under 2 seconds remaining.
-                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && WoW.TargetDebuffTimeRemaining("Rip") < 200 && WoW.CurrentComboPoints == 5)
+                    if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.Energy >= 30 && WoW.TargetDebuffTimeRemaining("Rip") < 200 &&
+                        WoW.CurrentComboPoints == 5)
                     {
                         WoW.CastSpell("Rip");
                         ripunbuffed.Start();
@@ -782,25 +815,31 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Refresh Savage roar at under 7.2 secons remaining if no JaggedWounds talent
-                    if (SavageRoar && WoW.CanCast("SavageRoar") && WoW.Energy >= 40 && !JaggedWounds && WoW.PlayerBuffTimeRemaining("SavageRoar") < 720 && WoW.CurrentComboPoints == 5)
+                    if (SavageRoar && WoW.CanCast("SavageRoar") && WoW.Energy >= 40 && !JaggedWounds && WoW.PlayerBuffTimeRemaining("SavageRoar") < 720 &&
+                        WoW.CurrentComboPoints == 5)
                     {
                         WoW.CastSpell("SavageRoar");
                         return;
                     }
                     // Refresh Savage Roar early with jagged wounds talent
-                    if (SavageRoar && WoW.CanCast("SavageRoar") && WoW.Energy >= 40 && JaggedWounds && WoW.PlayerBuffTimeRemaining("SavageRoar") < 1050 && WoW.CurrentComboPoints == 5)
+                    if (SavageRoar && WoW.CanCast("SavageRoar") && WoW.Energy >= 40 && JaggedWounds && WoW.PlayerBuffTimeRemaining("SavageRoar") < 1050 &&
+                        WoW.CurrentComboPoints == 5)
                     {
                         WoW.CastSpell("SavageRoar");
                         return;
                     }
                     // FB cast without JaggedWounds talent
-                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.Energy >= 25 && WoW.CurrentComboPoints == 5 && !JaggedWounds && WoW.TargetHasDebuff("Rip") && WoW.PlayerHasBuff("SavageRoar") && WoW.PlayerBuffTimeRemaining("SavageRoar") > 920 && WoW.TargetDebuffTimeRemaining("Rip") > 1000)
+                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.Energy >= 25 && WoW.CurrentComboPoints == 5 &&
+                        !JaggedWounds && WoW.TargetHasDebuff("Rip") && WoW.PlayerHasBuff("SavageRoar") && WoW.PlayerBuffTimeRemaining("SavageRoar") > 920 &&
+                        WoW.TargetDebuffTimeRemaining("Rip") > 1000)
                     {
                         WoW.CastSpell("FerociousBite");
                         return;
                     }
                     // FB cast with JaggedWounds talent
-                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.Energy >= 25 && WoW.CurrentComboPoints == 5 && JaggedWounds && WoW.TargetHasDebuff("Rip") && WoW.PlayerHasBuff("SavageRoar") && WoW.PlayerBuffTimeRemaining("SavageRoar") > 1250 && WoW.TargetDebuffTimeRemaining("Rip") > 1000)
+                    if (WoW.IsSpellInRange("FerociousBite") && WoW.CanCast("FerociousBite") && WoW.Energy >= 25 && WoW.CurrentComboPoints == 5 &&
+                        JaggedWounds && WoW.TargetHasDebuff("Rip") && WoW.PlayerHasBuff("SavageRoar") && WoW.PlayerBuffTimeRemaining("SavageRoar") > 1250 &&
+                        WoW.TargetDebuffTimeRemaining("Rip") > 1000)
                     {
                         WoW.CastSpell("FerociousBite");
                         return;
@@ -814,7 +853,6 @@ namespace Frozen.Rotation
                     }
                     if (ElunesGuidance && WoW.CanCast("ElunesGuidance") && WoW.CurrentComboPoints == 0 && WoW.Energy >= 30)
                     {
-                        
                         WoW.CastSpell("ElunesGuidance");
                         return;
                     }
@@ -825,7 +863,7 @@ namespace Frozen.Rotation
                     }
                     if (WoW.IsSpellInRange("Rake") && WoW.CanCast("Rake") && WoW.Energy >= 35)
                     {
-                        // TODO : Code in bleed multiplier
+                        // do : Code in bleed multiplier
                         if (WoW.CurrentComboPoints < 5 && Bloodtalons && WoW.PlayerHasBuff("Bloodtalons") && WoW.TargetDebuffTimeRemaining("Rake") <= 500)
                         {
                             WoW.CastSpell("Rake");
@@ -842,7 +880,8 @@ namespace Frozen.Rotation
                             return;
                         }
                     }
-                    if (LunarInspiration && !WoW.TargetHasDebuff("Moonfire") && WoW.IsSpellInRange("SkullBash") && WoW.Energy >= 30 && WoW.CurrentComboPoints < 5)
+                    if (LunarInspiration && !WoW.TargetHasDebuff("Moonfire") && WoW.IsSpellInRange("SkullBash") && WoW.Energy >= 30 &&
+                        WoW.CurrentComboPoints < 5)
                     {
                         WoW.CastSpell("Moonfire");
                         return;
@@ -860,7 +899,8 @@ namespace Frozen.Rotation
                     //        return;
                     //    }
                     //}
-                    if (BrutalSlash && WoW.IsSpellInRange("Rake") && WoW.CanCast("BrutalSlash") && WoW.PlayerSpellCharges("BrutalSlash") == 3 && WoW.Energy >= 20)
+                    if (BrutalSlash && WoW.IsSpellInRange("Rake") && WoW.CanCast("BrutalSlash") && WoW.PlayerSpellCharges("BrutalSlash") == 3 &&
+                        WoW.Energy >= 20)
                     {
                         WoW.CastSpell("BrutalSlash");
                         return;
@@ -869,14 +909,12 @@ namespace Frozen.Rotation
                     {
                         WoW.CastSpell("Shred");
                         return;
-                    }                
+                    }
                 }
             }
 
             //  AOE ROTATION
             if (combatRoutine.Type == RotationType.AOE)
-            {
-                // In combat, target is enemy, target is not player, i dont have prowl and i have buff catform
                 if (WoW.IsInCombat && WoW.TargetIsEnemy && !WoW.TargetIsPlayer && !WoW.PlayerHasBuff("Prowl") && WoW.PlayerHasBuff("Cat Form"))
                 {
                     if (WoW.IsSpellInRange("Rake") && WoW.CanCast("Rake") && !WoW.TargetHasDebuff("Rake") && WoW.Energy >= 35)
@@ -900,15 +938,9 @@ namespace Frozen.Rotation
                         return;
                     }
                     if (WoW.IsSpellInRange("Rip") && WoW.CanCast("Rip") && WoW.CurrentComboPoints == 5 && !WoW.TargetHasDebuff("Rip") && WoW.Energy >= 30)
-                    {
                         WoW.CastSpell("Rip");
-                        return;
-                    }
                 }
-            }
         }
-
-        public override Form SettingsForm { get; set; }
     }
 }
 

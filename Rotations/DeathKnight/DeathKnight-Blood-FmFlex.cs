@@ -7,91 +7,73 @@ namespace Frozen.Rotation.DKBlood
 {
     public class DK_Blood_FmFlex : CombatRoutine
     {
-        public string gcdTime = "0.7";
-        public bool AddonEdited = false;
-
-        private static int[] spellToKick = { 0 };
-        private int bonesStack;
+        private static int[] spellToKick = {0};
         private readonly CheckBox checkIsTalentBloodDrinker = new CheckBox();
         private readonly CheckBox checkIsTalentBoneStorm = new CheckBox();
+        public bool AddonEdited = false;
+        private int bonesStack;
         private int currentRunes;
+        public string gcdTime = "0.7";
         private CheckBox isCDDefEnableBox;
         private bool isMelee;
         private bool renewBones;
         private int runicPower;
         private TextBox spellToKickTextBox;
 
+        public override string Name => "Blood DK by FmFlex";
 
-        public override string Name
-        {
-            get { return "Blood DK by FmFlex"; }
-        }
-
-        public override string Class
-        {
-            get { return "Deathknight"; }
-        }
+        public override string Class => "Deathknight";
 
         public override Form SettingsForm { get; set; }
 
-        public static bool isCDDefEnable
+        private static bool IsCDDefEnable
         {
             get
             {
-                var isCDDefEnable = ConfigFile.ReadValue("DKBlood", "isCDDefEnable").Trim();
-
-                if (isCDDefEnable != "")
-                {
-                    return Convert.ToBoolean(isCDDefEnable);
-                }
-
-                return true;
+                return ConfigFile.ReadValue("DKBlood", "isCDDefEnable").Trim() == "" || Convert.ToBoolean(ConfigFile.ReadValue("DKBlood", "isCDDefEnable").Trim());
             }
             set { ConfigFile.WriteValue("DKBlood", "isCDDefEnable", value.ToString()); }
         }
 
-        public static string spellToKickString
+        public static string SpellToKickString
         {
             get
             {
                 var spellToKickString = ConfigFile.ReadValue("DKBlood", "spellToKick").Trim();
                 if (spellToKickString != "")
-                {
                     spellToKick = Array.ConvertAll(spellToKickString.Split(','), int.Parse);
-                }
                 return spellToKickString;
             }
-            set { ConfigFile.WriteValue("DKBlood", "spellToKick", value); }
         }
 
-        public static bool isTalentBoneStorm
+        public static void SetSpellToKickString(string value)
+        {
+            ConfigFile.WriteValue("DKBlood", "spellToKick", value);
+        }
+
+        public static bool IsTalentBoneStorm
         {
             get
             {
                 var isTalentBoneStorm = ConfigFile.ReadValue("DKBlood", "isTalentBoneStorm").Trim();
                 if (isTalentBoneStorm != "")
-                {
                     return Convert.ToBoolean(isTalentBoneStorm);
-                }
                 return true;
             }
             set { ConfigFile.WriteValue("DKBlood", "isTalentBoneStorm", value.ToString()); }
         }
 
-        public static bool isTalentBloodDrinker
+        public static bool IsTalentBloodDrinker
         {
             get
             {
                 var isTalentBloodDrinker = ConfigFile.ReadValue("DKBlood", "isTalentBloodDrinker").Trim();
                 if (isTalentBloodDrinker != "")
-                {
                     return Convert.ToBoolean(isTalentBloodDrinker);
-                }
                 return true;
             }
             set { ConfigFile.WriteValue("DKBlood", "isTalentBloodDrinker", value.ToString()); }
         }
-
 
 
         public override void Initialize()
@@ -104,24 +86,24 @@ namespace Frozen.Rotation.DKBlood
                 Width = 400,
                 Height = 400,
                 ShowIcon = false,
-                FormBorderStyle = FormBorderStyle.FixedSingle
+                FormBorderStyle = FormBorderStyle.FixedSingle,
+                MaximizeBox = false,
+                MinimizeBox = false
             };
-            SettingsForm.MaximizeBox = false;
-            SettingsForm.MinimizeBox = false;
 
             var labelIsCDDefEnable = new Label //12; 114 LEFT is first value, Top is second.
             {
                 Text = "Automaticaly use defensive CD  :",
                 Size = new Size(180, 20), //81; 13
                 Left = 12,
-                Top = 114
+                Top = 114,
+                Font = new Font("Arial", 9.0f),
+                BackColor = Color.Black,
+                ForeColor = Color.White
             };
-            labelIsCDDefEnable.Font = new Font("Arial", 9.0f);
-            labelIsCDDefEnable.BackColor = Color.Black;
-            labelIsCDDefEnable.ForeColor = Color.White;
             SettingsForm.Controls.Add(labelIsCDDefEnable); //113; 114 
 
-            isCDDefEnableBox = new CheckBox { Checked = isCDDefEnable, TabIndex = 2, Size = new Size(15, 14), Left = 200, Top = 114 };
+            isCDDefEnableBox = new CheckBox {Checked = IsCDDefEnable, TabIndex = 2, Size = new Size(15, 14), Left = 200, Top = 114};
             //isCDDefEnableBox.Appearance = Appearance.Button;
             SettingsForm.Controls.Add(isCDDefEnableBox);
 
@@ -130,15 +112,21 @@ namespace Frozen.Rotation.DKBlood
                 Text = "Spell to kick ID: (separate them with comma)",
                 Size = new Size(350, 20), //81; 13
                 Left = 12,
-                Top = 140
+                Top = 140,
+                Font = new Font("Arial", 9.0f),
+                BackColor = Color.Black,
+                ForeColor = Color.White
             };
-            labelSpellToKick.Font = new Font("Arial", 9.0f);
-            labelSpellToKick.BackColor = Color.Black;
-            labelSpellToKick.ForeColor = Color.White;
             SettingsForm.Controls.Add(labelSpellToKick);
 
-            spellToKickTextBox = new TextBox { Text = spellToKickString, Size = new Size(350, 35), Left = 12, Top = 160 };
-            spellToKickTextBox.Multiline = true;
+            spellToKickTextBox = new TextBox
+            {
+                Text = SpellToKickString,
+                Size = new Size(350, 35),
+                Left = 12,
+                Top = 160,
+                Multiline = true
+            };
 
             SettingsForm.Controls.Add(spellToKickTextBox);
 
@@ -149,9 +137,8 @@ namespace Frozen.Rotation.DKBlood
             checkIsTalentBoneStorm.TabIndex = 9;
             checkIsTalentBoneStorm.Text = "Bones Storm";
             checkIsTalentBoneStorm.UseVisualStyleBackColor = true;
-            checkIsTalentBoneStorm.Checked = isTalentBoneStorm;
+            checkIsTalentBoneStorm.Checked = IsTalentBoneStorm;
             SettingsForm.Controls.Add(checkIsTalentBoneStorm);
-
 
             checkIsTalentBloodDrinker.AutoSize = true;
             checkIsTalentBloodDrinker.Location = new Point(12, 45);
@@ -160,7 +147,7 @@ namespace Frozen.Rotation.DKBlood
             checkIsTalentBloodDrinker.TabIndex = 9;
             checkIsTalentBloodDrinker.Text = "Blooddrinker";
             checkIsTalentBloodDrinker.UseVisualStyleBackColor = true;
-            checkIsTalentBloodDrinker.Checked = isTalentBloodDrinker;
+            checkIsTalentBloodDrinker.Checked = IsTalentBloodDrinker;
 
             SettingsForm.Controls.Add(checkIsTalentBloodDrinker);
             isCDDefEnableBox.CheckedChanged += isCDDefEnable_Click;
@@ -173,29 +160,29 @@ namespace Frozen.Rotation.DKBlood
 
         private void spellToKick_Click(object sender, EventArgs e)
         {
-            spellToKickString = spellToKickTextBox.Text;
-            spellToKick = Array.ConvertAll(spellToKickString.Split(','), int.Parse);
+            SetSpellToKickString(spellToKickTextBox.Text);
+            spellToKick = Array.ConvertAll(SpellToKickString.Split(','), int.Parse);
         }
 
         private void isCDDefEnable_Click(object sender, EventArgs e)
         {
-            isCDDefEnable = isCDDefEnableBox.Checked;
+            IsCDDefEnable = isCDDefEnableBox.Checked;
         }
 
         private void checkIsTalentBoneStorm_Click(object sender, EventArgs e)
         {
-            isTalentBoneStorm = checkIsTalentBoneStorm.Checked;
+            IsTalentBoneStorm = checkIsTalentBoneStorm.Checked;
         }
 
         private void checkIsTalentBloodDrinker_Click(object sender, EventArgs e)
         {
-            isTalentBloodDrinker = checkIsTalentBloodDrinker.Checked;
+            IsTalentBloodDrinker = checkIsTalentBloodDrinker.Checked;
         }
-
-
+        
         public override void Stop()
         {
         }
+
         public static bool CanCastInRange(string spell)
         {
             return WoW.CanCast(spell, false, true, true, false, false);
@@ -214,10 +201,9 @@ namespace Frozen.Rotation.DKBlood
             currentRunes = WoW.CurrentRunes;
             runicPower = WoW.RunicPower;
             if (combatRoutine.Type == RotationType.SingleTarget || combatRoutine.Type == RotationType.SingleTargetCleave) // Do Single Target Stuff here
-            {
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsChanneling && !WoW.PlayerIsCasting && WoW.TargetIsVisible)
                 {
-                    if (isCDDefEnable)
+                    if (IsCDDefEnable)
                         useCDDef();
                     if (WoW.TargetIsCasting && CanCastInRange("Mind Freeze") && isCastingListedSpell())
                     {
@@ -225,13 +211,11 @@ namespace Frozen.Rotation.DKBlood
                         return;
                     }
                     if ((renewBones || bonesStack < 3) && isMelee)
-                    {
                         if (currentRunes >= 2)
                         {
                             WoW.CastSpell("Marrowrend");
                             return;
                         }
-                    }
                     if (WoW.CanCast("Blood Boil", false, true, false, true, false) && isMelee && !WoW.TargetHasDebuff("Blood Plague"))
                     {
                         WoW.CastSpell("Blood Boil");
@@ -242,7 +226,7 @@ namespace Frozen.Rotation.DKBlood
                         WoW.CastSpell("Consumption");
                         return;
                     }
-                    if (isTalentBloodDrinker && CanCastInRange("BD") && !renewBones && currentRunes >= 1)
+                    if (IsTalentBloodDrinker && CanCastInRange("BD") && !renewBones && currentRunes >= 1)
                     {
                         WoW.CastSpell("BD");
                         return;
@@ -252,7 +236,7 @@ namespace Frozen.Rotation.DKBlood
                         WoW.CastSpell("DnD");
                         return;
                     }
-                    if (isMelee && runicPower >= 45 && ((WoW.PlayerHasBuff("Ossuary") && (runicPower >= 85 || WoW.HealthPercent < 80)) || WoW.HealthPercent < 50))
+                    if (isMelee && runicPower >= 45 && (WoW.PlayerHasBuff("Ossuary") && (runicPower >= 85 || WoW.HealthPercent < 80) || WoW.HealthPercent < 50))
                     {
                         WoW.CastSpell("Death Strike");
                         return;
@@ -262,7 +246,8 @@ namespace Frozen.Rotation.DKBlood
                         WoW.CastSpell("Marrowrend");
                         return;
                     }
-                    if (WoW.SpellCooldownTimeRemaining("DnD") == 0 && isMelee && currentRunes >= 2 && WoW.TargetHealthPercent >= 10 && !renewBones && bonesStack > 6)
+                    if (WoW.SpellCooldownTimeRemaining("DnD") == 0 && isMelee && currentRunes >= 2 && WoW.TargetHealthPercent >= 10 && !renewBones &&
+                        bonesStack > 6)
                     {
                         WoW.CastSpell("DnD");
                         return;
@@ -278,12 +263,10 @@ namespace Frozen.Rotation.DKBlood
                         return;
                     }
                 }
-            }
             if (combatRoutine.Type == RotationType.AOE)
-            {
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsChanneling && !WoW.PlayerIsCasting && WoW.TargetIsVisible)
                 {
-                    if (isCDDefEnable)
+                    if (IsCDDefEnable)
                         useCDDef();
                     if (WoW.TargetIsCasting && CanCastInRange("Mind Freeze") && isCastingListedSpell())
                     {
@@ -291,19 +274,17 @@ namespace Frozen.Rotation.DKBlood
                         return;
                     }
                     if ((renewBones || bonesStack < 3) && isMelee)
-                    {
                         if (currentRunes >= 2)
                         {
                             WoW.CastSpell("Marrowrend");
                             return;
                         }
-                    }
-                    if (WoW.CanCast("Blood Boil", true, true, false, true, true) && isMelee && !WoW.TargetHasDebuff("Blood Plague"))
+                    if (WoW.CanCast("Blood Boil", true, true, false, true) && isMelee && !WoW.TargetHasDebuff("Blood Plague"))
                     {
                         WoW.CastSpell("Blood Boil");
                         return;
                     }
-                    if (isTalentBloodDrinker && CanCastInRange("BD") && WoW.HealthPercent <= 60 && !renewBones && currentRunes >= 1)
+                    if (IsTalentBloodDrinker && CanCastInRange("BD") && WoW.HealthPercent <= 60 && !renewBones && currentRunes >= 1)
                     {
                         WoW.CastSpell("BD");
                         return;
@@ -318,24 +299,25 @@ namespace Frozen.Rotation.DKBlood
                         WoW.CastSpell("DnD");
                         return;
                     }
-                    if (isTalentBoneStorm && WoW.SpellCooldownTimeRemaining("Bonestorm") == 0 && isMelee && runicPower >= 100)
+                    if (IsTalentBoneStorm && WoW.SpellCooldownTimeRemaining("Bonestorm") == 0 && isMelee && runicPower >= 100)
                     {
                         WoW.CastSpell("Bonestorm");
                         return;
                     }
-                    if (isTalentBoneStorm && isMelee && runicPower >= 45 &&
-                        ((runicPower >= 85 && WoW.SpellCooldownTimeRemaining("Bonestorm") >= 3) || WoW.HealthPercent < 70 || WoW.HealthPercent < 50))
+                    if (IsTalentBoneStorm && isMelee && runicPower >= 45 &&
+                        (runicPower >= 85 && WoW.SpellCooldownTimeRemaining("Bonestorm") >= 3 || WoW.HealthPercent < 70 || WoW.HealthPercent < 50))
                     {
                         WoW.CastSpell("Death Strike");
                         return;
                     }
-                    if (!isTalentBoneStorm && isMelee && runicPower >= 45 && (runicPower >= 85 || WoW.HealthPercent < 70))
+                    if (!IsTalentBoneStorm && isMelee && runicPower >= 45 && (runicPower >= 85 || WoW.HealthPercent < 70))
                     {
                         WoW.CastSpell("Death Strike");
                         return;
                     }
 
-                    if (WoW.SpellCooldownTimeRemaining("DnD") == 0 && isMelee && currentRunes >= 1 && WoW.TargetHealthPercent >= 10 && !renewBones && bonesStack > 2)
+                    if (WoW.SpellCooldownTimeRemaining("DnD") == 0 && isMelee && currentRunes >= 1 && WoW.TargetHealthPercent >= 10 && !renewBones &&
+                        bonesStack > 2)
                     {
                         WoW.CastSpell("DnD");
                         return;
@@ -350,12 +332,9 @@ namespace Frozen.Rotation.DKBlood
                         WoW.CastSpell("Blood Boil");
                         return;
                     }
-                    if (isTalentBloodDrinker && CanCastInRange("BD") && !renewBones && currentRunes >= 1)
-                    {
+                    if (IsTalentBloodDrinker && CanCastInRange("BD") && !renewBones && currentRunes >= 1)
                         WoW.CastSpell("BD");
-                    }
                 }
-            }
         }
 
         public void useCDDef()
@@ -371,20 +350,14 @@ namespace Frozen.Rotation.DKBlood
                 return;
             }
             if (CanCastNoRange("Vampiric Blood") && WoW.HealthPercent < 50 && !WoW.IsSpellOnCooldown("Vampiric Blood"))
-            {
                 WoW.CastSpell("Vampiric Blood");
-            }
         }
 
         public bool isCastingListedSpell()
         {
             foreach (var spellid in spellToKick)
-            {
                 if (WoW.TargetCastingSpellID == spellid)
-                {
                     return true;
-                }
-            }
             return false;
         }
     }

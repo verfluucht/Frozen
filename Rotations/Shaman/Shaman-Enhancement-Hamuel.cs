@@ -1,544 +1,408 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
-using System;
-using System.Text;
-using System.Threading;
 using Frozen.Helpers;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-
 
 namespace Frozen.Rotation
-{//Data tables
+{ 
     public class Enhancement : CombatRoutine
     {
-        public override string Name
-        {
-            get { return "Enhancement Hamuel:SimC"; }
-        }
-        public override string Class
-        {
-            get { return "Shaman"; }
-        }
-        public override Form SettingsForm { get; set; }
-        private static readonly Random getrandom = new Random();
-        private static int Revision = 1;
+        private const int Revision = 1;
+        private const int interMin = 50;
+        private const int interMax = 90;
         public Stopwatch Crash = new Stopwatch();
         public Stopwatch Pets = new Stopwatch();
-        private static int interMin = 50;
-        private static int interMax = 90;
         public Stopwatch Rotation = new Stopwatch();
+        public override string Name => "Enhancement Hamuel";
+
+        public override string Class => "Shaman";
+
+        public override Form SettingsForm { get; set; }
+        
+        private static bool HailstormCheck
+        {
+            get
+            {
+                if (WoW.Talent(4) == 3 && !WoW.PlayerHasBuff("Frostbrand") || WoW.Talent(4) != 3)
+                    return true;
+                return false;
+            }
+        }
+        
+        private static bool FuryCheck80
+        {
+            get
+            {
+                if (WoW.Talent(6) != 2 || WoW.Talent(6) == 2 && WoW.Maelstrom > 80)
+                    return true;
+                return false;
+            }
+        }
+        
+        private static bool FuryCheck45
+        {
+            get
+            {
+                if (WoW.Talent(6) != 2 || WoW.Talent(6) == 2 && WoW.Maelstrom > 45)
+                    return true;
+                return false;
+            }
+        }
+        
+        private static bool FuryCheck25
+        {
+            get
+            {
+                if (WoW.Talent(6) != 2 || WoW.Talent(6) == 2 && WoW.Maelstrom >= 25)
+                    return true;
+                return false;
+            }
+        }
+        
+        private static bool OCPool70
+        {
+            get
+            {
+                if (WoW.Talent(5) != 2 || WoW.Talent(5) == 2 && WoW.Maelstrom > 70)
+                    return true;
+                return false;
+            }
+        }
+        
+        private static bool OCPool60
+        {
+            get
+            {
+                if (WoW.Talent(5) != 2 || WoW.Talent(5) == 2 && WoW.Maelstrom > 60)
+                    return true;
+                return false;
+            }
+        }
+        
+        private static bool AkainuEquip
+        {
+            get
+            {
+                if (WoW.Legendary(1) == 9 || WoW.Legendary(2) == 9)
+                    return true;
+                return false;
+            }
+        }
+        private static bool Akainus
+        {
+            get
+            {
+                if (AkainuEquip && WoW.PlayerHasBuff("Hot Hands") && !WoW.PlayerHasBuff("Frostbrand"))
+                    return true;
+                return false;
+            }
+        }
+        private static bool LightningCrashNotUp
+        {
+            get
+            {
+                if (!WoW.PlayerHasBuff("Lightning crash") && WoW.SetBonus(20) == 2)
+                    return true;
+                return false;
+            }
+        }
+
+        private bool AlphaWolfCheck => Pets.IsRunning && Crash.IsRunning && Crash.ElapsedMilliseconds < 8000;
+
+        private static float GCD => Convert.ToSingle(150 / (1 + WoW.HastePercent / 100f)) > 75f ? Convert.ToSingle(150f / (1 + WoW.HastePercent / 100f)) : 75f;
+
         public override void Initialize()
         {
             Log.Write("Welcome to Enhancement Shaman by Hamuel", Color.Green);
             Log.Write("version " + Revision, Color.Green);
         }
-        //actions+=/variable,name=hailstormCheck,value=((talent.hailstorm.enabled&!buff.frostbrand.up)|!talent.hailstorm.enabled)
-        private bool hailstormCheck
-        {
-            get
-            {
-                if (WoW.Talent(4) == 3 && !WoW.PlayerHasBuff("Frostbrand") || WoW.Talent(4) != 3)
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
-        //actions+=/variable,name=furyCheck80,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>80))
-        private bool furyCheck80
-        {
-            get
-            {
-                if (WoW.Talent(6) != 2 || WoW.Talent(6) == 2 && WoW.Maelstrom > 80)
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
-        //actions+=/variable,name=furyCheck70,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>70))
-        private bool furyCheck70
-        {
-            get
-            {
-                if (WoW.Talent(6) != 2 || WoW.Talent(6) == 2 && WoW.Maelstrom > 70)
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
 
-        //actions+=/variable,name=furyCheck45,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>45))
-        private bool furyCheck45
-        {
-            get
-            {
-                if (WoW.Talent(6) != 2 || WoW.Talent(6) == 2 && WoW.Maelstrom > 45)
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        //actions+=/variable,name=furyCheck25,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>25))
-        private bool furyCheck25
-        {
-            get
-            {
-                if (WoW.Talent(6) != 2 || WoW.Talent(6) == 2 && WoW.Maelstrom >= 25)
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        //actions+=/variable,name=OCPool70,value=(!talent.overcharge.enabled|(talent.overcharge.enabled&maelstrom>70))
-        private bool OCPool70
-        {
-            get
-            {
-                if (WoW.Talent(5) != 2 || WoW.Talent(5) == 2 && WoW.Maelstrom > 70)
-                {
-                    return true;
-                }
-                return false;
-            }
-
-        }
-        //actions+=/variable,name=OCPool60,value=(!talent.overcharge.enabled|(talent.overcharge.enabled&maelstrom>60))
-        private bool OCPool60
-        {
-            get
-            {
-                if (WoW.Talent(5) != 2 || WoW.Talent(5) == 2 && WoW.Maelstrom > 60)
-                {
-                    return true;
-                }
-                return false;
-            }
-
-        }
-        //actions+=/variable,name=heartEquipped,value=(equipped.151819)
-
-        //actions+=/variable,name=akainuEquipped,value=(equipped.137084)
-
-        private static bool akainuEquip
-        {
-            get
-            {
-                if (WoW.Legendary(1) == 9 || WoW.Legendary(2) == 9)
-                {
-                    return true;
-                }
-                return false;
-            }
-
-        }
-        //actions+=/variable,name=akainuAS,value=(variable.akainuEquipped&buff.hot_hand.react&!buff.frostbrand.up)
-        private bool akainus
-        {
-            get
-            {
-                if (akainuEquip && WoW.PlayerHasBuff("Hot Hands") && !WoW.PlayerHasBuff("Frostbrand"))
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
-        //actions+=/variable,name=LightningCrashNotUp,value=(!buff.lightning_crash.up&set_bonus.tier20_2pc)
-        private bool LightningCrashNotUp
-        {
-            get
-            {
-                if (!WoW.PlayerHasBuff("Lightning crash") && WoW.SetBonus(20) == 2)
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
-        //actions+=/variable,name=alphaWolfCheck,value=((pet.frost_wolf.buff.alpha_wolf.remains<2&pet.fiery_wolf.buff.alpha_wolf.remains<2&pet.lightning_wolf.buff.alpha_wolf.remains<2)&feral_spirit.remains>4)
-
-        private bool alphaWolfCheck
-        {
-
-            get
-            {
-                if (Pets.IsRunning && Crash.IsRunning && Crash.ElapsedMilliseconds < 8000)
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
         public void EnhancementCD()
         {
             if (UseCooldowns)
             {
-
-                //actions.CDs = bloodlust,if= target.health.pct < 25 | time > 0.500
-
-                //actions.CDs +=/ berserking,if= buff.ascendance.up | (feral_spirit.remains > 5)
-                if (WoW.PlayerRace == "Troll" && WoW.CanCast("Berserking") && !WoW.IsSpellOnCooldown("Berserking") && ((WoW.Talent(7) != 1 || WoW.PlayerHasBuff("Ascendance")) || Pets.ElapsedMilliseconds < 10000))
+                if (WoW.PlayerRace == "Troll" && WoW.CanCast("Berserking") && !WoW.IsSpellOnCooldown("Berserking") &&
+                    (WoW.Talent(7) != 1 || WoW.PlayerHasBuff("Ascendance") || Pets.ElapsedMilliseconds < 10000))
                 {
                     WoW.CastSpell("Berserking");
                     return;
                 }
-                //actions.CDs +=/ blood_fury,if= buff.ascendance.up | (feral_spirit.remains > 5) | level < 100
                 if (WoW.PlayerRace == "Orc" && WoW.CanCast("Blood Fury")
-                && ((WoW.Talent(7) != 1 || WoW.PlayerHasBuff("Ascendance")) || Pets.ElapsedMilliseconds < 10000))
+                    && (WoW.Talent(7) != 1 || WoW.PlayerHasBuff("Ascendance") || Pets.ElapsedMilliseconds < 10000))
                 {
                     WoW.CastSpell("Blood Fury");
                     return;
                 }
-                //actions.CDs +=/ feral_spirit
-                if (WoW.CanCast("Feral Spirit", true, true, false, false, true) && WoW.IsSpellInRange("Rockbiter") && WoW.Maelstrom >= 20 && (WoW.CanCast("Crash lightning", true, true, false, false, true)  || WoW.SpellCooldownTimeRemaining("Crash lightning") < GCD)) //feral spirit on boss - normally cast manually
+                if (WoW.CanCast("Feral Spirit") && WoW.IsSpellInRange("Rockbiter") && WoW.Maelstrom >= 20 &&
+                    (WoW.CanCast("Crash lightning") ||
+                     WoW.SpellCooldownTimeRemaining("Crash lightning") < GCD)) //feral spirit on boss - normally cast manually
                 {
                     Pets.Start();
                     WoW.CastSpell("Feral Spirit");
                     return;
                 }
-                //actions.CDs +=/ potion,if= buff.ascendance.up | !talent.ascendance.enabled & feral_spirit.remains > 5 | target.time_to_die <= 60
-
-                //actions.CDs +=/ doom_winds,if= debuff.earthen_spike.up & talent.earthen_spike.enabled | !talent.earthen_spike.enabled
-                if (WoW.CanCast("Doom Winds") && WoW.IsSpellInRange("Rockbiter") && (WoW.Talent(7) == 3 && WoW.TargetHasDebuff("Earthen spike") || WoW.Talent(7) != 3))
+                if (WoW.CanCast("Doom Winds") && WoW.IsSpellInRange("Rockbiter") &&
+                    (WoW.Talent(7) == 3 && WoW.TargetHasDebuff("Earthen spike") || WoW.Talent(7) != 3))
                 {
                     WoW.CastSpell("Doom Winds");
                     return;
                 }
-                //actions.CDs +=/ ascendance,if= buff.doom_winds.up
                 if (WoW.CanCast("Ascendance") && WoW.PlayerHasBuff("Doom Winds"))
-                {
                     WoW.CastSpell("Ascendance");
-                    return;
-                }
             }
         }
-        private float GCD
-        {
-            get
-            {
-                if (Convert.ToSingle(150 / (1 + (WoW.HastePercent / 100f))) > 75f)
-                {
-                    return Convert.ToSingle(150f / (1 + (WoW.HastePercent / 100f)));
-                }
-                else
-                {
-                    return 75f;
-                }
-            }
-        }
+
         private void EnhancementBuffs()
         {
-            //actions +=/ windstrike,if= (variable.heartEquipped | set_bonus.tier19_2pc) & (!talent.earthen_spike.enabled | (cooldown.earthen_spike.remains > 1 & cooldown.doom_winds.remains > 1) | debuff.earthen_spike.up)
-            if (WoW.CanCast("Windstrike", true, true, true) && WoW.PlayerHasBuff("Ascendance") && WoW.Maelstrom >= 8 && (/*heart equip place holder*/WoW.SetBonus(19)>=2) && (WoW.Talent(7) != 3 || (WoW.SpellCooldownTimeRemaining("Earthen spike") > 1 && WoW.SpellCooldownTimeRemaining("Doom winds") > 1 || WoW.TargetHasDebuff("Earthen spike"))))
+            if (WoW.CanCast("Windstrike", true, true, true) && WoW.PlayerHasBuff("Ascendance") && WoW.Maelstrom >= 8 && WoW.SetBonus(19) >= 2 &&
+                (WoW.Talent(7) != 3 || WoW.SpellCooldownTimeRemaining("Earthen spike") > 1 && WoW.SpellCooldownTimeRemaining("Doom winds") > 1 ||
+                 WoW.TargetHasDebuff("Earthen spike")))
             {
                 WoW.CastSpell("Windstrike");
                 return;
             }
-            //actions.buffs = rockbiter,if= talent.landslide.enabled & !buff.landslide.up
-            if (WoW.CanCast("Rockbiter", true, true, true) &&WoW.Talent(1) == 3 && !WoW.PlayerHasBuff("Landslide"))
+            if (WoW.CanCast("Rockbiter", true, true, true) && WoW.Talent(1) == 3 && !WoW.PlayerHasBuff("Landslide"))
             {
                 WoW.CastSpell("Rockbiter");
                 return;
             }
-            //actions.buffs +=/ fury_of_air,if= buff.ascendance.up | (feral_spirit.remains > 5) | level < 100
-            if (WoW.CanCast("FoA") && WoW.Maelstrom >= 5 && WoW.Talent(6) == 2 && !WoW.PlayerHasBuff("FoA")&&(WoW.PlayerHasBuff("Ascendance") && Pets.IsRunning))
+            if (WoW.CanCast("FoA") && WoW.Maelstrom >= 5 && WoW.Talent(6) == 2 && !WoW.PlayerHasBuff("FoA") && WoW.PlayerHasBuff("Ascendance") &&
+                Pets.IsRunning)
             {
                 WoW.CastSpell("FoA");
                 return;
             }
-            //actions.buffs +=/ crash_lightning,if= artifact.alpha_wolf.rank & prev_gcd.1.feral_spirit
             if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && Pets.IsRunning && !Crash.IsRunning)
             {
                 Crash.Restart();
                 WoW.CastSpell("Crash lightning");
                 return;
             }
-            //actions.buffs +=/ flametongue,if= !buff.flametongue.up
             if (!WoW.PlayerHasBuff("Flametongue") && WoW.CanCast("Flametongue", true, true, true))
             {
                 WoW.CastSpell("Flametongue");
                 return;
             }
-            //actions.buffs +=/ frostbrand,if= talent.hailstorm.enabled & !buff.frostbrand.up & variable.furyCheck45
-            if(WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && WoW.Talent(4) == 3 && !WoW.PlayerHasBuff("Frostbrand")&& furyCheck45)
+            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && WoW.Talent(4) == 3 && !WoW.PlayerHasBuff("Frostbrand") && FuryCheck45)
             {
                 WoW.CastSpell("Frostbrand");
                 return;
             }
-            //actions.buffs +=/ flametongue,if= buff.flametongue.remains < 6 + gcd & cooldown.doom_winds.remains < gcd * 2
-            if (WoW.CanCast("Flametongue", true, true, true) &&WoW.PlayerBuffTimeRemaining("Flametongue")< 600+GCD && WoW.SpellCooldownTimeRemaining("Doom Winds") < GCD *2)
+            if (WoW.CanCast("Flametongue", true, true, true) && WoW.PlayerBuffTimeRemaining("Flametongue") < 600 + GCD &&
+                WoW.SpellCooldownTimeRemaining("Doom Winds") < GCD * 2)
             {
                 WoW.CastSpell("Flametongue");
                 return;
             }
-            //actions.buffs +=/ frostbrand,if= talent.hailstorm.enabled & buff.frostbrand.remains < 6 + gcd & cooldown.doom_winds.remains < gcd * 2
-            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && WoW.PlayerBuffTimeRemaining("Frostbrand") < 600 + GCD && WoW.SpellCooldownTimeRemaining("Doom Winds") < GCD * 2)
-            {
+            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && WoW.PlayerBuffTimeRemaining("Frostbrand") < 600 + GCD &&
+                WoW.SpellCooldownTimeRemaining("Doom Winds") < GCD * 2)
                 WoW.CastSpell("Frostbrand");
-                return;
-            }
         }
+
         private void EnhancementCore()
         {
-
-            if (WoW.CanCast("lava lash", true, true, true, false, true) && WoW.Maelstrom >= 40 && (WoW.TargetDebuffStacks("Legionfall") > 90 || WoW.PlayerHasBuff("Hot Hands") && WoW.PlayerBuffTimeRemaining("Hot Hands") <2))
+            if (WoW.CanCast("lava lash", true, true, true) && WoW.Maelstrom >= 40 &&
+                (WoW.TargetDebuffStacks("Legionfall") > 90 || WoW.PlayerHasBuff("Hot Hands") && WoW.PlayerBuffTimeRemaining("Hot Hands") < 2))
             {
                 Log.Write("Maelstrom overflow protection", Color.Blue);
                 WoW.CastSpell("lava lash");
                 return;
             }
-            //actions.core = earthen_spike,if= variable.furyCheck25
-            if (WoW.CanCast("Earthen spike") && WoW.Maelstrom >= 20 && WoW.Talent(7)== 3 && furyCheck25)
+            if (WoW.CanCast("Earthen spike") && WoW.Maelstrom >= 20 && WoW.Talent(7) == 3 && FuryCheck25)
             {
                 WoW.CastSpell("Earthen spike");
                 return;
             }
-            //actions.core +=/ crash_lightning,if= !buff.crash_lightning.up & active_enemies >= 2
-            if(WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter")&& !WoW.PlayerHasBuff("Crash lightning") && combatRoutine.Type != RotationType.SingleTarget)
+            if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && !WoW.PlayerHasBuff("Crash lightning") &&
+                combatRoutine.Type != RotationType.SingleTarget)
             {
                 WoW.CastSpell("Crash lightning");
                 return;
             }
-            //actions.core +=/ windsong
-            if(WoW.CanCast("Windsong", true, true, true) && WoW.Talent(1)== 1)
+            if (WoW.CanCast("Windsong", true, true, true) && WoW.Talent(1) == 1)
             {
                 WoW.CastSpell("Windsong");
                 return;
             }
-            //actions.core +=/ crash_lightning,if= active_enemies >= 8 | (active_enemies >= 6 & talent.crashing_storm.enabled)
-            if(WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && combatRoutine.Type == RotationType.AOE && (WoW.CountEnemyNPCsInRange >= 8 || WoW.CountEnemyNPCsInRange >=6 && WoW.Talent(6) ==1))
+            if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && combatRoutine.Type == RotationType.AOE &&
+                (WoW.CountEnemyNPCsInRange >= 8 || WoW.CountEnemyNPCsInRange >= 6 && WoW.Talent(6) == 1))
             {
                 WoW.CastSpell("Crash lightning");
                 return;
-
             }
-            //actions.core +=/ windstrike
-            if(WoW.CanCast("Windstrike", true, true, true) && WoW.Maelstrom >= 8 && WoW.PlayerHasBuff("Ascendance"))
+            if (WoW.CanCast("Windstrike", true, true, true) && WoW.Maelstrom >= 8 && WoW.PlayerHasBuff("Ascendance"))
             {
                 WoW.CastSpell("Windstrike");
                 return;
             }
-            //actions.core +=/ Stormstrike,if= buff.stormbringer.up & variable.furyCheck25
-            if (WoW.CanCast("Stormstrike", true, true, true) && WoW.Maelstrom >= 20 && WoW.PlayerHasBuff("Stormbringer") && furyCheck25)
+            if (WoW.CanCast("Stormstrike", true, true, true) && WoW.Maelstrom >= 20 && WoW.PlayerHasBuff("Stormbringer") && FuryCheck25)
             {
                 WoW.CastSpell("Stormstrike");
                 return;
             }
-            //actions.core +=/ crash_lightning,if= active_enemies >= 4 | (active_enemies >= 2 & talent.crashing_storm.enabled)
-            if(WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && combatRoutine.Type != RotationType.SingleTarget && (WoW.CountEnemyNPCsInRange >=4 || WoW.CountEnemyNPCsInRange>2 && WoW.Talent(6)==1 ))
+            if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && combatRoutine.Type != RotationType.SingleTarget &&
+                (WoW.CountEnemyNPCsInRange >= 4 || WoW.CountEnemyNPCsInRange > 2 && WoW.Talent(6) == 1))
             {
                 WoW.CastSpell("Crash lightning");
                 return;
             }
-            //actions.core +=/ lightning_bolt,if= talent.overcharge.enabled & variable.furyCheck45 & maelstrom >= 40
-            if (WoW.CanCast("Lightning bolt") && WoW.Talent(5) == 2 && furyCheck45 && WoW.Maelstrom >= 40)
+            if (WoW.CanCast("Lightning bolt") && WoW.Talent(5) == 2 && FuryCheck45 && WoW.Maelstrom >= 40)
             {
                 WoW.CastSpell("Lightning bolt");
                 return;
             }
-
-            //actions.core +=/ Stormstrike,if= (!talent.overcharge.enabled & variable.furyCheck45) | (talent.overcharge.enabled & variable.furyCheck80)
-            if (WoW.CanCast("Stormstrike",true,true,true) && WoW.Maelstrom > 40 && (WoW.Talent(5) != 2 && furyCheck45|| WoW.Talent(5)==2 &&furyCheck80))
+            if (WoW.CanCast("Stormstrike", true, true, true) && WoW.Maelstrom > 40 && (WoW.Talent(5) != 2 && FuryCheck45 || WoW.Talent(5) == 2 && FuryCheck80))
             {
                 WoW.CastSpell("Stormstrike");
                 return;
             }
-            //actions.core +=/ frostbrand,if= variable.akainuAS
-            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && akainus)
+            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && Akainus)
             {
                 WoW.CastSpell("Frostbrand");
                 return;
             }
-            
-            //actions.core +=/ lava_lash,if= buff.hot_hand.react & ((variable.akainuEquipped & buff.frostbrand.up) | !variable.akainuEquipped)
-            if (WoW.CanCast("lava lash",true,true,true,false,true) && WoW.PlayerHasBuff("Hot Hands") && (akainuEquip && WoW.PlayerHasBuff("Frostbrand") ||!akainuEquip))
+            if (WoW.CanCast("lava lash", true, true, true) && WoW.PlayerHasBuff("Hot Hands") && (AkainuEquip && WoW.PlayerHasBuff("Frostbrand") || !AkainuEquip))
             {
-               WoW.CastSpell("lava lash");
-               return;
+                WoW.CastSpell("lava lash");
+                return;
             }
-            //actions.core +=/ sundering,if= active_enemies >= 3
-            if(WoW.CanCast("Sundering") && WoW.Maelstrom >= 20 && WoW.Talent(6) ==3 && combatRoutine.Type == RotationType.AOE)
+            if (WoW.CanCast("Sundering") && WoW.Maelstrom >= 20 && WoW.Talent(6) == 3 && combatRoutine.Type == RotationType.AOE)
             {
                 WoW.CastSpell("Sundering");
                 return;
             }
-            //actions.core +=/ crash_lightning,if= active_enemies >= 3 | variable.LightningCrashNotUp | variable.alphaWolfCheck
-            if(WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && (combatRoutine.Type == RotationType.AOE || LightningCrashNotUp || alphaWolfCheck))
+            if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && (combatRoutine.Type == RotationType.AOE || LightningCrashNotUp || AlphaWolfCheck))
             {
                 Crash.Restart();
                 WoW.CastSpell("Crash lightning");
-                return;
             }
         }
+
         private void EnhancementFiller()
         {
-            //actions.filler = rockbiter,if= maelstrom < 120
-            if(WoW.CanCast("Rockbiter", true, true, true) && WoW.Maelstrom <120)
+            if (WoW.CanCast("Rockbiter", true, true, true) && WoW.Maelstrom < 120)
             {
                 WoW.CastSpell("Rockbiter");
                 return;
             }
-            //actions.filler +=/ flametongue,if= buff.flametongue.remains < 4.8
-            if(WoW.CanCast("Flametongue", true, true, true) && (!WoW.PlayerHasBuff("Flametongue")||WoW.PlayerBuffTimeRemaining("Flametongue")<480))
+            if (WoW.CanCast("Flametongue", true, true, true) && (!WoW.PlayerHasBuff("Flametongue") || WoW.PlayerBuffTimeRemaining("Flametongue") < 480))
             {
                 WoW.CastSpell("Flametongue");
                 return;
             }
-            //actions.filler +=/ rockbiter,if= maelstrom <= 40
             if (WoW.CanCast("Rockbiter", true, true, true) && WoW.Maelstrom < 40)
             {
                 WoW.CastSpell("Rockbiter");
                 return;
             }
-            //actions.filler +=/ crash_lightning,if= (talent.crashing_storm.enabled | active_enemies >= 2) & debuff.earthen_spike.up & maelstrom >= 40 & variable.OCPool60
-            if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && (WoW.Talent(6) == 1 && combatRoutine.Type != RotationType.SingleTarget) && WoW.TargetHasDebuff("Earthen spike")&&WoW.Maelstrom >= 40 && OCPool60)
+            if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && WoW.Talent(6) == 1 &&
+                combatRoutine.Type != RotationType.SingleTarget && WoW.TargetHasDebuff("Earthen spike") && WoW.Maelstrom >= 40 && OCPool60)
             {
                 Crash.Restart();
                 WoW.CastSpell("Crash lightning");
                 return;
             }
-            //actions.filler +=/ frostbrand,if= talent.hailstorm.enabled & buff.frostbrand.remains < 4.8 & maelstrom > 40
-            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && hailstormCheck && (!WoW.PlayerHasBuff("Frostbrand") || WoW.PlayerBuffTimeRemaining("Frostbrand") < 480 && WoW.Maelstrom >= 40))
+            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && HailstormCheck &&
+                (!WoW.PlayerHasBuff("Frostbrand") || WoW.PlayerBuffTimeRemaining("Frostbrand") < 480 && WoW.Maelstrom >= 40))
             {
                 WoW.CastSpell("Frostbrand");
                 return;
             }
-
-            //actions.filler +=/ frostbrand,if= variable.akainuEquipped & !buff.frostbrand.up & maelstrom >= 75
-            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && akainuEquip && (!WoW.PlayerHasBuff("Frostbrand") && WoW.Maelstrom >= 75))
+            if (WoW.CanCast("Frostbrand", true, true, true) && WoW.Maelstrom >= 20 && AkainuEquip && !WoW.PlayerHasBuff("Frostbrand") && WoW.Maelstrom >= 75)
             {
                 WoW.CastSpell("Frostbrand");
                 return;
             }
-
-            //actions.filler +=/ sundering
             if (WoW.CanCast("Sundering") && WoW.Maelstrom >= 20 && WoW.Talent(6) == 3)
             {
                 WoW.CastSpell("Sundering");
                 return;
             }
-            //actions.filler +=/ lava_lash,if= maelstrom >= 50 & variable.OCPool70 & variable.furyCheck80
-            if (WoW.CanCast("lava lash", true, true, true) && WoW.Maelstrom >50 && OCPool70 && furyCheck80)
+            if (WoW.CanCast("lava lash", true, true, true) && WoW.Maelstrom > 50 && OCPool70 && FuryCheck80)
             {
                 WoW.CastSpell("lava lash");
                 return;
             }
-            //actions.filler +=/ rockbiter
             if (WoW.CanCast("Rockbiter", true, true, true))
             {
                 WoW.CastSpell("Rockbiter");
                 return;
             }
-
-            //actions.filler +=/ crash_lightning,if= (maelstrom >= 65 | talent.crashing_storm.enabled | active_enemies >= 2) & variable.OCPool60 & variable.furyCheck45
-            if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && (WoW.Maelstrom > 65 | WoW.Talent(6) == 1 && combatRoutine.Type != RotationType.SingleTarget) && OCPool60 && furyCheck45)
+            if (WoW.CanCast("Crash lightning") && WoW.Maelstrom >= 20 && WoW.IsSpellInRange("Rockbiter") && (WoW.Maelstrom > 65) | (WoW.Talent(6) == 1) &&
+                combatRoutine.Type != RotationType.SingleTarget && OCPool60 && FuryCheck45)
             {
                 Crash.Restart();
                 WoW.CastSpell("Crash lightning");
                 return;
             }
-            //actions.filler +=/ flametongue
             if (WoW.CanCast("Flametongue", true, true, true))
-            {
                 WoW.CastSpell("Flametongue");
-                return;
-            }
         }
+
         private void TimerReset()
         {
-            if(Crash.Elapsed.Seconds >=8)
+            if (Crash.Elapsed.Seconds >= 8)
                 Crash.Reset();
             if (Pets.Elapsed.Seconds >= 15)
                 Pets.Reset();
         }
 
-
         public override void Pulse()
         {
             TimerReset();
-            if (WoW.IsInCombat && !WoW.IsMounted)
-            {
-//                SelectRotation(3, 2, 1);
-                interruptcast();
-                //Stuns();
-                Defensive();
-                
-                  //actions +=/ call_action_list,name = buffs
-                EnhancementBuffs();
-                //actions +=/ call_action_list,name = CDs
-                EnhancementCD();
-                //actions +=/ call_action_list,name = core
-                EnhancementCore();
-                //actions +=/ call_action_list,name = filler
-                EnhancementFiller();
-            }
+            if (!WoW.IsInCombat || WoW.IsMounted) return;
+
+            Interruptcast();
+            Defensive();
+            EnhancementBuffs();
+            EnhancementCD();
+            EnhancementCore();
+            EnhancementFiller();
         }
-        private void Defensive()
+
+        private static void Defensive()
         {
-            if (WoW.Talent(2) == 1 && WoW.CanCast("Rainfall") && !WoW.PlayerHasBuff("Rainfall") && !WoW.IsSpellOnCooldown("Rainfall")) //ASTRAL SHIFT - DMG REDUCTION if we are below 60% of HP
+            if (WoW.Talent(2) == 1 && WoW.CanCast("Rainfall") && !WoW.PlayerHasBuff("Rainfall") && !WoW.IsSpellOnCooldown("Rainfall")) 
             {
                 WoW.CastSpell("Rainfall");
                 return;
             }
-            /* if (CharInfo.Mana > 21 && WoW.Maelstrom > 20 && WoW.CanCast("Healing Surge") && WoW.HealthPercent < EnhLowHp && !WoW.IsSpellOnCooldown("Healing Surge")) //ASTRAL SHIFT - DMG REDUCTION if we are below 60% of HP
-             {
-                 WoW.CastSpell("Healing Surge");
-                 return;
-             }*/
-            if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 60 && !WoW.IsSpellOnCooldown("Astral Shift")) //ASTRAL SHIFT - DMG REDUCTION if we are below 60% of HP
+            if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 60 && !WoW.IsSpellOnCooldown("Astral Shift")) 
             {
                 WoW.CastSpell("Astral Shift");
                 return;
             }
             if (WoW.PlayerRace == "Dreanei" && WoW.HealthPercent < 80 && !WoW.IsSpellOnCooldown("Gift Naaru"))
-            {
                 WoW.CastSpell("Gift Naaru");
-            }
         }
-        private void interruptcast()
+
+        private static void Interruptcast()
         {
-            Random random = new Random();
-            int randomNumber = random.Next(interMin, interMax);
+            var random = new Random();
+            var randomNumber = random.Next(interMin, interMax);
 
             if (WoW.TargetPercentCast > randomNumber && WoW.TargetIsCastingAndSpellIsInterruptible)
             {
-
-                if (WoW.CanCast("Wind Shear") && !WoW.IsSpellOnCooldown("Wind Shear") && WoW.TargetIsCasting && WoW.IsSpellInRange("Wind Shear")) //interupt every spell, not a boss.
+                if (WoW.CanCast("Wind Shear") && !WoW.IsSpellOnCooldown("Wind Shear") && WoW.TargetIsCasting &&
+                    WoW.IsSpellInRange("Wind Shear")) //interupt every spell, not a boss.
                 {
                     WoW.CastSpell("Wind Shear");
                     return;
                 }
-                if (WoW.PlayerRace == "BloodElf" && WoW.CanCast("Arcane Torrent", true, true, false, false, true) && !WoW.IsSpellOnCooldown("Wind Shear") && WoW.IsSpellInRange("Stormstrike")) //interupt every spell, not a boss.
+                if (WoW.PlayerRace == "BloodElf" && WoW.CanCast("Arcane Torrent") && !WoW.IsSpellOnCooldown("Wind Shear") &&
+                    WoW.IsSpellInRange("Stormstrike")) //interupt every spell, not a boss.
                 {
                     WoW.CastSpell("Arcane Torrent");
                     return;
                 }
-                if (WoW.PlayerRace == "Pandaren" && WoW.CanCast("Quaking palm", true, true, true, false, true)) //interupt every spell, not a boss.
+                if (WoW.PlayerRace == "Pandaren" && WoW.CanCast("Quaking palm", true, true, true)) //interupt every spell, not a boss.
                 {
                     WoW.CastSpell("Quaking palm");
-                    return;
                 }
             }
-            /*  for (int i = 1; i < 5; i++)
-                  if (WoW.BossPercentCast(i) > randomNumber && WoW.BossIsCastingAndSpellIsInterruptible(i))
-                  {
-
-                      if (WoW.CanCast("Wind Shear")) //interupt every spell, not a boss.
-                      {
-                          WoW.CastSpell("Wind Shear");
-                          return;
-                      }
-                  }*/
         }
+
         public override void Stop()
         {
         }
@@ -604,4 +468,3 @@ Aura,188089,Earthen spike
 Item,142117,Prolonged Power
 Item,142173,Collapsing Futures
 */
-

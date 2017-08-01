@@ -1,85 +1,19 @@
-// winifix@gmail.com
-// ReSharper disable UnusedMember.Global
-// ReSharper disable ConvertPropertyToExpressionBody
-
-/*Guardian Rotation version 1.0Change log:0.1 
-Initial Release
-
-0.1.1
-API Updates - Better active mitigation and healing management/prioritization
-
-0.1.2
-Tab aggroing logic improved
-Added chain pulling logic
-
-0.1.3
-Improved interrupt logic
-
-0.1.4
-Added custom health rate of change trigger and interrupt delay
-
-0.1.5
-Improved tab-aggroing logic, now will search for in-melee-range mobs every second to switch in an asychronous way
-Improved sliders for Interrupt and Frenzied Regeneration
-Annotated the code
-
-0.1.6
-Added bearcatting - seeing a 30% increase in DPS compared to bear single target rotation
-
-0.1.7
-Refined rotation
-Improved Wild Charge logic
-
-0.1.8
-Added more healing flexibility and Frenzied Regen timer
-
-0.2
-Added buttons for CoolDown use and DPS burst
-
-0.2.1
-Fine tuned rotation
-
-0.2.2
-Issues - DPS Burst and Cooldowns should work for all talent option choices 
-
-0.3
-Revamped options GUI
-Added functionality to manually add spell id's to kick
-Added custom DPS and defensive cooldown keybinds
-Added option to actively mitigate physical or magical damage
-- Code reviewed and modified for perfomance by WiNiFiX -
-
-0.3.1
-Improved single target rotation
-Clever use of cooldowns when "panic" button is pressed
-Improved self heal logic
-
-0.4
-Added overlay option
-
-1.0
-First stable release
-
-To do:
-
-Port to 308
-Get more stuff to do!
-
-*/
-
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Text;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using Timer = System.Timers.Timer;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using Frozen.Helpers;
+using Timer = System.Timers.Timer;
+
 #pragma warning disable 1998
 
 
@@ -87,15 +21,17 @@ namespace Frozen.Rotation
 {
     public class Guardian : CombatRoutine
     {
-		public static string DisplayText;
-		
-		
+        public static string DisplayText;
+
+
         // Variables for HP timer
         private static int PreviousHP;
+
         private static int CurrentHP;
 
         // Variables for bearcatting
         private static int bearstep;
+
         private static int incarnatestep;
         private static bool OpenerDone;
 
@@ -104,176 +40,217 @@ namespace Frozen.Rotation
 
         // Booleans to check for running events
         private static bool firstrun = true;
-        private static bool IsCompleted = true;
+
         private static bool interrupting;
 
         // HP Rate Of Change booleans
         private static bool HPROC1sAny;
-        private static bool HPROC5sAny;
-        private static bool HPROC10sAny;
-
-        // HP Rate of Change Sums
 
         // HP Rate of Change Maxs
         private static int HPROC1sMax;
+
         private static int HPROC5sMax;
         private static int HPROC10sMax;
 
         // User selection booleans
         private static bool DPSBurst;
+
         private static bool CoolDowns;
-		
-		// Overlay display stopwatch
-        private readonly Stopwatch OverlayTimer = new Stopwatch();	
-		
-        // Selections stopwatch
-        private readonly Stopwatch MitigationSwitchTimer = new Stopwatch();
+
+        public static ObservableCollection<int> InterruptibleSpells = new ObservableCollection<int>(interimInterruptibleSpells);
         private readonly Stopwatch CoolDownTimer = new Stopwatch();
         private readonly Stopwatch DPSTimer = new Stopwatch();
 
         // The Frenzied Regen stopwatch
         private readonly Stopwatch FrenziedTimer = new Stopwatch();
 
-        // The HP timer
-        private Timer timer;
+        // Selections stopwatch
+        private readonly Stopwatch MitigationSwitchTimer = new Stopwatch();
 
-        //List for interruptible spell id's
-	    public static ObservableCollection<int> interimInterruptibleSpells 
-	    {
-			get
-			{
-				try
-                {
-					var spellString = ConfigFile.ReadValue("Guardian", "InterruptibleSpells");
-                    List<int> lstInterruptibleSpells = new List<int>();
-					foreach (string g in spellString.Split(','))
-					{
-						lstInterruptibleSpells.Add(Convert.ToInt32(g));
-					}
-					ObservableCollection<int> interruptibleSpells = new ObservableCollection<int>(lstInterruptibleSpells);
-					return interruptibleSpells;
-				}
-				
-                catch (FormatException)
-                {
-					List<int> lstexcInterruptibleSpells = new List<int>(){ 2008, 32546, 121135, 152108, 155245, 152118, 33786, 1064, 116858, 157695, 111771, 64843, 605, 689, 103103, 117014, 339, 124682, 114163, 5782, 2061, 19750, 120517, 102051, 120517, 2060, 48181, 2060, 73920, 8004, 5185, 77472, 51514, 82326, 82327, 85222, 32375, 115268, 129197, 118, 61305, 28272, 61721, 61025, 61780, 28271, 596, 33076, 20484, 8936, 20066, 2006, 115178, 50769, 113724, 6358, 686, 115175, 116694, 155361, 48438, 85673 };
-					ObservableCollection<int> excinterruptibleSpells = new ObservableCollection<int>(lstexcInterruptibleSpells);
-					return excinterruptibleSpells;
-                }
-            }
-			
-			set
-			{
-			}
-			
-		}
-		
-		public static ObservableCollection<int> InterruptibleSpells = new ObservableCollection<int>(interimInterruptibleSpells);
-		
-		private void InterruptibleSpells_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			List<int> lstsetinterruptibleSpells = new List<int>(InterruptibleSpells);
-			string spellsetString = string.Join(",", lstsetinterruptibleSpells);
-			ConfigFile.WriteValue("Guardian", "InterruptibleSpells", spellsetString.ToString()); 
-			Log.Write("saved");
-		}
-		
+        // Overlay display stopwatch
+        private readonly Stopwatch OverlayTimer = new Stopwatch();
+
+        private readonly Queue<float> Queue10s = new Queue<float>();
 
 
         // HP Rate Of Change Queues 
         private readonly Queue<float> Queue1s = new Queue<float>();
+
         private readonly Queue<float> Queue5s = new Queue<float>();
-        private readonly Queue<float> Queue10s = new Queue<float>();
+        private GroupBox ActiveMitigation;
+        private Button AddButton;
+        private TextBox AddSpellBox;
+        private GroupBox Artifact;
+        private CheckBox BarkskinBox;
+        private NumericUpDown BarkskinHPNum;
+        private CheckBox BearcattingBox;
+        private CheckBox BristlingFurBox;
+        private CheckBox ChainPullingBox;
+        private Button cmdSave;
+        private ComboBox CoolDownKeyCombo;
+        private ComboBox CoolDownModCombo;
+        private CheckBox CoolDownUseBox;
+        private CheckBox CustomDelayBox;
+        private GroupBox DefensiveCooldowns;
+        private TabPage Defensives;
+        private CheckBox DisplayCDBox;
+        private CheckBox DisplayDPSBox;
+        private CheckBox DisplayFRBox;
+        private Button DisplayInfo;
+        private CheckBox DisplayInterruptBox;
+        private CheckBox DisplayMitigationBox;
+        private ComboBox DPSBurstKeyCombo;
+        private ComboBox DPSBurstModCombo;
+        private CheckBox FrenziedRegenBox;
+        private TabPage Healing;
+        private Label HPROCLabel;
+        private TrackBar HPROCTrackBar;
+        private Label HPROCValue;
+        private CheckBox IncapacitatingBox;
+        private CheckBox IncarnationBox;
+        private CheckBox IncarnationDPSBox;
+        private TrackBar InterruptDelayTrackBar;
+        private Label InterruptDelayValue;
+        private GroupBox Interrupting;
+        private TabPage InterruptingTab;
+        private CheckBox InterruptOnlyListedBox;
+        private TabPage KeyBindings;
+        private GroupBox KeyPressBindings;
+        private CheckBox LunarBeamBox;
+        private NumericUpDown LunarBeamNum;
+        private TabPage Miscellaneous;
+        private ComboBox MitigationKeyCombo;
+        private ComboBox MitigationModCombo;
+        private CheckBox MitigationSwitchBox;
+        private GroupBox Overlay;
+        private CheckBox PoolRageBox;
+        private ComboBox PrioritizeCombo;
+        private Label PrioritizeText;
+        private CheckBox ProwlOOCBox;
+        private CheckBox PulverizeBox;
+        private CheckBox RageOfTheSleeperBox;
+        private CheckBox RageOfTheSleeperHealthBox;
+        private NumericUpDown RageOfTheSleeperHPNum;
+        private GroupBox Regeneration;
+        private Button RemoveButton;
+        private CheckBox RendAndTearBox;
+        private GroupBox SaveAbilities;
+        private ComboBox SaveRageOfTheSleeperCombo;
+        private CheckBox SaveRageOfTheSleeperKeyBox;
+        private CheckBox SkullBashInterruptBox;
+        private CheckBox SoulOfTheForestBox;
+        private ListBox SpellListBox;
+        private CheckBox SurvivalInstinctsBox;
+        private NumericUpDown SurvivalInstinctsHPNum;
+        private CheckBox TabAOEBox;
+        private NumericUpDown TabAOEDelayNum;
+        private TabControl TabCtrl;
+        private ComboBox TabMacroCombo;
+        private GroupBox Talents;
+        private TabPage TalentsArtifact;
+        private GroupBox TalentsHealing;
+
+        // The HP timer
+        private Timer timer;
+
+        private CheckBox UseDPSBurstBox;
+        private Label usetab;
+        private CheckBox UseWildChargeBox;
+        private ComboBox WildChargeCombo;
+
+        //List for interruptible spell id's
+        public static ObservableCollection<int> interimInterruptibleSpells
+        {
+            get
+            {
+                try
+                {
+                    var spellString = ConfigFile.ReadValue("Guardian", "InterruptibleSpells");
+                    var lstInterruptibleSpells = new List<int>();
+                    foreach (var g in spellString.Split(','))
+                        lstInterruptibleSpells.Add(Convert.ToInt32(g));
+                    var interruptibleSpells = new ObservableCollection<int>(lstInterruptibleSpells);
+                    return interruptibleSpells;
+                }
+
+                catch (FormatException)
+                {
+                    var lstexcInterruptibleSpells = new List<int>
+                    {
+                        2008,
+                        32546,
+                        121135,
+                        152108,
+                        155245,
+                        152118,
+                        33786,
+                        1064,
+                        116858,
+                        157695,
+                        111771,
+                        64843,
+                        605,
+                        689,
+                        103103,
+                        117014,
+                        339,
+                        124682,
+                        114163,
+                        5782,
+                        2061,
+                        19750,
+                        120517,
+                        102051,
+                        120517,
+                        2060,
+                        48181,
+                        2060,
+                        73920,
+                        8004,
+                        5185,
+                        77472,
+                        51514,
+                        82326,
+                        82327,
+                        85222,
+                        32375,
+                        115268,
+                        129197,
+                        118,
+                        61305,
+                        28272,
+                        61721,
+                        61025,
+                        61780,
+                        28271,
+                        596,
+                        33076,
+                        20484,
+                        8936,
+                        20066,
+                        2006,
+                        115178,
+                        50769,
+                        113724,
+                        6358,
+                        686,
+                        115175,
+                        116694,
+                        155361,
+                        48438,
+                        85673
+                    };
+                    var excinterruptibleSpells = new ObservableCollection<int>(lstexcInterruptibleSpells);
+                    return excinterruptibleSpells;
+                }
+            }
+        }
 
         // Variables for options	
         public override Form SettingsForm { get; set; }
-        private TabControl TabCtrl;
-        private TabPage TalentsArtifact;
-        private TabPage Defensives;
-        private CheckBox BristlingFurBox;
-        private CheckBox RendAndTearBox;
-        private CheckBox SoulOfTheForestBox;
-        private CheckBox PulverizeBox;
-        private TabPage Healing;
-        private Label HPROCLabel;
-        private CheckBox FrenziedRegenBox;
-        private TrackBar HPROCTrackBar;
-        private NumericUpDown LunarBeamNum;
-        private CheckBox LunarBeamBox;
-        private Label PrioritizeText;
-        private ComboBox PrioritizeCombo;
-        private CheckBox SurvivalInstinctsBox;
-        private CheckBox BarkskinBox;
-        private Button cmdSave;
-        private GroupBox Talents;
-        private CheckBox IncarnationBox;
-        private GroupBox Artifact;
-        private CheckBox RageOfTheSleeperBox;
-        private CheckBox RageOfTheSleeperHealthBox;
-        private GroupBox DefensiveCooldowns;
-        private NumericUpDown RageOfTheSleeperHPNum;
-        private NumericUpDown SurvivalInstinctsHPNum;
-        private NumericUpDown BarkskinHPNum;
-        private GroupBox ActiveMitigation;
-        private CheckBox PoolRageBox;
-        private GroupBox TalentsHealing;
-        private GroupBox Regeneration;
-        private TabPage KeyBindings;
-        private GroupBox SaveAbilities;
-        private ComboBox SaveRageOfTheSleeperCombo;
-        private CheckBox IncarnationDPSBox;
-        private CheckBox SaveRageOfTheSleeperKeyBox;
-        private GroupBox KeyPressBindings;
-        private ComboBox DPSBurstKeyCombo;
-        private ComboBox DPSBurstModCombo;
-        private ComboBox CoolDownKeyCombo;
-        private ComboBox CoolDownModCombo;
-        private CheckBox UseDPSBurstBox;
-        private CheckBox CoolDownUseBox;
-        private TabPage InterruptingTab;
-        private GroupBox Interrupting;
-        private Button RemoveButton;
-        private Button AddButton;
-        private TextBox AddSpellBox;
-        private ListBox SpellListBox;
-        private CheckBox InterruptOnlyListedBox;
-        private TrackBar InterruptDelayTrackBar;
-        private CheckBox SkullBashInterruptBox;
-        private CheckBox CustomDelayBox;
-        private TabPage Miscellaneous;
-        private ComboBox TabMacroCombo;
-        private Label usetab;
-        private CheckBox BearcattingBox;
-        private CheckBox ProwlOOCBox;
-        private CheckBox ChainPullingBox;
-        private CheckBox IncapacitatingBox;
-        private NumericUpDown TabAOEDelayNum;
-        private CheckBox TabAOEBox;
-        private ComboBox WildChargeCombo;
-        private CheckBox UseWildChargeBox;
-        private Label HPROCValue;
-        private Label InterruptDelayValue;
-		private ComboBox MitigationModCombo;
-		private ComboBox MitigationKeyCombo;
-		private CheckBox MitigationSwitchBox;
-        private GroupBox Overlay;
-        private Button DisplayInfo;
-        private CheckBox DisplayFRBox;
-        private CheckBox DisplayInterruptBox;
-        private CheckBox DisplayMitigationBox;
-        private CheckBox DisplayDPSBox;
-        private CheckBox DisplayCDBox;
-		
-		// List of mod keys
-		private enum ModKeys
-        {
-            None = 0,
-			Alt = 0xA4,
-            Control = 0xA2,
-        }	
 
         // Start of saved variables
-		// Code that reads and saves to file  
+        // Code that reads and saves to file  
 
         private static bool SurvivalInstincts
         {
@@ -289,8 +266,8 @@ namespace Frozen.Rotation
         {
             get
             {
-                var Pulverize = ConfigFile.ReadValue("Guardian", "Pulverize").Trim();
-                return Pulverize != "" && Convert.ToBoolean(Pulverize);
+                var pulverize = ConfigFile.ReadValue("Guardian", "Pulverize").Trim();
+                return pulverize != "" && Convert.ToBoolean(pulverize);
             }
             set { ConfigFile.WriteValue("Guardian", "Pulverize", value.ToString()); }
         }
@@ -604,7 +581,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Guardian", "DisplayCD", value.ToString()); }
         }
-		
+
         private static string CoolDownKey
         {
             get
@@ -619,7 +596,7 @@ namespace Frozen.Rotation
                     return "None";
                 }
             }
-            set { ConfigFile.WriteValue("Guardian", "CoolDownKey", value.ToString()); }
+            set { ConfigFile.WriteValue("Guardian", "CoolDownKey", value); }
         }
 
         private static string CoolDownMod
@@ -636,7 +613,7 @@ namespace Frozen.Rotation
                     return "None";
                 }
             }
-            set { ConfigFile.WriteValue("Guardian", "CoolDownMod", value.ToString()); }
+            set { ConfigFile.WriteValue("Guardian", "CoolDownMod", value); }
         }
 
         private static string DPSBurstKey
@@ -653,7 +630,7 @@ namespace Frozen.Rotation
                     return "None";
                 }
             }
-            set { ConfigFile.WriteValue("Guardian", "DPSBurstKey", value.ToString()); }
+            set { ConfigFile.WriteValue("Guardian", "DPSBurstKey", value); }
         }
 
         private static string DPSBurstMod
@@ -670,7 +647,7 @@ namespace Frozen.Rotation
                     return "None";
                 }
             }
-            set { ConfigFile.WriteValue("Guardian", "DPSBurstMod", value.ToString()); }
+            set { ConfigFile.WriteValue("Guardian", "DPSBurstMod", value); }
         }
 
         private static string MitigationKey
@@ -687,7 +664,7 @@ namespace Frozen.Rotation
                     return "None";
                 }
             }
-            set { ConfigFile.WriteValue("Guardian", "MitigationKey", value.ToString()); }
+            set { ConfigFile.WriteValue("Guardian", "MitigationKey", value); }
         }
 
         private static string MitigationMod
@@ -704,7 +681,7 @@ namespace Frozen.Rotation
                     return "None";
                 }
             }
-            set { ConfigFile.WriteValue("Guardian", "MitigationMod", value.ToString()); }
+            set { ConfigFile.WriteValue("Guardian", "MitigationMod", value); }
         }
 
         private static int CoolKey
@@ -809,7 +786,7 @@ namespace Frozen.Rotation
             set { ConfigFile.WriteValue("Guardian", "MitMod", value.ToString()); }
         }
 
-        private static int HPROC	
+        private static int HPROC
         {
             get
             {
@@ -919,9 +896,7 @@ namespace Frozen.Rotation
                 try
                 {
                     if (Convert.ToInt32(interruptDelay) > 50)
-                    {
                         return Convert.ToInt32(interruptDelay);
-                    }
                     return 50;
                 }
                 catch (FormatException)
@@ -940,13 +915,8 @@ namespace Frozen.Rotation
                 try
                 {
                     if (Convert.ToInt32(tabMacro) == 0)
-                    {
                         return 0;
-                    }
-					else
-					{
-						return 1;
-					}
+                    return 1;
                 }
                 catch (FormatException)
                 {
@@ -964,13 +934,8 @@ namespace Frozen.Rotation
                 try
                 {
                     if (Convert.ToInt32(prioritize) == 0)
-                    {
                         return 0;
-                    }
-					else
-					{
-						return 1;
-					}
+                    return 1;
                 }
                 catch (FormatException)
                 {
@@ -988,13 +953,8 @@ namespace Frozen.Rotation
                 try
                 {
                     if (Convert.ToInt32(saveRageOfTheSleeper) == 0)
-                    {
                         return 0;
-                    }
-					else
-					{
-						return 1;
-					}
+                    return 1;
                 }
                 catch (FormatException)
                 {
@@ -1012,13 +972,8 @@ namespace Frozen.Rotation
                 try
                 {
                     if (Convert.ToInt32(wildCharge) == 0)
-                    {
                         return 0;
-                    }
-					else
-					{
-						return 1;
-					}
+                    return 1;
                 }
                 catch (FormatException)
                 {
@@ -1027,19 +982,21 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Guardian", "WildCharge", value.ToString()); }
         }
-		
+
         // End of config saving code	
-		
+
         // Global methods for CombatRoutine
 
-        public override string Name
-        {
-            get { return "Guardian Rotation"; }
-        }
+        public override string Name => "Guardian Rotation";
 
-        public override string Class
+        public override string Class => "Druid";
+
+        private void InterruptibleSpells_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            get { return "Druid"; }
+            var lstsetinterruptibleSpells = new List<int>(InterruptibleSpells);
+            var spellsetString = string.Join(",", lstsetinterruptibleSpells);
+            ConfigFile.WriteValue("Guardian", "InterruptibleSpells", spellsetString);
+            Log.Write("saved");
         }
 
         public override void Stop()
@@ -1050,7 +1007,7 @@ namespace Frozen.Rotation
 
         // Start of Initialize method
         // Building the settings dialog and printing advice in PM
-		
+
         public override void Initialize()
         {
             Log.Write("Guardian Rotation v1.0 by Inhade", Color.Green);
@@ -1084,7 +1041,7 @@ namespace Frozen.Rotation
             Log.Write("Guardian Rotation by Inhade");
 
             SettingsForm = new Form();
-			
+
             TabCtrl = new TabControl();
             TalentsArtifact = new TabPage();
             BristlingFurBox = new CheckBox();
@@ -1127,7 +1084,7 @@ namespace Frozen.Rotation
             CoolDownKeyCombo = new ComboBox();
             CoolDownModCombo = new ComboBox();
             UseDPSBurstBox = new CheckBox();
-            CoolDownUseBox = new CheckBox();	
+            CoolDownUseBox = new CheckBox();
             InterruptingTab = new TabPage();
             Interrupting = new GroupBox();
             InterruptDelayValue = new Label();
@@ -1161,11 +1118,11 @@ namespace Frozen.Rotation
             DisplayInterruptBox = new CheckBox();
             DisplayFRBox = new CheckBox();
             cmdSave = new Button();
-			
+
             SettingsForm.Text = "Guardian Druid by Inhade - Rotation Settings";
-			SettingsForm.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            SettingsForm.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            SettingsForm.ClientSize = new System.Drawing.Size(455, 349);
+            SettingsForm.AutoScaleDimensions = new SizeF(6F, 13F);
+            SettingsForm.AutoScaleMode = AutoScaleMode.Font;
+            SettingsForm.ClientSize = new Size(455, 349);
             SettingsForm.Controls.Add(cmdSave);
             SettingsForm.Controls.Add(TabCtrl);
             SettingsForm.Name = "SettingsForm";
@@ -1179,17 +1136,17 @@ namespace Frozen.Rotation
             Defensives.ResumeLayout(false);
             Defensives.PerformLayout();
             DefensiveCooldowns.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(RageOfTheSleeperHPNum)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(SurvivalInstinctsHPNum)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(BarkskinHPNum)).EndInit();
+            ((ISupportInitialize) RageOfTheSleeperHPNum).EndInit();
+            ((ISupportInitialize) SurvivalInstinctsHPNum).EndInit();
+            ((ISupportInitialize) BarkskinHPNum).EndInit();
             ActiveMitigation.ResumeLayout(false);
             ActiveMitigation.PerformLayout();
             Healing.ResumeLayout(false);
             Healing.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(LunarBeamNum)).EndInit();
+            ((ISupportInitialize) LunarBeamNum).EndInit();
             Regeneration.ResumeLayout(false);
             Regeneration.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(HPROCTrackBar)).EndInit();
+            ((ISupportInitialize) HPROCTrackBar).EndInit();
             KeyBindings.ResumeLayout(false);
             SaveAbilities.ResumeLayout(false);
             SaveAbilities.PerformLayout();
@@ -1198,13 +1155,13 @@ namespace Frozen.Rotation
             InterruptingTab.ResumeLayout(false);
             Interrupting.ResumeLayout(false);
             Interrupting.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(InterruptDelayTrackBar)).EndInit();
+            ((ISupportInitialize) InterruptDelayTrackBar).EndInit();
             Miscellaneous.ResumeLayout(false);
             Miscellaneous.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(TabAOEDelayNum)).EndInit();
+            ((ISupportInitialize) TabAOEDelayNum).EndInit();
             SettingsForm.ResumeLayout(false);
-			
-			
+
+
             // 
             // TabControl
             //
@@ -1214,10 +1171,10 @@ namespace Frozen.Rotation
             TabCtrl.Controls.Add(KeyBindings);
             TabCtrl.Controls.Add(InterruptingTab);
             TabCtrl.Controls.Add(Miscellaneous);
-            TabCtrl.Location = new System.Drawing.Point(12, 12);
+            TabCtrl.Location = new Point(12, 12);
             TabCtrl.Name = "TabControl";
             TabCtrl.SelectedIndex = 0;
-            TabCtrl.Size = new System.Drawing.Size(431, 293);
+            TabCtrl.Size = new Size(431, 293);
             TabCtrl.TabIndex = 0;
             // 
             // TalentsArtifact
@@ -1228,10 +1185,10 @@ namespace Frozen.Rotation
             TalentsArtifact.Controls.Add(PulverizeBox);
             TalentsArtifact.Controls.Add(Talents);
             TalentsArtifact.Controls.Add(Artifact);
-            TalentsArtifact.Location = new System.Drawing.Point(4, 22);
+            TalentsArtifact.Location = new Point(4, 22);
             TalentsArtifact.Name = "TalentsArtifact";
-            TalentsArtifact.Padding = new System.Windows.Forms.Padding(3);
-            TalentsArtifact.Size = new System.Drawing.Size(423, 267);
+            TalentsArtifact.Padding = new Padding(3);
+            TalentsArtifact.Size = new Size(423, 267);
             TalentsArtifact.TabIndex = 0;
             TalentsArtifact.Text = "Talents & Artifact";
             TalentsArtifact.UseVisualStyleBackColor = true;
@@ -1239,58 +1196,58 @@ namespace Frozen.Rotation
             // BristlingFurBox
             // 
             BristlingFurBox.AutoSize = true;
-            BristlingFurBox.Location = new System.Drawing.Point(15, 97);
+            BristlingFurBox.Location = new Point(15, 97);
             BristlingFurBox.Name = "BristlingFurBox";
-            BristlingFurBox.Size = new System.Drawing.Size(80, 17);
+            BristlingFurBox.Size = new Size(80, 17);
             BristlingFurBox.TabIndex = 4;
             BristlingFurBox.Text = "Bristling Fur";
             BristlingFurBox.UseVisualStyleBackColor = true;
             BristlingFurBox.Checked = BristlingFur;
-            BristlingFurBox.CheckedChanged += new System.EventHandler(BristlingFur_Click);
+            BristlingFurBox.CheckedChanged += BristlingFur_Click;
             // 
             // RendAndTearBox
             // 
             RendAndTearBox.AutoSize = true;
-            RendAndTearBox.Location = new System.Drawing.Point(15, 74);
+            RendAndTearBox.Location = new Point(15, 74);
             RendAndTearBox.Name = "RendAndTearBox";
-            RendAndTearBox.Size = new System.Drawing.Size(98, 17);
+            RendAndTearBox.Size = new Size(98, 17);
             RendAndTearBox.TabIndex = 3;
             RendAndTearBox.Text = "Rend and Tear";
             RendAndTearBox.UseVisualStyleBackColor = true;
             RendAndTearBox.Checked = RendAndTear;
-            RendAndTearBox.CheckedChanged += new System.EventHandler(RendAndTear_Click);
+            RendAndTearBox.CheckedChanged += RendAndTear_Click;
             // 
             // SoulOfTheForestBox
             // 
             SoulOfTheForestBox.AutoSize = true;
-            SoulOfTheForestBox.Location = new System.Drawing.Point(15, 51);
+            SoulOfTheForestBox.Location = new Point(15, 51);
             SoulOfTheForestBox.Name = "SoulOfTheForestBox";
-            SoulOfTheForestBox.Size = new System.Drawing.Size(109, 17);
+            SoulOfTheForestBox.Size = new Size(109, 17);
             SoulOfTheForestBox.TabIndex = 2;
             SoulOfTheForestBox.Text = "Soul of the Forest";
             SoulOfTheForestBox.UseVisualStyleBackColor = true;
             SoulOfTheForestBox.Checked = SoulOfTheForest;
-            SoulOfTheForestBox.CheckedChanged += new System.EventHandler(SoulOfTheForest_Click);
+            SoulOfTheForestBox.CheckedChanged += SoulOfTheForest_Click;
             // 
             // PulverizeBox
             // 
             PulverizeBox.AutoSize = true;
-            PulverizeBox.Location = new System.Drawing.Point(15, 28);
+            PulverizeBox.Location = new Point(15, 28);
             PulverizeBox.Name = "PulverizeBox";
-            PulverizeBox.Size = new System.Drawing.Size(69, 17);
+            PulverizeBox.Size = new Size(69, 17);
             PulverizeBox.TabIndex = 1;
             PulverizeBox.Text = "Pulverize";
             PulverizeBox.UseVisualStyleBackColor = true;
-			PulverizeBox.Checked = Pulverize;
-            PulverizeBox.CheckedChanged += new System.EventHandler(Pulverize_Click);
+            PulverizeBox.Checked = Pulverize;
+            PulverizeBox.CheckedChanged += Pulverize_Click;
             // 
             // Talents
             // 
             Talents.Controls.Add(IncarnationBox);
-            Talents.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            Talents.Location = new System.Drawing.Point(6, 6);
+            Talents.FlatStyle = FlatStyle.Popup;
+            Talents.Location = new Point(6, 6);
             Talents.Name = "Talents";
-            Talents.Size = new System.Drawing.Size(411, 138);
+            Talents.Size = new Size(411, 138);
             Talents.TabIndex = 9;
             Talents.TabStop = false;
             Talents.Text = "Talents";
@@ -1298,21 +1255,21 @@ namespace Frozen.Rotation
             // IncarnationBox
             // 
             IncarnationBox.AutoSize = true;
-            IncarnationBox.Location = new System.Drawing.Point(9, 114);
+            IncarnationBox.Location = new Point(9, 114);
             IncarnationBox.Name = "IncarnationBox";
-            IncarnationBox.Size = new System.Drawing.Size(171, 17);
+            IncarnationBox.Size = new Size(171, 17);
             IncarnationBox.TabIndex = 7;
             IncarnationBox.Text = "Incarnation: Guardian of Ursoc";
             IncarnationBox.UseVisualStyleBackColor = true;
             IncarnationBox.Checked = Incarnation;
-            IncarnationBox.CheckedChanged += new System.EventHandler(Incarnation_Click);
+            IncarnationBox.CheckedChanged += Incarnation_Click;
             // 
             // Artifact
             // 
             Artifact.Controls.Add(RageOfTheSleeperBox);
-            Artifact.Location = new System.Drawing.Point(6, 150);
+            Artifact.Location = new Point(6, 150);
             Artifact.Name = "Artifact";
-            Artifact.Size = new System.Drawing.Size(411, 50);
+            Artifact.Size = new Size(411, 50);
             Artifact.TabIndex = 10;
             Artifact.TabStop = false;
             Artifact.Text = "Artifact Traits";
@@ -1320,14 +1277,14 @@ namespace Frozen.Rotation
             // RageOfTheSleeperBox
             // 
             RageOfTheSleeperBox.AutoSize = true;
-            RageOfTheSleeperBox.Location = new System.Drawing.Point(9, 19);
+            RageOfTheSleeperBox.Location = new Point(9, 19);
             RageOfTheSleeperBox.Name = "RageOfTheSleeperBox";
-            RageOfTheSleeperBox.Size = new System.Drawing.Size(121, 17);
+            RageOfTheSleeperBox.Size = new Size(121, 17);
             RageOfTheSleeperBox.TabIndex = 8;
             RageOfTheSleeperBox.Text = "Rage of the Sleeper";
             RageOfTheSleeperBox.UseVisualStyleBackColor = true;
             RageOfTheSleeperBox.Checked = RageOfTheSleeper;
-            RageOfTheSleeperBox.CheckedChanged += new System.EventHandler(RageOfTheSleeper_Click);
+            RageOfTheSleeperBox.CheckedChanged += RageOfTheSleeper_Click;
             // 
             // Defensives
             // 
@@ -1336,10 +1293,10 @@ namespace Frozen.Rotation
             Defensives.Controls.Add(BarkskinBox);
             Defensives.Controls.Add(DefensiveCooldowns);
             Defensives.Controls.Add(ActiveMitigation);
-            Defensives.Location = new System.Drawing.Point(4, 22);
+            Defensives.Location = new Point(4, 22);
             Defensives.Name = "Defensives";
-            Defensives.Padding = new System.Windows.Forms.Padding(3);
-            Defensives.Size = new System.Drawing.Size(423, 267);
+            Defensives.Padding = new Padding(3);
+            Defensives.Size = new Size(423, 267);
             Defensives.TabIndex = 1;
             Defensives.Text = "Defensives";
             Defensives.UseVisualStyleBackColor = true;
@@ -1347,91 +1304,91 @@ namespace Frozen.Rotation
             // RageOfTheSleeperHealthBox
             // 
             RageOfTheSleeperHealthBox.AutoSize = true;
-            RageOfTheSleeperHealthBox.Location = new System.Drawing.Point(15, 51);
+            RageOfTheSleeperHealthBox.Location = new Point(15, 51);
             RageOfTheSleeperHealthBox.Name = "RageOfTheSleeperHealthBox";
-            RageOfTheSleeperHealthBox.Size = new System.Drawing.Size(238, 17);
+            RageOfTheSleeperHealthBox.Size = new Size(238, 17);
             RageOfTheSleeperHealthBox.TabIndex = 5;
             RageOfTheSleeperHealthBox.Text = "Use Rage of the Sleeper when low on health";
             RageOfTheSleeperHealthBox.UseVisualStyleBackColor = true;
             RageOfTheSleeperHealthBox.Checked = RageOfTheSleeperHealth;
-            RageOfTheSleeperHealthBox.CheckedChanged += new System.EventHandler(RageOfTheSleeperHealth_Click);
+            RageOfTheSleeperHealthBox.CheckedChanged += RageOfTheSleeperHealth_Click;
             // 
             // SurvivalInstinctsBox
             // 
             SurvivalInstinctsBox.AutoSize = true;
-            SurvivalInstinctsBox.Location = new System.Drawing.Point(15, 74);
+            SurvivalInstinctsBox.Location = new Point(15, 74);
             SurvivalInstinctsBox.Name = "SurvivalInstinctsBox";
-            SurvivalInstinctsBox.Size = new System.Drawing.Size(106, 17);
+            SurvivalInstinctsBox.Size = new Size(106, 17);
             SurvivalInstinctsBox.TabIndex = 1;
             SurvivalInstinctsBox.Text = "Survival Instincts";
             SurvivalInstinctsBox.UseVisualStyleBackColor = true;
             SurvivalInstinctsBox.Checked = SurvivalInstincts;
-            SurvivalInstinctsBox.CheckedChanged += new System.EventHandler(SurvivalInstincts_Click);
+            SurvivalInstinctsBox.CheckedChanged += SurvivalInstincts_Click;
             // 
             // BarkskinBox
             // 
             BarkskinBox.AutoSize = true;
-            BarkskinBox.Location = new System.Drawing.Point(15, 28);
+            BarkskinBox.Location = new Point(15, 28);
             BarkskinBox.Name = "BarkskinBox";
-            BarkskinBox.Size = new System.Drawing.Size(67, 17);
+            BarkskinBox.Size = new Size(67, 17);
             BarkskinBox.TabIndex = 0;
             BarkskinBox.Text = "Barkskin";
             BarkskinBox.UseVisualStyleBackColor = true;
             BarkskinBox.Checked = Barkskin;
-            BarkskinBox.CheckedChanged += new System.EventHandler(BarkskinBox_CheckedChanged);
+            BarkskinBox.CheckedChanged += BarkskinBox_CheckedChanged;
             // 
             // DefensiveCooldowns
             // 
             DefensiveCooldowns.Controls.Add(RageOfTheSleeperHPNum);
             DefensiveCooldowns.Controls.Add(SurvivalInstinctsHPNum);
             DefensiveCooldowns.Controls.Add(BarkskinHPNum);
-            DefensiveCooldowns.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            DefensiveCooldowns.Location = new System.Drawing.Point(6, 6);
+            DefensiveCooldowns.FlatStyle = FlatStyle.Popup;
+            DefensiveCooldowns.Location = new Point(6, 6);
             DefensiveCooldowns.Name = "DefensiveCooldowns";
-            DefensiveCooldowns.Size = new System.Drawing.Size(411, 102);
+            DefensiveCooldowns.Size = new Size(411, 102);
             DefensiveCooldowns.TabIndex = 10;
             DefensiveCooldowns.TabStop = false;
             DefensiveCooldowns.Text = "Defensive Cooldowns";
             // 
             // RageOfTheSleeperHPNum
             // 
-            RageOfTheSleeperHPNum.Location = new System.Drawing.Point(267, 42);
+            RageOfTheSleeperHPNum.Location = new Point(267, 42);
             RageOfTheSleeperHPNum.Name = "RageOfTheSleeperHPNum";
-            RageOfTheSleeperHPNum.Size = new System.Drawing.Size(57, 20);
+            RageOfTheSleeperHPNum.Size = new Size(57, 20);
             RageOfTheSleeperHPNum.TabIndex = 11;
-            RageOfTheSleeperHPNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            RageOfTheSleeperHPNum.TextAlign = HorizontalAlignment.Right;
             RageOfTheSleeperHPNum.Value = RageOfTheSleeperHealthPercentage;
-            RageOfTheSleeperHPNum.ValueChanged += new System.EventHandler(RageOfTheSleeperHPNum_ValueChanged);
+            RageOfTheSleeperHPNum.ValueChanged += RageOfTheSleeperHPNum_ValueChanged;
             // 
             // SurvivalInstinctsHPNum
             // 
-            SurvivalInstinctsHPNum.Location = new System.Drawing.Point(267, 65);
+            SurvivalInstinctsHPNum.Location = new Point(267, 65);
             SurvivalInstinctsHPNum.Name = "SurvivalInstinctsHPNum";
-            SurvivalInstinctsHPNum.Size = new System.Drawing.Size(57, 20);
+            SurvivalInstinctsHPNum.Size = new Size(57, 20);
             SurvivalInstinctsHPNum.TabIndex = 10;
-            SurvivalInstinctsHPNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            SurvivalInstinctsHPNum.TextAlign = HorizontalAlignment.Right;
             SurvivalInstinctsHPNum.Value = SurvivalInstinctsHealth;
-            SurvivalInstinctsHPNum.ValueChanged += new System.EventHandler(SurvivalInstinctsHPNum_ValueChanged);
+            SurvivalInstinctsHPNum.ValueChanged += SurvivalInstinctsHPNum_ValueChanged;
             // 
             // BarkskinHPNum
             // 
-            BarkskinHPNum.Location = new System.Drawing.Point(267, 19);
+            BarkskinHPNum.Location = new Point(267, 19);
             BarkskinHPNum.Name = "BarkskinHPNum";
-            BarkskinHPNum.Size = new System.Drawing.Size(57, 20);
+            BarkskinHPNum.Size = new Size(57, 20);
             BarkskinHPNum.TabIndex = 9;
-            BarkskinHPNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            BarkskinHPNum.TextAlign = HorizontalAlignment.Right;
             BarkskinHPNum.Value = BarkskinHealth;
-            BarkskinHPNum.ValueChanged += new System.EventHandler(BarkskinHPNum_ValueChanged);
+            BarkskinHPNum.ValueChanged += BarkskinHPNum_ValueChanged;
             // 
             // ActiveMitigation
             // 
             ActiveMitigation.Controls.Add(PoolRageBox);
             ActiveMitigation.Controls.Add(PrioritizeText);
             ActiveMitigation.Controls.Add(PrioritizeCombo);
-            ActiveMitigation.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            ActiveMitigation.Location = new System.Drawing.Point(6, 114);
+            ActiveMitigation.FlatStyle = FlatStyle.Popup;
+            ActiveMitigation.Location = new Point(6, 114);
             ActiveMitigation.Name = "ActiveMitigation";
-            ActiveMitigation.Size = new System.Drawing.Size(411, 102);
+            ActiveMitigation.Size = new Size(411, 102);
             ActiveMitigation.TabIndex = 11;
             ActiveMitigation.TabStop = false;
             ActiveMitigation.Text = "Active Mitigation";
@@ -1439,38 +1396,40 @@ namespace Frozen.Rotation
             // PoolRageBox
             // 
             PoolRageBox.AutoSize = true;
-            PoolRageBox.Location = new System.Drawing.Point(10, 47);
+            PoolRageBox.Location = new Point(10, 47);
             PoolRageBox.Name = "PoolRageBox";
-            PoolRageBox.Size = new System.Drawing.Size(76, 17);
+            PoolRageBox.Size = new Size(76, 17);
             PoolRageBox.TabIndex = 12;
             PoolRageBox.Text = "Pool Rage";
             PoolRageBox.UseVisualStyleBackColor = true;
             PoolRageBox.Checked = PoolRage;
-            PoolRageBox.CheckedChanged += new System.EventHandler(PoolRage_Click);
+            PoolRageBox.CheckedChanged += PoolRage_Click;
             // 
             // PrioritizeText
             // 
             PrioritizeText.AutoSize = true;
-            PrioritizeText.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            PrioritizeText.Location = new System.Drawing.Point(7, 25);
+            PrioritizeText.FlatStyle = FlatStyle.Flat;
+            PrioritizeText.Location = new Point(7, 25);
             PrioritizeText.Name = "PrioritizeText";
-            PrioritizeText.Size = new System.Drawing.Size(46, 13);
+            PrioritizeText.Size = new Size(46, 13);
             PrioritizeText.TabIndex = 4;
             PrioritizeText.Text = "Prioritize";
             // 
             // PrioritizeCombo
             // 
             PrioritizeCombo.FormattingEnabled = true;
-            PrioritizeCombo.Items.AddRange(new object[] {
-            "Ironfur",
-            "Mark of Ursol"});
-            PrioritizeCombo.Location = new System.Drawing.Point(59, 20);
+            PrioritizeCombo.Items.AddRange(new object[]
+            {
+                "Ironfur",
+                "Mark of Ursol"
+            });
+            PrioritizeCombo.Location = new Point(59, 20);
             PrioritizeCombo.Name = "PrioritizeCombo";
-            PrioritizeCombo.Size = new System.Drawing.Size(121, 21);
-			PrioritizeCombo.SelectedIndex = Prioritize;
+            PrioritizeCombo.Size = new Size(121, 21);
+            PrioritizeCombo.SelectedIndex = Prioritize;
             PrioritizeCombo.TabIndex = 3;
-			PrioritizeCombo.SelectedIndex = Prioritize;
-            PrioritizeCombo.SelectedIndexChanged += new System.EventHandler(PrioritizeCombo_SelectedIndexChanged);
+            PrioritizeCombo.SelectedIndex = Prioritize;
+            PrioritizeCombo.SelectedIndexChanged += PrioritizeCombo_SelectedIndexChanged;
             // 
             // Healing
             // 
@@ -1479,10 +1438,10 @@ namespace Frozen.Rotation
             Healing.Controls.Add(LunarBeamBox);
             Healing.Controls.Add(TalentsHealing);
             Healing.Controls.Add(Regeneration);
-            Healing.Location = new System.Drawing.Point(4, 22);
+            Healing.Location = new Point(4, 22);
             Healing.Name = "Healing";
-            Healing.Padding = new System.Windows.Forms.Padding(3);
-            Healing.Size = new System.Drawing.Size(423, 267);
+            Healing.Padding = new Padding(3);
+            Healing.Size = new Size(423, 267);
             Healing.TabIndex = 2;
             Healing.Text = "Healing";
             Healing.UseVisualStyleBackColor = true;
@@ -1490,43 +1449,43 @@ namespace Frozen.Rotation
             // FrenziedRegenBox
             // 
             FrenziedRegenBox.AutoSize = true;
-            FrenziedRegenBox.Location = new System.Drawing.Point(15, 84);
+            FrenziedRegenBox.Location = new Point(15, 84);
             FrenziedRegenBox.Name = "FrenziedRegenBox";
-            FrenziedRegenBox.Size = new System.Drawing.Size(133, 17);
+            FrenziedRegenBox.Size = new Size(133, 17);
             FrenziedRegenBox.TabIndex = 12;
             FrenziedRegenBox.Text = "Frenzied Regeneration";
-            FrenziedRegenBox.UseVisualStyleBackColor = true;			
+            FrenziedRegenBox.UseVisualStyleBackColor = true;
             FrenziedRegenBox.Checked = FrenziedRegen;
-            FrenziedRegenBox.CheckedChanged += new System.EventHandler(FrenziedRegen_Click);
+            FrenziedRegenBox.CheckedChanged += FrenziedRegen_Click;
             // 
             // LunarBeamNum
             // 
-            LunarBeamNum.Location = new System.Drawing.Point(129, 25);
+            LunarBeamNum.Location = new Point(129, 25);
             LunarBeamNum.Name = "LunarBeamNum";
-            LunarBeamNum.Size = new System.Drawing.Size(57, 20);
+            LunarBeamNum.Size = new Size(57, 20);
             LunarBeamNum.TabIndex = 8;
-            LunarBeamNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            LunarBeamNum.TextAlign = HorizontalAlignment.Right;
             LunarBeamNum.Value = LunarBeamHealth;
-            LunarBeamNum.ValueChanged += new System.EventHandler(LunarBeamNum_ValueChanged);
+            LunarBeamNum.ValueChanged += LunarBeamNum_ValueChanged;
             // 
             // LunarBeamBox
             // 
             LunarBeamBox.AutoSize = true;
-            LunarBeamBox.Location = new System.Drawing.Point(15, 28);
+            LunarBeamBox.Location = new Point(15, 28);
             LunarBeamBox.Name = "LunarBeamBox";
-            LunarBeamBox.Size = new System.Drawing.Size(83, 17);
+            LunarBeamBox.Size = new Size(83, 17);
             LunarBeamBox.TabIndex = 7;
             LunarBeamBox.Text = "Lunar Beam";
             LunarBeamBox.UseVisualStyleBackColor = true;
             LunarBeamBox.Checked = LunarBeam;
-            LunarBeamBox.CheckedChanged += new System.EventHandler(LunarBeam_Click);
+            LunarBeamBox.CheckedChanged += LunarBeam_Click;
             // 
             // TalentsHealing
             // 
-            TalentsHealing.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            TalentsHealing.Location = new System.Drawing.Point(6, 6);
+            TalentsHealing.FlatStyle = FlatStyle.Popup;
+            TalentsHealing.Location = new Point(6, 6);
             TalentsHealing.Name = "TalentsHealing";
-            TalentsHealing.Size = new System.Drawing.Size(411, 49);
+            TalentsHealing.Size = new Size(411, 49);
             TalentsHealing.TabIndex = 14;
             TalentsHealing.TabStop = false;
             TalentsHealing.Text = "Talents";
@@ -1536,10 +1495,10 @@ namespace Frozen.Rotation
             Regeneration.Controls.Add(HPROCValue);
             Regeneration.Controls.Add(HPROCLabel);
             Regeneration.Controls.Add(HPROCTrackBar);
-            Regeneration.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            Regeneration.Location = new System.Drawing.Point(6, 61);
+            Regeneration.FlatStyle = FlatStyle.Popup;
+            Regeneration.Location = new Point(6, 61);
             Regeneration.Name = "Regeneration";
-            Regeneration.Size = new System.Drawing.Size(411, 99);
+            Regeneration.Size = new Size(411, 99);
             Regeneration.TabIndex = 15;
             Regeneration.TabStop = false;
             Regeneration.Text = "Frenzied Regeneration";
@@ -1547,31 +1506,31 @@ namespace Frozen.Rotation
             // HPROCLabel
             // 
             HPROCLabel.AutoSize = true;
-            HPROCLabel.Location = new System.Drawing.Point(8, 49);
+            HPROCLabel.Location = new Point(8, 49);
             HPROCLabel.Name = "HPROCLabel";
-            HPROCLabel.Size = new System.Drawing.Size(140, 13);
+            HPROCLabel.Size = new Size(140, 13);
             HPROCLabel.TabIndex = 13;
             HPROCLabel.Text = "HP rate of change threshold";
             // 
             // HPROCTrackBar
             // 
             HPROCTrackBar.LargeChange = 2;
-            HPROCTrackBar.Location = new System.Drawing.Point(153, 46);
+            HPROCTrackBar.Location = new Point(153, 46);
             HPROCTrackBar.Maximum = 20;
             HPROCTrackBar.Name = "HPROCTrackBar";
-            HPROCTrackBar.Size = new System.Drawing.Size(209, 45);
+            HPROCTrackBar.Size = new Size(209, 45);
             HPROCTrackBar.TabIndex = 11;
-			HPROCTrackBar.Value = HPROC;
-			HPROCTrackBar.Scroll += new System.EventHandler(HPROCTrackBar_Scroll);
+            HPROCTrackBar.Value = HPROC;
+            HPROCTrackBar.Scroll += HPROCTrackBar_Scroll;
             // 
             // KeyBindings
             // 
             KeyBindings.Controls.Add(SaveAbilities);
             KeyBindings.Controls.Add(KeyPressBindings);
-            KeyBindings.Location = new System.Drawing.Point(4, 22);
+            KeyBindings.Location = new Point(4, 22);
             KeyBindings.Name = "KeyBindings";
-            KeyBindings.Padding = new System.Windows.Forms.Padding(3);
-            KeyBindings.Size = new System.Drawing.Size(423, 267);
+            KeyBindings.Padding = new Padding(3);
+            KeyBindings.Size = new Size(423, 267);
             KeyBindings.TabIndex = 3;
             KeyBindings.Text = "Key Bindings";
             KeyBindings.UseVisualStyleBackColor = true;
@@ -1581,10 +1540,10 @@ namespace Frozen.Rotation
             SaveAbilities.Controls.Add(SaveRageOfTheSleeperCombo);
             SaveAbilities.Controls.Add(IncarnationDPSBox);
             SaveAbilities.Controls.Add(SaveRageOfTheSleeperKeyBox);
-            SaveAbilities.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            SaveAbilities.Location = new System.Drawing.Point(6, 117);
+            SaveAbilities.FlatStyle = FlatStyle.Popup;
+            SaveAbilities.Location = new Point(6, 117);
             SaveAbilities.Name = "SaveAbilities";
-            SaveAbilities.Size = new System.Drawing.Size(411, 75);
+            SaveAbilities.Size = new Size(411, 75);
             SaveAbilities.TabIndex = 16;
             SaveAbilities.TabStop = false;
             SaveAbilities.Text = "Abilities to use on keypress";
@@ -1592,39 +1551,41 @@ namespace Frozen.Rotation
             // SaveRageOfTheSleeperCombo
             // 
             SaveRageOfTheSleeperCombo.FormattingEnabled = true;
-            SaveRageOfTheSleeperCombo.Location = new System.Drawing.Point(175, 18);
-            SaveRageOfTheSleeperCombo.Items.AddRange(new object[] {
-            "CoolDowns",
-            "DPS Burst"});
+            SaveRageOfTheSleeperCombo.Location = new Point(175, 18);
+            SaveRageOfTheSleeperCombo.Items.AddRange(new object[]
+            {
+                "CoolDowns",
+                "DPS Burst"
+            });
             SaveRageOfTheSleeperCombo.Name = "SaveRageOfTheSleeperCombo";
-            SaveRageOfTheSleeperCombo.Size = new System.Drawing.Size(87, 21);
+            SaveRageOfTheSleeperCombo.Size = new Size(87, 21);
             SaveRageOfTheSleeperCombo.TabIndex = 2;
-			SaveRageOfTheSleeperCombo.SelectedIndex = SaveRageOfTheSleeper;
-            SaveRageOfTheSleeperCombo.SelectedIndexChanged += new System.EventHandler(SaveRageOfTheSleeperCombo_SelectedIndexChanged);
+            SaveRageOfTheSleeperCombo.SelectedIndex = SaveRageOfTheSleeper;
+            SaveRageOfTheSleeperCombo.SelectedIndexChanged += SaveRageOfTheSleeperCombo_SelectedIndexChanged;
             // 
             // IncarnationDPSBox
             // 
             IncarnationDPSBox.AutoSize = true;
-            IncarnationDPSBox.Location = new System.Drawing.Point(9, 45);
+            IncarnationDPSBox.Location = new Point(9, 45);
             IncarnationDPSBox.Name = "IncarnationDPSBox";
-            IncarnationDPSBox.Size = new System.Drawing.Size(174, 17);
+            IncarnationDPSBox.Size = new Size(174, 17);
             IncarnationDPSBox.TabIndex = 1;
             IncarnationDPSBox.Text = "Save Incarnation for DPS Burst";
             IncarnationDPSBox.UseVisualStyleBackColor = true;
             IncarnationDPSBox.Checked = IncarnationDPS;
-            IncarnationDPSBox.CheckedChanged += new System.EventHandler(IncarnationDPS_Click);
+            IncarnationDPSBox.CheckedChanged += IncarnationDPS_Click;
             // 
             // SaveRageOfTheSleeperKeyBox
             // 
             SaveRageOfTheSleeperKeyBox.AutoSize = true;
-            SaveRageOfTheSleeperKeyBox.Location = new System.Drawing.Point(9, 22);
+            SaveRageOfTheSleeperKeyBox.Location = new Point(9, 22);
             SaveRageOfTheSleeperKeyBox.Name = "SaveRageOfTheSleeperKeyBox";
-            SaveRageOfTheSleeperKeyBox.Size = new System.Drawing.Size(164, 17);
+            SaveRageOfTheSleeperKeyBox.Size = new Size(164, 17);
             SaveRageOfTheSleeperKeyBox.TabIndex = 0;
             SaveRageOfTheSleeperKeyBox.Text = "Save Rage of the Sleeper for";
             SaveRageOfTheSleeperKeyBox.UseVisualStyleBackColor = true;
             SaveRageOfTheSleeperKeyBox.Checked = SaveRageOfTheSleeperKey;
-            SaveRageOfTheSleeperKeyBox.CheckedChanged += new System.EventHandler(SaveRageOfTheSleeperKey_Click);
+            SaveRageOfTheSleeperKeyBox.CheckedChanged += SaveRageOfTheSleeperKey_Click;
             // 
             // KeyPressBindings
             // 
@@ -1637,10 +1598,10 @@ namespace Frozen.Rotation
             KeyPressBindings.Controls.Add(MitigationKeyCombo);
             KeyPressBindings.Controls.Add(MitigationModCombo);
             KeyPressBindings.Controls.Add(MitigationSwitchBox);
-            KeyPressBindings.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            KeyPressBindings.Location = new System.Drawing.Point(6, 6);
+            KeyPressBindings.FlatStyle = FlatStyle.Popup;
+            KeyPressBindings.Location = new Point(6, 6);
             KeyPressBindings.Name = "KeyPressBindings";
-            KeyPressBindings.Size = new System.Drawing.Size(411, 95);
+            KeyPressBindings.Size = new Size(411, 95);
             KeyPressBindings.TabIndex = 15;
             KeyPressBindings.TabStop = false;
             KeyPressBindings.Text = "Key Bindings";
@@ -1648,112 +1609,112 @@ namespace Frozen.Rotation
             // DPSBurstKeyCombo
             // 
             DPSBurstKeyCombo.FormattingEnabled = true;
-            DPSBurstKeyCombo.Location = new System.Drawing.Point(210, 41);
+            DPSBurstKeyCombo.Location = new Point(210, 41);
             DPSBurstKeyCombo.Name = "DPSBurstKeyCombo";
-            DPSBurstKeyCombo.Size = new System.Drawing.Size(87, 21);
+            DPSBurstKeyCombo.Size = new Size(87, 21);
             DPSBurstKeyCombo.TabIndex = 5;
             DPSBurstKeyCombo.DataSource = Enum.GetValues(typeof(WoW.Keys));
-			DPSBurstKeyCombo.SelectedIndex = DPSBurstKeyCombo.FindStringExact(DPSBurstKey);
-            DPSBurstKeyCombo.SelectedIndexChanged += new System.EventHandler(DPSBurstKeyCombo_SelectedIndexChanged);
+            DPSBurstKeyCombo.SelectedIndex = DPSBurstKeyCombo.FindStringExact(DPSBurstKey);
+            DPSBurstKeyCombo.SelectedIndexChanged += DPSBurstKeyCombo_SelectedIndexChanged;
             // 
             // DPSBurstModCombo
             // 
             DPSBurstModCombo.FormattingEnabled = true;
-            DPSBurstModCombo.Location = new System.Drawing.Point(117, 41);
+            DPSBurstModCombo.Location = new Point(117, 41);
             DPSBurstModCombo.Name = "DPSBurstModCombo";
-            DPSBurstModCombo.Size = new System.Drawing.Size(87, 21);
+            DPSBurstModCombo.Size = new Size(87, 21);
             DPSBurstModCombo.TabIndex = 4;
             DPSBurstModCombo.DataSource = Enum.GetValues(typeof(ModKeys));
-			DPSBurstModCombo.SelectedIndex = DPSBurstModCombo.FindStringExact(DPSBurstMod);
-            DPSBurstModCombo.SelectedIndexChanged += new System.EventHandler(DPSBurstModCombo_SelectedIndexChanged);
+            DPSBurstModCombo.SelectedIndex = DPSBurstModCombo.FindStringExact(DPSBurstMod);
+            DPSBurstModCombo.SelectedIndexChanged += DPSBurstModCombo_SelectedIndexChanged;
             // 
             // CoolDownKeyCombo
             // 
             CoolDownKeyCombo.FormattingEnabled = true;
-            CoolDownKeyCombo.Location = new System.Drawing.Point(210, 18);
+            CoolDownKeyCombo.Location = new Point(210, 18);
             CoolDownKeyCombo.Name = "CoolDownKeyCombo";
-            CoolDownKeyCombo.Size = new System.Drawing.Size(87, 21);
+            CoolDownKeyCombo.Size = new Size(87, 21);
             CoolDownKeyCombo.TabIndex = 3;
             CoolDownKeyCombo.DataSource = Enum.GetValues(typeof(WoW.Keys));
-			CoolDownKeyCombo.SelectedIndex = CoolDownKeyCombo.FindStringExact(CoolDownKey);
-            CoolDownKeyCombo.SelectedIndexChanged += new System.EventHandler(CoolDownKeyCombo_SelectedIndexChanged);
+            CoolDownKeyCombo.SelectedIndex = CoolDownKeyCombo.FindStringExact(CoolDownKey);
+            CoolDownKeyCombo.SelectedIndexChanged += CoolDownKeyCombo_SelectedIndexChanged;
             // 
             // CoolDownModCombo
             // 
             CoolDownModCombo.FormattingEnabled = true;
-            CoolDownModCombo.Location = new System.Drawing.Point(117, 18);
+            CoolDownModCombo.Location = new Point(117, 18);
             CoolDownModCombo.Name = "CoolDownModCombo";
-            CoolDownModCombo.Size = new System.Drawing.Size(87, 21);
+            CoolDownModCombo.Size = new Size(87, 21);
             CoolDownModCombo.TabIndex = 2;
             CoolDownModCombo.DataSource = Enum.GetValues(typeof(ModKeys));
-			CoolDownModCombo.SelectedIndex = CoolDownModCombo.FindStringExact(CoolDownMod);
-            CoolDownModCombo.SelectedIndexChanged += new System.EventHandler(CoolDownModCombo_SelectedIndexChanged);
+            CoolDownModCombo.SelectedIndex = CoolDownModCombo.FindStringExact(CoolDownMod);
+            CoolDownModCombo.SelectedIndexChanged += CoolDownModCombo_SelectedIndexChanged;
             // 
             // UseDPSBurstBox
             // 
             UseDPSBurstBox.AutoSize = true;
-            UseDPSBurstBox.Location = new System.Drawing.Point(9, 45);
+            UseDPSBurstBox.Location = new Point(9, 45);
             UseDPSBurstBox.Name = "UseDPSBurstBox";
-            UseDPSBurstBox.Size = new System.Drawing.Size(75, 17);
+            UseDPSBurstBox.Size = new Size(75, 17);
             UseDPSBurstBox.TabIndex = 1;
             UseDPSBurstBox.Text = "DPS Burst";
             UseDPSBurstBox.UseVisualStyleBackColor = true;
             UseDPSBurstBox.Checked = UseDPSBurst;
-            UseDPSBurstBox.CheckedChanged += new System.EventHandler(UseDPSBurst_Click);
+            UseDPSBurstBox.CheckedChanged += UseDPSBurst_Click;
             // 
             // CoolDownUseBox
             // 
             CoolDownUseBox.AutoSize = true;
-            CoolDownUseBox.Location = new System.Drawing.Point(9, 22);
+            CoolDownUseBox.Location = new Point(9, 22);
             CoolDownUseBox.Name = "CoolDownUseBox";
-            CoolDownUseBox.Size = new System.Drawing.Size(102, 17);
+            CoolDownUseBox.Size = new Size(102, 17);
             CoolDownUseBox.TabIndex = 0;
             CoolDownUseBox.Text = "Use CoolDowns";
             CoolDownUseBox.UseVisualStyleBackColor = true;
             CoolDownUseBox.Checked = CoolDownUse;
-            CoolDownUseBox.CheckedChanged += new System.EventHandler(CoolDownUse_Click);
+            CoolDownUseBox.CheckedChanged += CoolDownUse_Click;
             // 
             // MitigationKeyCombo
             // 
             MitigationKeyCombo.FormattingEnabled = true;
-            MitigationKeyCombo.Location = new System.Drawing.Point(210, 64);
+            MitigationKeyCombo.Location = new Point(210, 64);
             MitigationKeyCombo.Name = "MitigationKeyCombo";
-            MitigationKeyCombo.Size = new System.Drawing.Size(87, 21);
+            MitigationKeyCombo.Size = new Size(87, 21);
             MitigationKeyCombo.TabIndex = 8;
             MitigationKeyCombo.DataSource = Enum.GetValues(typeof(WoW.Keys));
-			MitigationKeyCombo.SelectedIndex = MitigationKeyCombo.FindStringExact(MitigationKey);
-            MitigationKeyCombo.SelectedIndexChanged += new System.EventHandler(MitigationKeyCombo_SelectedIndexChanged);
+            MitigationKeyCombo.SelectedIndex = MitigationKeyCombo.FindStringExact(MitigationKey);
+            MitigationKeyCombo.SelectedIndexChanged += MitigationKeyCombo_SelectedIndexChanged;
             // 
             // MitigationModCombo
             // 
             MitigationModCombo.FormattingEnabled = true;
-            MitigationModCombo.Location = new System.Drawing.Point(117, 64);
+            MitigationModCombo.Location = new Point(117, 64);
             MitigationModCombo.Name = "MitigationModCombo";
-            MitigationModCombo.Size = new System.Drawing.Size(87, 21);
+            MitigationModCombo.Size = new Size(87, 21);
             MitigationModCombo.TabIndex = 7;
             MitigationModCombo.DataSource = Enum.GetValues(typeof(ModKeys));
-			MitigationModCombo.SelectedIndex = MitigationModCombo.FindStringExact(MitigationMod);
-            MitigationModCombo.SelectedIndexChanged += new System.EventHandler(MitigationModCombo_SelectedIndexChanged);
+            MitigationModCombo.SelectedIndex = MitigationModCombo.FindStringExact(MitigationMod);
+            MitigationModCombo.SelectedIndexChanged += MitigationModCombo_SelectedIndexChanged;
             // 
             // MitigationSwitchBox
             // 
             MitigationSwitchBox.AutoSize = true;
-            MitigationSwitchBox.Location = new System.Drawing.Point(9, 67);
+            MitigationSwitchBox.Location = new Point(9, 67);
             MitigationSwitchBox.Name = "MitigationSwitchBox";
-            MitigationSwitchBox.Size = new System.Drawing.Size(106, 17);
+            MitigationSwitchBox.Size = new Size(106, 17);
             MitigationSwitchBox.TabIndex = 6;
             MitigationSwitchBox.Text = "Mitigation Switch";
             MitigationSwitchBox.UseVisualStyleBackColor = true;
-			MitigationSwitchBox.Checked = MitigationSwitch;
-            MitigationSwitchBox.CheckedChanged += new System.EventHandler(MitigationSwitchBox_CheckedChanged);
+            MitigationSwitchBox.Checked = MitigationSwitch;
+            MitigationSwitchBox.CheckedChanged += MitigationSwitchBox_CheckedChanged;
             // 
             // InterruptingTab
             // 
             InterruptingTab.Controls.Add(Interrupting);
-            InterruptingTab.Location = new System.Drawing.Point(4, 22);
+            InterruptingTab.Location = new Point(4, 22);
             InterruptingTab.Name = "InterruptingTab";
-            InterruptingTab.Padding = new System.Windows.Forms.Padding(3);
-            InterruptingTab.Size = new System.Drawing.Size(423, 267);
+            InterruptingTab.Padding = new Padding(3);
+            InterruptingTab.Size = new Size(423, 267);
             InterruptingTab.TabIndex = 4;
             InterruptingTab.Text = "Interrupting";
             InterruptingTab.UseVisualStyleBackColor = true;
@@ -1769,104 +1730,104 @@ namespace Frozen.Rotation
             Interrupting.Controls.Add(InterruptOnlyListedBox);
             Interrupting.Controls.Add(InterruptDelayTrackBar);
             Interrupting.Controls.Add(SkullBashInterruptBox);
-            Interrupting.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            Interrupting.Location = new System.Drawing.Point(6, 6);
+            Interrupting.FlatStyle = FlatStyle.Popup;
+            Interrupting.Location = new Point(6, 6);
             Interrupting.Name = "Interrupting";
-            Interrupting.Size = new System.Drawing.Size(411, 258);
+            Interrupting.Size = new Size(411, 258);
             Interrupting.TabIndex = 10;
             Interrupting.TabStop = false;
             Interrupting.Text = "Interrupting";
             // 
             // RemoveButton
             // 
-            RemoveButton.Location = new System.Drawing.Point(59, 160);
+            RemoveButton.Location = new Point(59, 160);
             RemoveButton.Name = "RemoveButton";
-            RemoveButton.Size = new System.Drawing.Size(75, 23);
+            RemoveButton.Size = new Size(75, 23);
             RemoveButton.TabIndex = 21;
             RemoveButton.Text = "Remove";
             RemoveButton.UseVisualStyleBackColor = true;
-            RemoveButton.Click += new System.EventHandler(RemoveButton_Click);
+            RemoveButton.Click += RemoveButton_Click;
             // 
             // AddButton
             // 
-            AddButton.Location = new System.Drawing.Point(59, 131);
+            AddButton.Location = new Point(59, 131);
             AddButton.Name = "AddButton";
-            AddButton.Size = new System.Drawing.Size(75, 23);
+            AddButton.Size = new Size(75, 23);
             AddButton.TabIndex = 20;
             AddButton.Text = "Add";
             AddButton.UseVisualStyleBackColor = true;
-            AddButton.Click += new System.EventHandler(AddButton_Click);
+            AddButton.Click += AddButton_Click;
             // 
             // AddSpellBox
             // 
-            AddSpellBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            AddSpellBox.Location = new System.Drawing.Point(9, 105);
+            AddSpellBox.BorderStyle = BorderStyle.FixedSingle;
+            AddSpellBox.Location = new Point(9, 105);
             AddSpellBox.Name = "AddSpellBox";
-            AddSpellBox.Size = new System.Drawing.Size(125, 20);
+            AddSpellBox.Size = new Size(125, 20);
             AddSpellBox.TabIndex = 19;
-			AddSpellBox.Text = "";
+            AddSpellBox.Text = "";
             // 
             // SpellListBox
             // 
             SpellListBox.FormattingEnabled = true;
-			SpellListBox.SuspendLayout();
-			SpellListBox.DataSource = InterruptibleSpells;
-			SpellListBox.ResumeLayout();
-            SpellListBox.Location = new System.Drawing.Point(156, 105);
+            SpellListBox.SuspendLayout();
+            SpellListBox.DataSource = InterruptibleSpells;
+            SpellListBox.ResumeLayout();
+            SpellListBox.Location = new Point(156, 105);
             SpellListBox.Name = "SpellListBox";
-            SpellListBox.Size = new System.Drawing.Size(120, 147);
+            SpellListBox.Size = new Size(120, 147);
             SpellListBox.TabIndex = 18;
             // 
             // InterruptOnlyListedBox
             // 
             InterruptOnlyListedBox.AutoSize = true;
-            InterruptOnlyListedBox.BackColor = System.Drawing.Color.Transparent;
-            InterruptOnlyListedBox.Location = new System.Drawing.Point(9, 72);
+            InterruptOnlyListedBox.BackColor = Color.Transparent;
+            InterruptOnlyListedBox.Location = new Point(9, 72);
             InterruptOnlyListedBox.Name = "InterruptOnlyListedBox";
-            InterruptOnlyListedBox.Size = new System.Drawing.Size(143, 17);
+            InterruptOnlyListedBox.Size = new Size(143, 17);
             InterruptOnlyListedBox.TabIndex = 17;
             InterruptOnlyListedBox.Text = "Interrupt only listed spells";
             InterruptOnlyListedBox.UseVisualStyleBackColor = false;
             InterruptOnlyListedBox.Checked = InterruptOnlyListed;
-            InterruptOnlyListedBox.CheckedChanged += new System.EventHandler(InterruptOnlyListed_Click);
+            InterruptOnlyListedBox.CheckedChanged += InterruptOnlyListed_Click;
             // 
             // InterruptDelayTrackBar
             // 
             InterruptDelayTrackBar.LargeChange = 50;
-            InterruptDelayTrackBar.Location = new System.Drawing.Point(156, 46);
+            InterruptDelayTrackBar.Location = new Point(156, 46);
             InterruptDelayTrackBar.Maximum = 850;
             InterruptDelayTrackBar.Minimum = 50;
             InterruptDelayTrackBar.Name = "InterruptDelayTrackBar";
-            InterruptDelayTrackBar.Size = new System.Drawing.Size(209, 45);
+            InterruptDelayTrackBar.Size = new Size(209, 45);
             InterruptDelayTrackBar.SmallChange = 20;
             InterruptDelayTrackBar.TabIndex = 15;
             InterruptDelayTrackBar.TickFrequency = 50;
-			InterruptDelayTrackBar.Value = InterruptDelay;
-			InterruptDelayTrackBar.Scroll += new System.EventHandler(InterruptDelayTrackBar_Scroll);
+            InterruptDelayTrackBar.Value = InterruptDelay;
+            InterruptDelayTrackBar.Scroll += InterruptDelayTrackBar_Scroll;
             // 
             // SkullBashInterruptBox
             // 
             SkullBashInterruptBox.AutoSize = true;
-            SkullBashInterruptBox.Location = new System.Drawing.Point(9, 22);
+            SkullBashInterruptBox.Location = new Point(9, 22);
             SkullBashInterruptBox.Name = "SkullBashInterruptBox";
-            SkullBashInterruptBox.Size = new System.Drawing.Size(151, 17);
+            SkullBashInterruptBox.Size = new Size(151, 17);
             SkullBashInterruptBox.TabIndex = 2;
             SkullBashInterruptBox.Text = "Use Skull Bash to interrupt";
             SkullBashInterruptBox.UseVisualStyleBackColor = true;
             SkullBashInterruptBox.Checked = SkullBashInterrupt;
-            SkullBashInterruptBox.CheckedChanged += new System.EventHandler(SkullBashInterrupt_Click);
+            SkullBashInterruptBox.CheckedChanged += SkullBashInterrupt_Click;
             // 
             // CustomDelayBox
             // 
             CustomDelayBox.AutoSize = true;
-            CustomDelayBox.Location = new System.Drawing.Point(9, 47);
+            CustomDelayBox.Location = new Point(9, 47);
             CustomDelayBox.Name = "CustomDelayBox";
-            CustomDelayBox.Size = new System.Drawing.Size(111, 17);
+            CustomDelayBox.Size = new Size(111, 17);
             CustomDelayBox.TabIndex = 22;
             CustomDelayBox.Text = "Custom delay (ms)";
             CustomDelayBox.UseVisualStyleBackColor = true;
             CustomDelayBox.Checked = CustomDelay;
-            CustomDelayBox.CheckedChanged += new System.EventHandler(CustomDelayBox_CheckedChanged);
+            CustomDelayBox.CheckedChanged += CustomDelayBox_CheckedChanged;
             // 
             // Miscellaneous
             // 
@@ -1881,10 +1842,10 @@ namespace Frozen.Rotation
             Miscellaneous.Controls.Add(WildChargeCombo);
             Miscellaneous.Controls.Add(UseWildChargeBox);
             Miscellaneous.Controls.Add(Overlay);
-            Miscellaneous.Location = new System.Drawing.Point(4, 22);
+            Miscellaneous.Location = new Point(4, 22);
             Miscellaneous.Name = "Miscellaneous";
-            Miscellaneous.Padding = new System.Windows.Forms.Padding(3);
-            Miscellaneous.Size = new System.Drawing.Size(423, 267);
+            Miscellaneous.Padding = new Padding(3);
+            Miscellaneous.Size = new Size(423, 267);
             Miscellaneous.TabIndex = 5;
             Miscellaneous.Text = "Misc";
             Miscellaneous.UseVisualStyleBackColor = true;
@@ -1892,134 +1853,138 @@ namespace Frozen.Rotation
             // TabMacroCombo
             // 
             TabMacroCombo.FormattingEnabled = true;
-            TabMacroCombo.Items.AddRange(new object[] {
-            "a macro",
-            "PM key sends"});
-            TabMacroCombo.Location = new System.Drawing.Point(279, 49);
+            TabMacroCombo.Items.AddRange(new object[]
+            {
+                "a macro",
+                "PM key sends"
+            });
+            TabMacroCombo.Location = new Point(279, 49);
             TabMacroCombo.Name = "TabMacroCombo";
-            TabMacroCombo.Size = new System.Drawing.Size(113, 21);
+            TabMacroCombo.Size = new Size(113, 21);
             TabMacroCombo.TabIndex = 15;
-			TabMacroCombo.SelectedIndex = TabMacro;
-            TabMacroCombo.SelectedIndexChanged += new System.EventHandler(TabMacroCombo_SelectedIndexChanged);
+            TabMacroCombo.SelectedIndex = TabMacro;
+            TabMacroCombo.SelectedIndexChanged += TabMacroCombo_SelectedIndexChanged;
             // 
             // usetab
             // 
             usetab.AutoSize = true;
-            usetab.Location = new System.Drawing.Point(229, 52);
+            usetab.Location = new Point(229, 52);
             usetab.Name = "usetab";
-            usetab.Size = new System.Drawing.Size(51, 13);
+            usetab.Size = new Size(51, 13);
             usetab.TabIndex = 14;
             usetab.Text = "ms, using";
             // 
             // BearcattingBox
             // 
             BearcattingBox.AutoSize = true;
-            BearcattingBox.Location = new System.Drawing.Point(15, 143);
+            BearcattingBox.Location = new Point(15, 143);
             BearcattingBox.Name = "BearcattingBox";
-            BearcattingBox.Size = new System.Drawing.Size(80, 17);
+            BearcattingBox.Size = new Size(80, 17);
             BearcattingBox.TabIndex = 13;
             BearcattingBox.Text = "Bearcatting";
             BearcattingBox.UseMnemonic = false;
             BearcattingBox.UseVisualStyleBackColor = true;
             BearcattingBox.Checked = Bearcatting;
-            BearcattingBox.CheckedChanged += new System.EventHandler(Bearcatting_Click);
+            BearcattingBox.CheckedChanged += Bearcatting_Click;
             // 
             // ProwlOOCBox
             // 
             ProwlOOCBox.AutoSize = true;
-            ProwlOOCBox.Location = new System.Drawing.Point(15, 120);
+            ProwlOOCBox.Location = new Point(15, 120);
             ProwlOOCBox.Name = "ProwlOOCBox";
-            ProwlOOCBox.Size = new System.Drawing.Size(149, 17);
+            ProwlOOCBox.Size = new Size(149, 17);
             ProwlOOCBox.TabIndex = 12;
             ProwlOOCBox.Text = "Prowl when out of combat";
             ProwlOOCBox.UseMnemonic = false;
             ProwlOOCBox.UseVisualStyleBackColor = true;
             ProwlOOCBox.Checked = ProwlOOC;
-            ProwlOOCBox.CheckedChanged += new System.EventHandler(ProwlOOC_Click);
+            ProwlOOCBox.CheckedChanged += ProwlOOC_Click;
             // 
             // ChainPullingBox
             // 
             ChainPullingBox.AutoSize = true;
-            ChainPullingBox.Location = new System.Drawing.Point(15, 97);
+            ChainPullingBox.Location = new Point(15, 97);
             ChainPullingBox.Name = "ChainPullingBox";
-            ChainPullingBox.Size = new System.Drawing.Size(87, 17);
+            ChainPullingBox.Size = new Size(87, 17);
             ChainPullingBox.TabIndex = 11;
             ChainPullingBox.Text = "Chain Pulling";
             ChainPullingBox.UseVisualStyleBackColor = true;
             ChainPullingBox.Checked = ChainPulling;
-            ChainPullingBox.CheckedChanged += new System.EventHandler(ChainPulling_Click);
+            ChainPullingBox.CheckedChanged += ChainPulling_Click;
             // 
             // IncapacitatingBox
             // 
             IncapacitatingBox.AutoSize = true;
-            IncapacitatingBox.Location = new System.Drawing.Point(15, 74);
+            IncapacitatingBox.Location = new Point(15, 74);
             IncapacitatingBox.Name = "IncapacitatingBox";
-            IncapacitatingBox.Size = new System.Drawing.Size(119, 17);
+            IncapacitatingBox.Size = new Size(119, 17);
             IncapacitatingBox.TabIndex = 10;
             IncapacitatingBox.Text = "Incapacitating Roar";
             IncapacitatingBox.UseVisualStyleBackColor = true;
             IncapacitatingBox.Checked = Incapacitating;
-            IncapacitatingBox.CheckedChanged += new System.EventHandler(Incapacitating_Click);
+            IncapacitatingBox.CheckedChanged += Incapacitating_Click;
             // 
             // TabAOEDelayNum
             // 
-            TabAOEDelayNum.Location = new System.Drawing.Point(180, 50);
+            TabAOEDelayNum.Location = new Point(180, 50);
             TabAOEDelayNum.Name = "TabAOEDelayNum";
-            TabAOEDelayNum.Size = new System.Drawing.Size(49, 20);
+            TabAOEDelayNum.Size = new Size(49, 20);
             TabAOEDelayNum.TabIndex = 9;
-            TabAOEDelayNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			TabAOEDelayNum.Increment = 10;
-			TabAOEDelayNum.Maximum = 2000;
-			TabAOEDelayNum.Minimum = 200;
+            TabAOEDelayNum.TextAlign = HorizontalAlignment.Right;
+            TabAOEDelayNum.Increment = 10;
+            TabAOEDelayNum.Maximum = 2000;
+            TabAOEDelayNum.Minimum = 200;
             TabAOEDelayNum.Value = TabAOEDelay;
-            TabAOEDelayNum.ValueChanged += new System.EventHandler(TabAOEDelayNum_ValueChanged);
+            TabAOEDelayNum.ValueChanged += TabAOEDelayNum_ValueChanged;
             // 
             // TabAOEBox
             // 
             TabAOEBox.AutoSize = true;
-            TabAOEBox.Location = new System.Drawing.Point(15, 51);
+            TabAOEBox.Location = new Point(15, 51);
             TabAOEBox.Name = "TabAOEBox";
-            TabAOEBox.Size = new System.Drawing.Size(170, 17);
+            TabAOEBox.Size = new Size(170, 17);
             TabAOEBox.TabIndex = 5;
             TabAOEBox.Text = "Target switching in AoE every ";
             TabAOEBox.UseVisualStyleBackColor = true;
             TabAOEBox.Checked = TabAOE;
-            TabAOEBox.CheckedChanged += new System.EventHandler(TabAOE_Click);
+            TabAOEBox.CheckedChanged += TabAOE_Click;
             // 
             // WildChargeCombo
             // 
             WildChargeCombo.FormattingEnabled = true;
-            WildChargeCombo.Items.AddRange(new object[] {
-            "in AoE",
-            "in Single Target"});
-            WildChargeCombo.Location = new System.Drawing.Point(127, 26);
+            WildChargeCombo.Items.AddRange(new object[]
+            {
+                "in AoE",
+                "in Single Target"
+            });
+            WildChargeCombo.Location = new Point(127, 26);
             WildChargeCombo.Name = "WildChargeCombo";
-            WildChargeCombo.Size = new System.Drawing.Size(110, 21);
+            WildChargeCombo.Size = new Size(110, 21);
             WildChargeCombo.TabIndex = 4;
-			WildChargeCombo.SelectedIndex = WildCharge;
-            WildChargeCombo.SelectedIndexChanged += new System.EventHandler(WildChargeCombo_SelectedIndexChanged);
+            WildChargeCombo.SelectedIndex = WildCharge;
+            WildChargeCombo.SelectedIndexChanged += WildChargeCombo_SelectedIndexChanged;
             // 
             // UseWildChargeBox
             // 
             UseWildChargeBox.AutoSize = true;
-            UseWildChargeBox.Location = new System.Drawing.Point(15, 28);
+            UseWildChargeBox.Location = new Point(15, 28);
             UseWildChargeBox.Name = "UseWildChargeBox";
-            UseWildChargeBox.Size = new System.Drawing.Size(106, 17);
+            UseWildChargeBox.Size = new Size(106, 17);
             UseWildChargeBox.TabIndex = 3;
             UseWildChargeBox.Text = "Use Wild Charge";
             UseWildChargeBox.UseVisualStyleBackColor = true;
             UseWildChargeBox.Checked = UseWildCharge;
-            UseWildChargeBox.CheckedChanged += new System.EventHandler(UseWildCharge_Click);
+            UseWildChargeBox.CheckedChanged += UseWildCharge_Click;
             // 
             // DisplayInfo
             // 
-            DisplayInfo.Location = new System.Drawing.Point(330, 41);
+            DisplayInfo.Location = new Point(330, 41);
             DisplayInfo.Name = "DisplayInfo";
-            DisplayInfo.Size = new System.Drawing.Size(75, 23);
+            DisplayInfo.Size = new Size(75, 23);
             DisplayInfo.TabIndex = 16;
             DisplayInfo.Text = "Display Info";
             DisplayInfo.UseVisualStyleBackColor = true;
-            DisplayInfo.Click += new System.EventHandler(DisplayInfo_Click);
+            DisplayInfo.Click += DisplayInfo_Click;
             // 
             // Overlay
             // 
@@ -2029,10 +1994,10 @@ namespace Frozen.Rotation
             Overlay.Controls.Add(DisplayDPSBox);
             Overlay.Controls.Add(DisplayCDBox);
             Overlay.Controls.Add(DisplayInfo);
-            Overlay.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            Overlay.Location = new System.Drawing.Point(6, 162);
+            Overlay.FlatStyle = FlatStyle.Popup;
+            Overlay.Location = new Point(6, 162);
             Overlay.Name = "Overlay";
-            Overlay.Size = new System.Drawing.Size(411, 99);
+            Overlay.Size = new Size(411, 99);
             Overlay.TabIndex = 17;
             Overlay.TabStop = false;
             Overlay.Text = "Overlay";
@@ -2040,126 +2005,124 @@ namespace Frozen.Rotation
             // DisplayCDBox
             // 
             DisplayCDBox.AutoSize = true;
-            DisplayCDBox.Location = new System.Drawing.Point(9, 19);
+            DisplayCDBox.Location = new Point(9, 19);
             DisplayCDBox.Name = "DisplayCDBox";
-            DisplayCDBox.Size = new System.Drawing.Size(95, 17);
+            DisplayCDBox.Size = new Size(95, 17);
             DisplayCDBox.TabIndex = 18;
             DisplayCDBox.Text = "Cooldown Use";
             DisplayCDBox.UseMnemonic = false;
             DisplayCDBox.UseVisualStyleBackColor = true;
             DisplayCDBox.Checked = DisplayCD;
-            DisplayCDBox.CheckedChanged += new System.EventHandler(DisplayCD_Click);
+            DisplayCDBox.CheckedChanged += DisplayCD_Click;
             // 
             // DisplayDPSBox
             // 
             DisplayDPSBox.AutoSize = true;
-            DisplayDPSBox.Location = new System.Drawing.Point(9, 42);
+            DisplayDPSBox.Location = new Point(9, 42);
             DisplayDPSBox.Name = "DisplayDPSBox";
-            DisplayDPSBox.Size = new System.Drawing.Size(97, 17);
+            DisplayDPSBox.Size = new Size(97, 17);
             DisplayDPSBox.TabIndex = 19;
             DisplayDPSBox.Text = "DPS Burst Use";
             DisplayDPSBox.UseMnemonic = false;
             DisplayDPSBox.UseVisualStyleBackColor = true;
             DisplayDPSBox.Checked = DisplayDPS;
-            DisplayDPSBox.CheckedChanged += new System.EventHandler(DisplayDPS_Click);
+            DisplayDPSBox.CheckedChanged += DisplayDPS_Click;
             // 
             // DisplayMitigationBox
             // 
             DisplayMitigationBox.AutoSize = true;
-            DisplayMitigationBox.Location = new System.Drawing.Point(9, 65);
+            DisplayMitigationBox.Location = new Point(9, 65);
             DisplayMitigationBox.Name = "DisplayMitigationBox";
-            DisplayMitigationBox.Size = new System.Drawing.Size(105, 17);
+            DisplayMitigationBox.Size = new Size(105, 17);
             DisplayMitigationBox.TabIndex = 20;
             DisplayMitigationBox.Text = "Mitigation Priority";
             DisplayMitigationBox.UseMnemonic = false;
             DisplayMitigationBox.UseVisualStyleBackColor = true;
             DisplayMitigationBox.Checked = DisplayMitigation;
-            DisplayMitigationBox.CheckedChanged += new System.EventHandler(DisplayMitigation_Click);
+            DisplayMitigationBox.CheckedChanged += DisplayMitigation_Click;
             // 
             // DisplayInterruptBox
             // 
             DisplayInterruptBox.AutoSize = true;
-            DisplayInterruptBox.Location = new System.Drawing.Point(150, 19);
+            DisplayInterruptBox.Location = new Point(150, 19);
             DisplayInterruptBox.Name = "DisplayInterruptBox";
-            DisplayInterruptBox.Size = new System.Drawing.Size(79, 17);
+            DisplayInterruptBox.Size = new Size(79, 17);
             DisplayInterruptBox.TabIndex = 21;
             DisplayInterruptBox.Text = "Interrupting";
             DisplayInterruptBox.UseMnemonic = false;
             DisplayInterruptBox.UseVisualStyleBackColor = true;
             DisplayInterruptBox.Checked = DisplayInterrupt;
-            DisplayInterruptBox.CheckedChanged += new System.EventHandler(DisplayInterrupt_Click);
+            DisplayInterruptBox.CheckedChanged += DisplayInterrupt_Click;
             // 
             // DisplayFRBox
             // 
             DisplayFRBox.AutoSize = true;
-            DisplayFRBox.Location = new System.Drawing.Point(150, 42);
+            DisplayFRBox.Location = new Point(150, 42);
             DisplayFRBox.Name = "DisplayFRBox";
-            DisplayFRBox.Size = new System.Drawing.Size(101, 17);
+            DisplayFRBox.Size = new Size(101, 17);
             DisplayFRBox.TabIndex = 22;
             DisplayFRBox.Text = "Frenzied Regen";
             DisplayFRBox.UseMnemonic = false;
             DisplayFRBox.UseVisualStyleBackColor = true;
             DisplayFRBox.Checked = DisplayFR;
-            DisplayFRBox.CheckedChanged += new System.EventHandler(DisplayFR_Click);
+            DisplayFRBox.CheckedChanged += DisplayFR_Click;
             // 
             // cmdSave
             // 
-            cmdSave.Location = new System.Drawing.Point(366, 314);
+            cmdSave.Location = new Point(366, 314);
             cmdSave.Name = "cmdSave";
-            cmdSave.Size = new System.Drawing.Size(75, 23);
+            cmdSave.Size = new Size(75, 23);
             cmdSave.TabIndex = 1;
             cmdSave.Text = "Save";
             cmdSave.UseVisualStyleBackColor = true;
-            cmdSave.Click += new System.EventHandler(CmdSave_Click);
+            cmdSave.Click += CmdSave_Click;
             // 
             // HPROCValue
             // 
             HPROCValue.AutoSize = true;
-            HPROCValue.Location = new System.Drawing.Point(368, 49);
+            HPROCValue.Location = new Point(368, 49);
             HPROCValue.Name = "HPROCValue";
-            HPROCValue.Size = new System.Drawing.Size(25, 13);
+            HPROCValue.Size = new Size(25, 13);
             HPROCValue.TabIndex = 14;
-			HPROCValue.Text = "" + HPROC;
+            HPROCValue.Text = "" + HPROC;
             // 
             // InterruptDelayValue
             // 
             InterruptDelayValue.AutoSize = true;
-            InterruptDelayValue.Location = new System.Drawing.Point(371, 51);
+            InterruptDelayValue.Location = new Point(371, 51);
             InterruptDelayValue.Name = "InterruptDelayValue";
-            InterruptDelayValue.Size = new System.Drawing.Size(25, 13);
+            InterruptDelayValue.Size = new Size(25, 13);
             InterruptDelayValue.TabIndex = 22;
-			InterruptDelayValue.Text = "" + InterruptDelay;
+            InterruptDelayValue.Text = "" + InterruptDelay;
         }
 
         private void CmdSave_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Settings saved", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
-			foreach (Process value in DisplayInfoForm.Processes)
-			{
-				Log.Write(Convert.ToString("Connected to WoW with id: " + value.Id));
-			}
+            foreach (var value in DisplayInfoForm.Processes)
+                Log.Write(Convert.ToString("Connected to WoW with id: " + value.Id));
         }
-		
+
         protected void AddButton_Click(object sender, EventArgs e)
         {
-			InterruptibleSpells.CollectionChanged += InterruptibleSpells_CollectionChanged;
+            InterruptibleSpells.CollectionChanged += InterruptibleSpells_CollectionChanged;
             InterruptibleSpells.Add(Convert.ToInt32(AddSpellBox.Text));
-			Log.Write("Update");
-			SpellListBox.SuspendLayout();
-			SpellListBox.DataSource = null;
-			SpellListBox.DataSource = InterruptibleSpells;
-			SpellListBox.ResumeLayout();
+            Log.Write("Update");
+            SpellListBox.SuspendLayout();
+            SpellListBox.DataSource = null;
+            SpellListBox.DataSource = InterruptibleSpells;
+            SpellListBox.ResumeLayout();
         }
-		
+
         protected void RemoveButton_Click(object sender, EventArgs e)
         {
-			InterruptibleSpells.CollectionChanged += InterruptibleSpells_CollectionChanged;
-			InterruptibleSpells.Remove(Convert.ToInt32(SpellListBox.SelectedItem));
-			SpellListBox.SuspendLayout();
-			SpellListBox.DataSource = null;
-			SpellListBox.DataSource = InterruptibleSpells;
-			SpellListBox.ResumeLayout();
+            InterruptibleSpells.CollectionChanged += InterruptibleSpells_CollectionChanged;
+            InterruptibleSpells.Remove(Convert.ToInt32(SpellListBox.SelectedItem));
+            SpellListBox.SuspendLayout();
+            SpellListBox.DataSource = null;
+            SpellListBox.DataSource = InterruptibleSpells;
+            SpellListBox.ResumeLayout();
         }
 
         private void InterruptDelayTrackBar_Scroll(object sender, EventArgs e)
@@ -2221,7 +2184,7 @@ namespace Frozen.Rotation
 
         public void BarkskinBox_CheckedChanged(object sender, EventArgs e)
         {
-			Barkskin = BarkskinBox.Checked;
+            Barkskin = BarkskinBox.Checked;
         }
 
         private void RageOfTheSleeper_Click(object sender, EventArgs e)
@@ -2321,101 +2284,97 @@ namespace Frozen.Rotation
 
         public void CustomDelayBox_CheckedChanged(object sender, EventArgs e)
         {
-			CustomDelay = CustomDelayBox.Checked;
+            CustomDelay = CustomDelayBox.Checked;
         }
 
         public void MitigationSwitchBox_CheckedChanged(object sender, EventArgs e)
         {
-			MitigationSwitch = MitigationSwitchBox.Checked;
+            MitigationSwitch = MitigationSwitchBox.Checked;
         }
-		
+
         private void TabAOEDelayNum_ValueChanged(object sender, EventArgs e)
         {
-			TabAOEDelay = (int)TabAOEDelayNum.Value;
+            TabAOEDelay = (int) TabAOEDelayNum.Value;
         }
-		
+
         private void LunarBeamNum_ValueChanged(object sender, EventArgs e)
         {
-			LunarBeamHealth = (int)LunarBeamNum.Value;
+            LunarBeamHealth = (int) LunarBeamNum.Value;
         }
-		
+
         private void BarkskinHPNum_ValueChanged(object sender, EventArgs e)
         {
-			BarkskinHealth = (int)BarkskinHPNum.Value;
+            BarkskinHealth = (int) BarkskinHPNum.Value;
         }
-		
+
         private void RageOfTheSleeperHPNum_ValueChanged(object sender, EventArgs e)
         {
-			RageOfTheSleeperHealthPercentage = (int)RageOfTheSleeperHPNum.Value;
+            RageOfTheSleeperHealthPercentage = (int) RageOfTheSleeperHPNum.Value;
         }
-		
+
         private void SurvivalInstinctsHPNum_ValueChanged(object sender, EventArgs e)
         {
-			SurvivalInstinctsHealth = (int)SurvivalInstinctsHPNum.Value;
+            SurvivalInstinctsHealth = (int) SurvivalInstinctsHPNum.Value;
         }
 
         private void TabMacroCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			TabMacro = TabMacroCombo.SelectedIndex;
+            TabMacro = TabMacroCombo.SelectedIndex;
         }
 
         private void WildChargeCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			WildCharge = WildChargeCombo.SelectedIndex;
+            WildCharge = WildChargeCombo.SelectedIndex;
         }
 
         private void SaveRageOfTheSleeperCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			SaveRageOfTheSleeper = SaveRageOfTheSleeperCombo.SelectedIndex;
+            SaveRageOfTheSleeper = SaveRageOfTheSleeperCombo.SelectedIndex;
         }
 
         private void PrioritizeCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			Prioritize = PrioritizeCombo.SelectedIndex;
+            Prioritize = PrioritizeCombo.SelectedIndex;
         }
 
         private void MitigationKeyCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			MitigationKey = Convert.ToString(MitigationKeyCombo.SelectedItem);
-			MitKey = (int)Enum.Parse(typeof(WoW.Keys), MitigationKey);
+            MitigationKey = Convert.ToString(MitigationKeyCombo.SelectedItem);
+            MitKey = (int) Enum.Parse(typeof(WoW.Keys), MitigationKey);
         }
 
         private void MitigationModCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			MitigationMod = Convert.ToString(MitigationModCombo.SelectedItem);
-			MitMod = (int)Enum.Parse(typeof(ModKeys), MitigationMod);
-			
+            MitigationMod = Convert.ToString(MitigationModCombo.SelectedItem);
+            MitMod = (int) Enum.Parse(typeof(ModKeys), MitigationMod);
         }
 
         private void DPSBurstKeyCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			DPSBurstKey = Convert.ToString(DPSBurstKeyCombo.SelectedItem);
-			DPSKey = (int)Enum.Parse(typeof(WoW.Keys), DPSBurstKey);
+            DPSBurstKey = Convert.ToString(DPSBurstKeyCombo.SelectedItem);
+            DPSKey = (int) Enum.Parse(typeof(WoW.Keys), DPSBurstKey);
         }
 
         private void DPSBurstModCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			DPSBurstMod = Convert.ToString(DPSBurstModCombo.SelectedItem);
-			DPSMod = (int)Enum.Parse(typeof(ModKeys), DPSBurstMod);
-			
+            DPSBurstMod = Convert.ToString(DPSBurstModCombo.SelectedItem);
+            DPSMod = (int) Enum.Parse(typeof(ModKeys), DPSBurstMod);
         }
 
         private void CoolDownKeyCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			CoolDownKey = Convert.ToString(CoolDownKeyCombo.SelectedItem);
-			CoolKey = (int)Enum.Parse(typeof(WoW.Keys), CoolDownKey);
+            CoolDownKey = Convert.ToString(CoolDownKeyCombo.SelectedItem);
+            CoolKey = (int) Enum.Parse(typeof(WoW.Keys), CoolDownKey);
         }
 
         private void CoolDownModCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-			CoolDownMod = Convert.ToString(CoolDownModCombo.SelectedItem);
-			CoolMod = (int)Enum.Parse(typeof(ModKeys), CoolDownMod);
-			
+            CoolDownMod = Convert.ToString(CoolDownModCombo.SelectedItem);
+            CoolMod = (int) Enum.Parse(typeof(ModKeys), CoolDownMod);
         }
-		
+
         public void DisplayInfo_Click(object sender, EventArgs e)
         {
-
         }
 
         // End of Initialize method
@@ -2423,80 +2382,72 @@ namespace Frozen.Rotation
         // Making pulse asynchronous, to accomodate for async tab-aggroing and interrupting
 
         public override async void Pulse()
-		{
-			await AsyncPulse();
-		}
+        {
+            await AsyncPulse();
+        }
 
         // Checks for user selections
 
         private async Task keypress()
         {
-            if (((DPSMod != 0 && DetectKeyPress.GetKeyState(DPSMod) < 0) || DPSMod == 0) && DetectKeyPress.GetKeyState(DPSKey) < 0)
-			{
-				if (UseDPSBurst && DPSTimer.ElapsedMilliseconds > 1000)
-				{
-					DPSBurst = !DPSBurst;
-					Log.Write("DPS Burst " + (DPSBurst ? "Activated" : "Deactivated"), Color.Red);
-					Log.Write("D P S Burst " + (DPSBurst ? "Activated" : "Deactivated"));
-					Thread.Sleep(50);
-					DPSTimer.Restart();
-					if (DisplayDPS)
-					{
-						DisplayText = "DPS Burst " + (DPSBurst ? "Activated" : "Deactivated");
-						OverlayTimer.Restart();
-					}
-			 
-				}
-			}
-			
-			if (((CoolMod != 0 && DetectKeyPress.GetKeyState(CoolMod) < 0) || CoolMod == 0) && DetectKeyPress.GetKeyState(CoolKey) < 0)
-			{
-				if (CoolDownUse)
-				{
-					CoolDowns = true;
-					Log.Write("Cooldowns Activated", Color.Red);
-					Log.Write("Cooldowns Activated");
-					Thread.Sleep(50);
-					CoolDownTimer.Restart();
-					if (DisplayCD)
-					{
-						DisplayText = "CoolDown Activated";
-						OverlayTimer.Restart();
-					}
-				}
-			}
-			
-            if (((MitMod != 0 && DetectKeyPress.GetKeyState(MitMod) < 0) || MitMod == 0) && DetectKeyPress.GetKeyState(MitKey) < 0)
-            {
-				if (MitigationSwitch && MitigationSwitchTimer.ElapsedMilliseconds > 1000)
-				{
-					if (Prioritize == 0)
-					{
-						Prioritize = 1;
-						Log.Write("Prioritizing for Magic Damage - Mark of Ursol", Color.Red);
-						Log.Write("Mark");
-						if (DisplayMitigation)
-						{
-							DisplayText = "Magic Mitigation";
-							OverlayTimer.Restart();
-						}
-					}
-					else
-					{
-						Prioritize = 0;
-						Log.Write("Prioritizing for Physical Damage - Ironfur", Color.Red);
-						Log.Write("Ironfur");
-						if (DisplayMitigation)
-						{
-							DisplayText = "Physical Mitigation";
-							OverlayTimer.Restart();
-						}
-					}
-					Thread.Sleep(50);
-					MitigationSwitchTimer.Restart();
-				}
-			}
-			return;
+            if ((DPSMod != 0 && DetectKeyPress.GetKeyState(DPSMod) < 0 || DPSMod == 0) && DetectKeyPress.GetKeyState(DPSKey) < 0)
+                if (UseDPSBurst && DPSTimer.ElapsedMilliseconds > 1000)
+                {
+                    DPSBurst = !DPSBurst;
+                    Log.Write("DPS Burst " + (DPSBurst ? "Activated" : "Deactivated"), Color.Red);
+                    Log.Write("D P S Burst " + (DPSBurst ? "Activated" : "Deactivated"));
+                    Thread.Sleep(50);
+                    DPSTimer.Restart();
+                    if (DisplayDPS)
+                    {
+                        DisplayText = "DPS Burst " + (DPSBurst ? "Activated" : "Deactivated");
+                        OverlayTimer.Restart();
+                    }
+                }
+
+            if ((CoolMod != 0 && DetectKeyPress.GetKeyState(CoolMod) < 0 || CoolMod == 0) && DetectKeyPress.GetKeyState(CoolKey) < 0)
+                if (CoolDownUse)
+                {
+                    CoolDowns = true;
+                    Log.Write("Cooldowns Activated", Color.Red);
+                    Log.Write("Cooldowns Activated");
+                    Thread.Sleep(50);
+                    CoolDownTimer.Restart();
+                    if (DisplayCD)
+                    {
+                        DisplayText = "CoolDown Activated";
+                        OverlayTimer.Restart();
+                    }
+                }
+
+            if ((MitMod != 0 && DetectKeyPress.GetKeyState(MitMod) < 0 || MitMod == 0) && DetectKeyPress.GetKeyState(MitKey) < 0)
+                if (MitigationSwitch && MitigationSwitchTimer.ElapsedMilliseconds > 1000)
+                {
+                    if (Prioritize == 0)
+                    {
+                        Prioritize = 1;
+                        Log.Write("Prioritizing for Magic Damage - Mark of Ursol", Color.Red);
+                        Log.Write("Mark");
+                        if (DisplayMitigation)
+                        {
+                            DisplayText = "Magic Mitigation";
+                            OverlayTimer.Restart();
+                        }
+                    }
+                    else
+                    {
+                        Prioritize = 0;
+                        Log.Write("Prioritizing for Physical Damage - Ironfur", Color.Red);
+                        Log.Write("Ironfur");
+                        if (DisplayMitigation)
+                        {
+                            DisplayText = "Physical Mitigation";
+                            OverlayTimer.Restart();
+                        }
+                    }
+                    Thread.Sleep(50);
+                    MitigationSwitchTimer.Restart();
+                }
         }
 
 
@@ -2504,23 +2455,19 @@ namespace Frozen.Rotation
 
         private async Task AsyncPulse()
         {
-			// Call the keypress method asynchronously
+            // Call the keypress method asynchronously
             await keypress();
 
             // Resets Cooldown use to off if 5 seconds have passed
             // That way it doesn't have to be manually turned off, it's a panic button
 
             if (CoolDownTimer.ElapsedMilliseconds > 2000)
-            {
                 CoolDowns = false;
-            }
-			
+
             // Refreshes overlay text
-            
+
             if (OverlayTimer.ElapsedMilliseconds > 2000)
-            {
-				DisplayText = "";
-            }
+                DisplayText = "";
 
             // Calls the methods that gets the averages and spikes of damage taken
 
@@ -2532,22 +2479,19 @@ namespace Frozen.Rotation
 
             if (firstrun)
             {
-				MitigationSwitchTimer.Start();
+                MitigationSwitchTimer.Start();
                 DPSTimer.Start();
-				OverlayTimer.Reset();
+                OverlayTimer.Reset();
                 OverlayTimer.Start();
                 InitTimer();
-                firstrun = false;	
-				
+                firstrun = false;
             }
 
             // Checks if the asynchronous task is already counting down for an interrupt,
             // and if not goes there to see if an interrupt is needed
 
             if (interrupting == false)
-            {
                 await WaitForInterrupt();
-            }
 
             // Prowl when out of combat if selected
 
@@ -2562,8 +2506,9 @@ namespace Frozen.Rotation
             // and prioritizes it of over active mitigation if Guardian of Elune is up
 
             if (WoW.CanCast("Frenzied Regeneration") && FrenziedRegen
-                && (HPROC1sAny || HPRateOfChange < -HPROC1sMax*0.8 && WoW.PlayerHasBuff("Guardian of Elune") && WoW.HealthPercent <= 85 && !WoW.PlayerHasBuff("Frenzied Regeneration") && WoW.HealthPercent <= 80) 
-				&& WoW.PlayerHasBuff("Bear Form") && (!FrenziedTimer.IsRunning || FrenziedTimer.ElapsedMilliseconds > 5000))
+                && (HPROC1sAny || HPRateOfChange < -HPROC1sMax * 0.8 && WoW.PlayerHasBuff("Guardian of Elune") && WoW.HealthPercent <= 85 &&
+                    !WoW.PlayerHasBuff("Frenzied Regeneration") && WoW.HealthPercent <= 80)
+                && WoW.PlayerHasBuff("Bear Form") && (!FrenziedTimer.IsRunning || FrenziedTimer.ElapsedMilliseconds > 5000))
             {
                 WoW.CastSpell("Frenzied Regeneration");
                 FrenziedTimer.Reset();
@@ -2574,30 +2519,36 @@ namespace Frozen.Rotation
             // Checks if Guardian of Elune is not up, is about to expire and go unused, or there is no incoming damage
             // and fires up active mitigation with a priority to always keep Ironfur up
 
-            if (WoW.CanCast("Ironfur") && ((WoW.Rage >= 45 || (PoolRage && WoW.Rage >= 90)) || (WoW.PlayerHasBuff("Gory Fur") && (WoW.Rage >= 25 || (PoolRage && WoW.Rage >= 90)))) 
-				&& ((Prioritize == 0 && (WoW.PlayerHasBuff("Mark of Ursol") || !WoW.PlayerHasBuff("Ironfur"))) || Prioritize == 1 && WoW.PlayerHasBuff("Mark of Ursol"))
-				&& (!WoW.PlayerHasBuff("Guardian of Elune") || WoW.PlayerBuffTimeRemaining("Guardian of Elune") < 5 || HPROC5sMax > -HPROC*0.2) && WoW.PlayerHasBuff("Bear Form") && !DPSBurst)
+            if (WoW.CanCast("Ironfur") && (WoW.Rage >= 45 || PoolRage && WoW.Rage >= 90 ||
+                                           WoW.PlayerHasBuff("Gory Fur") && (WoW.Rage >= 25 || PoolRage && WoW.Rage >= 90))
+                && (Prioritize == 0 && (WoW.PlayerHasBuff("Mark of Ursol") || !WoW.PlayerHasBuff("Ironfur")) ||
+                    Prioritize == 1 && WoW.PlayerHasBuff("Mark of Ursol"))
+                && (!WoW.PlayerHasBuff("Guardian of Elune") || WoW.PlayerBuffTimeRemaining("Guardian of Elune") < 5 || HPROC5sMax > -HPROC * 0.2) &&
+                WoW.PlayerHasBuff("Bear Form") && !DPSBurst)
             {
                 WoW.CastSpell("Ironfur");
                 return;
             }
 
-            if (WoW.CanCast("Mark of Ursol") && ((WoW.Rage >= 45 || (PoolRage && WoW.Rage >= 90)) || (WoW.PlayerHasBuff("Gory Fur") && (WoW.Rage >= 25 || (PoolRage && WoW.Rage >= 90)))) 
-				&& ((Prioritize == 0 && !WoW.PlayerHasBuff("Mark of Ursol") && WoW.PlayerHasBuff("Ironfur")) || (Prioritize == 1 && !WoW.PlayerHasBuff("Mark of Ursol"))) 
-				&& (!WoW.PlayerHasBuff("Guardian of Elune") || WoW.PlayerBuffTimeRemaining("Guardian of Elune") < 5 || HPROC5sMax > -HPROC*0.2) && WoW.PlayerHasBuff("Bear Form") && !DPSBurst)
+            if (WoW.CanCast("Mark of Ursol") && (WoW.Rage >= 45 || PoolRage && WoW.Rage >= 90 ||
+                                                 WoW.PlayerHasBuff("Gory Fur") && (WoW.Rage >= 25 || PoolRage && WoW.Rage >= 90))
+                && (Prioritize == 0 && !WoW.PlayerHasBuff("Mark of Ursol") && WoW.PlayerHasBuff("Ironfur") ||
+                    Prioritize == 1 && !WoW.PlayerHasBuff("Mark of Ursol"))
+                && (!WoW.PlayerHasBuff("Guardian of Elune") || WoW.PlayerBuffTimeRemaining("Guardian of Elune") < 5 || HPROC5sMax > -HPROC * 0.2) &&
+                WoW.PlayerHasBuff("Bear Form") && !DPSBurst)
             {
                 WoW.CastSpell("Mark of Ursol");
                 return;
             }
 
             // Checks if user has selected to use CDs automatically and uses them if below a certain health percent
-			// or CD key has been pressed
-			
+            // or CD key has been pressed
+
 
             if (WoW.CanCast("Barkskin") &&
-                ((WoW.HealthPercent <= BarkskinHealth && Barkskin) 
-				|| CoolDowns && WoW.PlayerSpellCharges("Survival Instincts") == 0 && (WoW.IsSpellOnCooldown("Rage of the Sleeper") || !RageOfTheSleeperCD) 
-				&& !WoW.PlayerHasBuff("Survival Instincts") && !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper")))
+                (WoW.HealthPercent <= BarkskinHealth && Barkskin
+                 || CoolDowns && WoW.PlayerSpellCharges("Survival Instincts") == 0 && (WoW.IsSpellOnCooldown("Rage of the Sleeper") || !RageOfTheSleeperCD)
+                 && !WoW.PlayerHasBuff("Survival Instincts") && !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper")))
             {
                 WoW.CastSpell("Barkskin");
                 CoolDowns = false;
@@ -2605,16 +2556,18 @@ namespace Frozen.Rotation
             }
 
             if (WoW.CanCast("Rage of the Sleeper") &&
-                ((WoW.HealthPercent <= RageOfTheSleeperHealthPercentage && RageOfTheSleeperHealth) || (CoolDowns && WoW.PlayerSpellCharges("Survival Instincts") == 0 && SaveRageOfTheSleeper == 0)) 
-				&& !WoW.PlayerHasBuff("Survival Instincts") && !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper"))
+                (WoW.HealthPercent <= RageOfTheSleeperHealthPercentage && RageOfTheSleeperHealth ||
+                 CoolDowns && WoW.PlayerSpellCharges("Survival Instincts") == 0 && SaveRageOfTheSleeper == 0)
+                && !WoW.PlayerHasBuff("Survival Instincts") && !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper"))
             {
                 WoW.CastSpell("Rage of the Sleeper");
                 CoolDowns = false;
                 return;
             }
 
-            if (WoW.CanCast("Survival Instincts") && ((WoW.HealthPercent <= SurvivalInstinctsHealth && SurvivalInstincts) || CoolDowns) && !WoW.PlayerHasBuff("Survival Instincts") 
-				&& !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper"))
+            if (WoW.CanCast("Survival Instincts") && (WoW.HealthPercent <= SurvivalInstinctsHealth && SurvivalInstincts || CoolDowns) &&
+                !WoW.PlayerHasBuff("Survival Instincts")
+                && !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper"))
             {
                 WoW.CastSpell("Survival Instincts");
                 CoolDowns = false;
@@ -2623,11 +2576,12 @@ namespace Frozen.Rotation
 
             //Bearcatting rotation if bearcatting is selected and we are not taking damage
 
-            if (combatRoutine.Type == RotationType.SingleTarget && Bearcatting && HPROC10sMax > -HPROC*0.25 && (DPSBurst || !UseDPSBurst))
+            if (combatRoutine.Type == RotationType.SingleTarget && Bearcatting && HPROC10sMax > -HPROC * 0.25 && (DPSBurst || !UseDPSBurst))
             {
                 // Wild Charge if selected to, to the enemy's location
 
-                if (WoW.HasTarget && WoW.TargetIsEnemy && (UseWildCharge && WildCharge == 1) && WoW.CanCast("Wild Charge", true, true, true, true) && WoW.PlayerHasBuff("Cat Form"))
+                if (WoW.HasTarget && WoW.TargetIsEnemy && UseWildCharge && WildCharge == 1 && WoW.CanCast("Wild Charge", true, true, true, true) &&
+                    WoW.PlayerHasBuff("Cat Form"))
                 {
                     WoW.CastSpell("Wild Charge");
                     return;
@@ -2638,9 +2592,7 @@ namespace Frozen.Rotation
                     // Get into Cat Form if we are not already into it
 
                     if (!WoW.PlayerHasBuff("Cat Form") && OpenerDone == false)
-                    {
                         WoW.CastSpell("Cat Form");
-                    }
 
                     // Opener rotation
 
@@ -2678,10 +2630,12 @@ namespace Frozen.Rotation
                             // If we used both Mangle and Thrash or Rip and/or Rake are about to fall off,
                             // switch to cat form
 
-                            if ((bearstep >= 3 || (IncarnationDPS && incarnatestep >= 7)) && WoW.CanCast("Cat Form") &&
+                            if ((bearstep >= 3 || IncarnationDPS && incarnatestep >= 7) && WoW.CanCast("Cat Form") &&
                                 !WoW.PlayerHasBuff("Rage of the Sleeper") && (!WoW.PlayerHasBuff("Incarnation: Guardian of Ursoc") ||
-                                 (WoW.TargetDebuffStacks("Thrash") == 3 && (!WoW.TargetHasDebuff("Rip") || WoW.TargetDebuffTimeRemaining("Rip") <= 3)) ||
-                                 (WoW.TargetDebuffStacks("Thrash") == 3 && (!WoW.TargetHasDebuff("Rake") || WoW.TargetDebuffTimeRemaining("Rake") <= 3))))
+                                                                              WoW.TargetDebuffStacks("Thrash") == 3 &&
+                                                                              (!WoW.TargetHasDebuff("Rip") || WoW.TargetDebuffTimeRemaining("Rip") <= 3) ||
+                                                                              WoW.TargetDebuffStacks("Thrash") == 3 &&
+                                                                              (!WoW.TargetHasDebuff("Rake") || WoW.TargetDebuffTimeRemaining("Rake") <= 3)))
                             {
                                 WoW.CastSpell("Cat Form");
                                 bearstep = 0;
@@ -2691,7 +2645,8 @@ namespace Frozen.Rotation
 
                             // Cast Rage of the Sleeper if selected to gain the 25% damage increase from the artifact trait
 
-                            if (WoW.CanCast("Rage of the Sleeper") && SaveRageOfTheSleeper != 1 && !RageOfTheSleeperHealth && !WoW.PlayerHasBuff("Incarnation: Guardian of Ursoc"))
+                            if (WoW.CanCast("Rage of the Sleeper") && SaveRageOfTheSleeper != 1 && !RageOfTheSleeperHealth &&
+                                !WoW.PlayerHasBuff("Incarnation: Guardian of Ursoc"))
                             {
                                 WoW.CastSpell("Rage of the Sleeper");
                                 return;
@@ -2708,7 +2663,7 @@ namespace Frozen.Rotation
                             // Always keep up Moonfire
 
                             if (WoW.IsSpellInRange("Moonfire") && WoW.CanCast("Moonfire") &&
-                                ((WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") <= 3) || !WoW.TargetHasDebuff("Moonfire")))
+                                (WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") <= 3 || !WoW.TargetHasDebuff("Moonfire")))
                             {
                                 WoW.CastSpell("Moonfire");
                                 return;
@@ -2759,7 +2714,8 @@ namespace Frozen.Rotation
 
                             // Use Rake if debuff is not there or is about to fall off
 
-                            if (WoW.CurrentComboPoints < 5 && (!WoW.TargetHasDebuff("Rake") || WoW.TargetHasDebuff("Rake") && WoW.TargetDebuffTimeRemaining("Rake") < 3))
+                            if (WoW.CurrentComboPoints < 5 && (!WoW.TargetHasDebuff("Rake") ||
+                                                               WoW.TargetHasDebuff("Rake") && WoW.TargetDebuffTimeRemaining("Rake") < 3))
                             {
                                 WoW.CastSpell("Rake");
                                 Thread.Sleep(50);
@@ -2778,7 +2734,8 @@ namespace Frozen.Rotation
                             // If we have 5 combo points and target is below 25% so that we can refresh our Rip
                             // cast Ferocious Bite
 
-                            if (WoW.CurrentComboPoints == 5 && WoW.TargetHasDebuff("Rip") && WoW.TargetDebuffTimeRemaining("Rip") < 5 && WoW.TargetHealthPercent < 25)
+                            if (WoW.CurrentComboPoints == 5 && WoW.TargetHasDebuff("Rip") && WoW.TargetDebuffTimeRemaining("Rip") < 5 &&
+                                WoW.TargetHealthPercent < 25)
                             {
                                 WoW.CastSpell("Ferocious Bite");
                                 Thread.Sleep(50);
@@ -2806,18 +2763,16 @@ namespace Frozen.Rotation
 
                 case RotationType.SingleTarget:
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && (!Bearcatting || HPROC10sMax < -HPROC*0.25 || !DPSBurst))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && (!Bearcatting || HPROC10sMax < -HPROC * 0.25 || !DPSBurst))
                     {
                         // Keep Bear Form up
 
                         if (!WoW.PlayerHasBuff("Bear Form"))
-                        {
                             WoW.CastSpell("Bear Form");
-                        }
 
                         // Wild Charge if selected to, to the enemy's location
 
-                        if (WoW.HasTarget && WoW.TargetIsEnemy && (UseWildCharge && WildCharge == 1) && WoW.CanCast("Wild Charge", true, true, true, true))
+                        if (WoW.HasTarget && WoW.TargetIsEnemy && UseWildCharge && WildCharge == 1 && WoW.CanCast("Wild Charge", true, true, true, true))
                         {
                             WoW.CastSpell("Wild Charge");
                             return;
@@ -2834,7 +2789,8 @@ namespace Frozen.Rotation
                         // If target does not have Moonfire running on it, or is about to expire,
                         // refresh it
 
-                        if (WoW.IsSpellInRange("Moonfire") && WoW.CanCast("Moonfire") && WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") <= 3 ||
+                        if (WoW.IsSpellInRange("Moonfire") && WoW.CanCast("Moonfire") && WoW.TargetHasDebuff("Moonfire") &&
+                            WoW.TargetDebuffTimeRemaining("Moonfire") <= 3 ||
                             !WoW.TargetHasDebuff("Moonfire"))
                         {
                             WoW.CastSpell("Moonfire");
@@ -2843,7 +2799,7 @@ namespace Frozen.Rotation
 
                         // Cast Incarnation of Ursoc if selected and available
 
-                        if (WoW.CanCast("Incarnation: Guardian of Ursoc") && (Incarnation || (IncarnationDPS && DPSBurst)))
+                        if (WoW.CanCast("Incarnation: Guardian of Ursoc") && (Incarnation || IncarnationDPS && DPSBurst))
                         {
                             WoW.CastSpell("Incarnation: Guardian of Ursoc");
                             return;
@@ -2851,7 +2807,7 @@ namespace Frozen.Rotation
 
                         // Cast Bristling Fur if selected, available, and we are taking at least some damage
 
-                        if (WoW.CanCast("Bristling Fur") && BristlingFur && HPROC5sMax < -HPROC*0.4)
+                        if (WoW.CanCast("Bristling Fur") && BristlingFur && HPROC5sMax < -HPROC * 0.4)
                         {
                             WoW.CastSpell("Bristling Fur");
                             return;
@@ -2869,7 +2825,8 @@ namespace Frozen.Rotation
                         // unless DPSBurst is enabled
 
                         if (WoW.CanCast("Rage of the Sleeper") &&
-                            ((DPSBurst && RageOfTheSleeper) || (!RageOfTheSleeperHealth && !SaveRageOfTheSleeperKey && RageOfTheSleeper && HPROC5sMax < -HPROC*0.4)))
+                            (DPSBurst && RageOfTheSleeper || !RageOfTheSleeperHealth && !SaveRageOfTheSleeperKey && RageOfTheSleeper &&
+                             HPROC5sMax < -HPROC * 0.4))
                         {
                             WoW.CastSpell("Rage of the Sleeper");
                             return;
@@ -2888,13 +2845,13 @@ namespace Frozen.Rotation
                         if (WoW.CanCast("Mangle") && IsInMeleeRange())
                         {
                             WoW.CastSpell("Mangle");
-							return;
+                            return;
                         }
 
                         // If you have Pulverize and selected that the rotation will use it,
                         // cast it if target has 3 stacks of Thrash
 
-                        if (WoW.CanCast("Pulverize") && Pulverize && (WoW.TargetDebuffStacks("Thrash") == 3))
+                        if (WoW.CanCast("Pulverize") && Pulverize && WoW.TargetDebuffStacks("Thrash") == 3)
                         {
                             WoW.CastSpell("Pulverize");
                             return;
@@ -2913,10 +2870,7 @@ namespace Frozen.Rotation
                         // Swipe as a filler if nothing else to do
 
                         if (WoW.CanCast("Swipe") && WoW.IsSpellOnCooldown("Mangle") && IsInMeleeRange())
-                        {
                             WoW.CastSpell("Swipe");
-							return;
-                        }
                     }
 
                     break;
@@ -2930,22 +2884,18 @@ namespace Frozen.Rotation
                         // Keep Bear Form up
 
                         if (!WoW.PlayerHasBuff("Bear Form"))
-                        {
                             WoW.CastSpell("Bear Form");
-                        }
 
                         //Taunt if target is not taunted and Growl is available
 
                         if (WoW.IsSpellInRange("Growl") && WoW.CanCast("Growl") && !WoW.TargetHasDebuff("Intimidated"))
-                        {
                             WoW.CastSpell("Growl");
-                        }
 
                         // Checks if we are not tab-aggroing
                         // and if not, wild charges to its position if we have the talent
                         // and the user chose that the rotation uses it
 
-                        if (WoW.IsSpellInRange("Wild Charge") && WoW.CanCast("Wild Charge") && !TabAOE && (UseWildCharge && WildCharge == 0))
+                        if (WoW.IsSpellInRange("Wild Charge") && WoW.CanCast("Wild Charge") && !TabAOE && UseWildCharge && WildCharge == 0)
                         {
                             WoW.CastSpell("Wild Charge");
                             return;
@@ -2954,7 +2904,8 @@ namespace Frozen.Rotation
                         // Casts Moonfire if target does not have the debuff, is about to expire or we have a Galactic Guardian proc
 
                         if (WoW.IsSpellInRange("Moonfire") && WoW.CanCast("Moonfire") &&
-                            (!WoW.TargetHasDebuff("Moonfire") || WoW.PlayerHasBuff("Galactic Guardian") || (WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") <= 3)))
+                            (!WoW.TargetHasDebuff("Moonfire") || WoW.PlayerHasBuff("Galactic Guardian") ||
+                             WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") <= 3))
                         {
                             WoW.CastSpell("Moonfire");
                             return;
@@ -2970,7 +2921,7 @@ namespace Frozen.Rotation
 
                         // Cast Incarnation of Ursoc if selected and available
 
-                        if (WoW.CanCast("Incarnation: Guardian of Ursoc") && (Incarnation || (IncarnationDPS && DPSBurst)))
+                        if (WoW.CanCast("Incarnation: Guardian of Ursoc") && (Incarnation || IncarnationDPS && DPSBurst))
                         {
                             WoW.CastSpell("Incarnation: Guardian of Ursoc");
                             return;
@@ -2978,7 +2929,7 @@ namespace Frozen.Rotation
 
                         // Cast Bristling Fur if selected, available, and we are taking at least some damage
 
-                        if (WoW.CanCast("Bristling Fur") && BristlingFur && HPROC5sMax < -HPROC*0.4)
+                        if (WoW.CanCast("Bristling Fur") && BristlingFur && HPROC5sMax < -HPROC * 0.4)
                         {
                             WoW.CastSpell("Bristling Fur");
                             return;
@@ -2996,7 +2947,8 @@ namespace Frozen.Rotation
                         // unless DPSBurst is enabled
 
                         if (WoW.CanCast("Rage of the Sleeper") &&
-                            ((DPSBurst && RageOfTheSleeperDPS) || (!RageOfTheSleeperHealth && !SaveRageOfTheSleeperKey && RageOfTheSleeper && HPROC5sMax < -HPROC*0.4)))
+                            (DPSBurst && RageOfTheSleeperDPS || !RageOfTheSleeperHealth && !SaveRageOfTheSleeperKey && RageOfTheSleeper &&
+                             HPROC5sMax < -HPROC * 0.4))
                         {
                             WoW.CastSpell("Rage of the Sleeper");
                             return;
@@ -3024,7 +2976,7 @@ namespace Frozen.Rotation
                         // If we are chain pulling, it will use it at 30% to pull the next pack
                         // (hint: If we are chain pulling and Incapacitating Roar is casted, move on to the next pack!)
 
-                        if (WoW.CanCast("Incapacitating Roar") && Incapacitating && ((ChainPulling && WoW.TargetHealthPercent <= 30) || !ChainPulling))
+                        if (WoW.CanCast("Incapacitating Roar") && Incapacitating && (ChainPulling && WoW.TargetHealthPercent <= 30 || !ChainPulling))
                         {
                             WoW.CastSpell("Incapacitating Roar");
                             return;
@@ -3033,9 +2985,7 @@ namespace Frozen.Rotation
                         // Otherwise, use Swipe
 
                         if (WoW.CanCast("Swipe") && IsInMeleeRange())
-                        {
                             WoW.CastSpell("Swipe");
-                        }
                     }
 
                     break;
@@ -3047,9 +2997,7 @@ namespace Frozen.Rotation
                         // Keep Bear Form up
 
                         if (!WoW.PlayerHasBuff("Bear Form"))
-                        {
                             WoW.CastSpell("Bear Form");
-                        }
 
                         // Always use Moonfire if there is a Galactic Guardian proc
 
@@ -3061,15 +3009,14 @@ namespace Frozen.Rotation
 
                         // Keep up Moonfire on main target if not automatically refreshed
 
-                        if (WoW.IsSpellInRange("Moonfire") && WoW.CanCast("Moonfire") && WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") <= 3 ||
+                        if (WoW.IsSpellInRange("Moonfire") && WoW.CanCast("Moonfire") && WoW.TargetHasDebuff("Moonfire") &&
+                            WoW.TargetDebuffTimeRemaining("Moonfire") <= 3 ||
                             !WoW.TargetHasDebuff("Moonfire"))
-                        {
                             WoW.CastSpell("Moonfire");
-                        }
 
                         // Cast Incarnation of Ursoc if selected and available
 
-                        if (WoW.CanCast("Incarnation: Guardian of Ursoc") && (Incarnation || (IncarnationDPS && DPSBurst)))
+                        if (WoW.CanCast("Incarnation: Guardian of Ursoc") && (Incarnation || IncarnationDPS && DPSBurst))
                         {
                             WoW.CastSpell("Incarnation: Guardian of Ursoc");
                             return;
@@ -3077,7 +3024,7 @@ namespace Frozen.Rotation
 
                         // Cast Bristling Fur if selected, available, and we are taking at least some damage
 
-                        if (WoW.CanCast("Bristling Fur") && BristlingFur && HPROC5sMax < -HPROC*0.4)
+                        if (WoW.CanCast("Bristling Fur") && BristlingFur && HPROC5sMax < -HPROC * 0.4)
                         {
                             WoW.CastSpell("Bristling Fur");
                             return;
@@ -3095,7 +3042,8 @@ namespace Frozen.Rotation
                         // unless DPSBurst is enabled
 
                         if (WoW.CanCast("Rage of the Sleeper") &&
-                            ((DPSBurst && RageOfTheSleeperDPS) || (!RageOfTheSleeperHealth && !SaveRageOfTheSleeperKey && RageOfTheSleeper && HPROC5sMax < -HPROC*0.4)))
+                            (DPSBurst && RageOfTheSleeperDPS || !RageOfTheSleeperHealth && !SaveRageOfTheSleeperKey && RageOfTheSleeper &&
+                             HPROC5sMax < -HPROC * 0.4))
                         {
                             WoW.CastSpell("Rage of the Sleeper");
                             return;
@@ -3120,9 +3068,7 @@ namespace Frozen.Rotation
                         // Swipe as a filler if nothing else to do
 
                         if (WoW.CanCast("Swipe") && IsInMeleeRange())
-                        {
                             WoW.CastSpell("Swipe");
-                        }
                     }
                     break;
             }
@@ -3175,9 +3121,7 @@ namespace Frozen.Rotation
             // and Average is the averaged rate of change for the last second
 
             if (Queue1s.Count > 4)
-            {
                 Queue1s.Dequeue();
-            }
             Queue1s.Enqueue(HPRateOfChange);
 
             foreach (var a in Queue1s)
@@ -3196,9 +3140,7 @@ namespace Frozen.Rotation
             // simirarly to the previous set
 
             if (Queue5s.Count > 24)
-            {
                 Queue5s.Dequeue();
-            }
             Queue5s.Enqueue(HPRateOfChange);
 
             foreach (var c in Queue5s)
@@ -3206,11 +3148,9 @@ namespace Frozen.Rotation
                 if (c < -HPROC)
                 {
                     HPROC5sMax = Convert.ToInt32(c);
-                    HPROC5sAny = true;
                     break;
                 }
                 HPROC5sMax = 0;
-                HPROC5sAny = false;
             }
 
 
@@ -3218,9 +3158,7 @@ namespace Frozen.Rotation
             // simirarly to the previous set
 
             if (Queue10s.Count > 49)
-            {
                 Queue10s.Dequeue();
-            }
             Queue10s.Enqueue(HPRateOfChange);
 
 
@@ -3229,11 +3167,9 @@ namespace Frozen.Rotation
                 if (e < -HPROC)
                 {
                     HPROC10sMax = Convert.ToInt32(e);
-                    HPROC10sAny = true;
                     break;
                 }
                 HPROC10sMax = 0;
-                HPROC10sAny = false;
             }
         }
 
@@ -3244,7 +3180,7 @@ namespace Frozen.Rotation
         // either by a /targetenemy macro (more efficient and safe)
         // or by PM sending the keystrokes themselves
 
-      // Checks if the spell currently being cast by the target is in the list of spells to be interrupted
+        // Checks if the spell currently being cast by the target is in the list of spells to be interrupted
         // Currently the list contains only PVP spells
 
         private bool Interruptible()
@@ -3257,27 +3193,23 @@ namespace Frozen.Rotation
 
         private async Task WaitForInterrupt()
         {
-            if (WoW.TargetIsCasting && SkullBashInterrupt && WoW.IsSpellInRange("Skull Bash") && WoW.CanCast("Skull Bash") && (Interruptible() || !InterruptOnlyListed))
+            if (WoW.TargetIsCasting && SkullBashInterrupt && WoW.IsSpellInRange("Skull Bash") && WoW.CanCast("Skull Bash") &&
+                (Interruptible() || !InterruptOnlyListed))
             {
                 interrupting = true;
-				DisplayText = "Interrupting..";
-				OverlayTimer.Restart();
-				if (CustomDelay)
-				{
-					await Task.Delay(InterruptDelay);
-                }
-				else
-				{
-					await Task.Delay(500);
-				}
-				DisplayText = "Interrupting..";
-				OverlayTimer.Restart();
-				WoW.CastSpell("Skull Bash");
+                DisplayText = "Interrupting..";
+                OverlayTimer.Restart();
+                if (CustomDelay)
+                    await Task.Delay(InterruptDelay);
+                else
+                    await Task.Delay(500);
+                DisplayText = "Interrupting..";
+                OverlayTimer.Restart();
+                WoW.CastSpell("Skull Bash");
                 Log.Write("Interrupting!", Color.Red);
                 interrupting = false;
             }
         }
-	
 
 
         // Checks if current target is in melee range
@@ -3285,18 +3217,118 @@ namespace Frozen.Rotation
         {
             return WoW.CanCast("Mangle", false, false, true, false, false);
         }
-    }	
-	
-	public class DisplayInfoForm: Form
-	{ 			
-		
-		
-		// Dll imports for overlay transparent drawing
-		
-		[DllImport("user32.dll", SetLastError = true)]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
-		
+
+        // List of mod keys
+        private enum ModKeys
+        {
+            None = 0,
+            Alt = 0xA4,
+            Control = 0xA2
+        }
+    }
+
+    public class DisplayInfoForm : Form
+    {
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint TOPMOST_FLAGS = SWP_NOMOVE | SWP_NOSIZE;
+
+
+        public static Process[] processes32 = Process.GetProcessesByName("Wow");
+        public static Process[] processes64 = Process.GetProcessesByName("Wow-64");
+
+        private static readonly IntPtr WindowHandle = p.MainWindowHandle;
+
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private readonly byte alpha = 255;
+
+        // Variables for the form
+
+        private readonly Label DisplayLabel;
+        private Timer OverlayDisplayTimer;
+        private readonly RECT rect;
+
+        private DisplayInfoForm()
+        {
+            DisplayLabel = new Label();
+            GetWindowRect(WindowHandle, ref rect);
+            InitOverlayTimer();
+            SuspendLayout();
+            // 
+            // DisplayInfoForm
+            // 
+            SetWindowPos(Handle, HWND_TOPMOST, 0, 0, 0, 0, TOPMOST_FLAGS);
+            Controls.Add(DisplayLabel);
+            Location = new Point(rect.Left, rect.Top);
+            Size = new Size(rect.Right - rect.Left, rect.Bottom - rect.Top);
+            FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.Manual;
+            BackColor = Color.White;
+            TransparencyKey = Color.White;
+            Name = "DisplayInfoForm";
+            Text = "Guardian Druid Info";
+            ResumeLayout(false);
+            // 
+            // DisplayLabel
+            // 
+            DisplayLabel.AutoSize = false;
+            DisplayLabel.Font = new Font("Microsoft Sans Serif", 48F, FontStyle.Regular, GraphicsUnit.Point, 161);
+            DisplayLabel.Location = new Point(570, 100);
+            DisplayLabel.Name = "DisplayLabel";
+            DisplayLabel.Size = new Size(820, 73);
+            DisplayLabel.TabIndex = 1;
+            DisplayLabel.Text = Guardian.DisplayText;
+            DisplayLabel.TextAlign = ContentAlignment.TopCenter;
+            WindowState = FormWindowState.Maximized;
+        }
+
+        public sealed override string Text
+        {
+            get { return base.Text; }
+            set { base.Text = value; }
+        }
+
+        public sealed override Color BackColor
+        {
+            get { return base.BackColor; }
+            set { base.BackColor = value; }
+        }
+
+        public static Process[] Processes
+        {
+            get
+            {
+                var processes = new Process[0];
+                Array.Resize(ref processes, processes32.Length + processes64.Length);
+                Array.Copy(processes64, processes, processes64.Length);
+                Array.Copy(processes32, 0, processes, processes64.Length, processes32.Length);
+                return processes;
+            }
+        }
+
+        public static Process p
+        {
+            get
+            {
+                try
+                {
+                    return Processes[0];
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("" + ex, "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return null;
+                }
+            }
+        }
+
+
+        // Dll imports for overlay transparent drawing
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
+
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         private static extern int User32_GetWindowLong(IntPtr hWnd, GetWindowLong nIndex);
 
@@ -3306,63 +3338,59 @@ namespace Frozen.Rotation
         [DllImport("user32.dll", EntryPoint = "SetLayeredWindowAttributes")]
         private static extern bool User32_SetLayeredWindowAttributes(IntPtr hWnd, int crKey, byte bAlpha, LayeredWindowAttributes dwFlags);
 
-		[DllImport("user32.dll")] 
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-		
-		// Variables for the overlay
-		
-		[StructLayout(LayoutKind.Sequential)]
-		private struct RECT
-		{
-			public int Left;
-			public int Top;
-			public int Right;
-			public int Bottom;
-		}
-		RECT rect = new RECT();
-		
-		
-		public static Process[] processes32 = Process.GetProcessesByName("Wow");
-		public static Process[] processes64 = Process.GetProcessesByName("Wow-64");
-		public static Process[] Processes
-		{
-			get
-			{
-				Process[] processes = new Process[0];
-				Array.Resize(ref processes, processes32.Length + processes64.Length);
-				Array.Copy(processes64, processes, processes64.Length);
-				Array.Copy(processes32, 0, processes, processes64.Length, processes32.Length);
-				return processes;
-			}
-			set
-			{}
-		}
-		
-		public static Process p 
-		{
-			get
-			{
-				try 
-				{
-					return Processes[0];
-				}
-				catch (Exception ex)
-				{
-					MessageBox.Show("" + ex, "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
-					return null;
-				}
-			}
-			set {}
-		}
-		
-		private static IntPtr WindowHandle = p.MainWindowHandle;
-		
-		private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
-		private const UInt32 SWP_NOSIZE = 0x0001;
-		private const UInt32 SWP_NOMOVE = 0x0002;
-		private const UInt32 TOPMOST_FLAGS = SWP_NOMOVE | SWP_NOSIZE;
-        private byte alpha = 255;
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        // Sets transparency
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            var wl = User32_GetWindowLong(Handle, GetWindowLong.GWL_EXSTYLE);
+            User32_SetWindowLong(Handle, GetWindowLong.GWL_EXSTYLE,
+                wl | (int) ExtendedWindowStyles.WS_EX_LAYERED | (int) ExtendedWindowStyles.WS_EX_TRANSPARENT);
+            User32_SetLayeredWindowAttributes(Handle, (TransparencyKey.B << 16) + (TransparencyKey.G << 8) + TransparencyKey.R, alpha,
+                LayeredWindowAttributes.LWA_COLORKEY | LayeredWindowAttributes.LWA_ALPHA);
+        }
+
+        // Attempt to draw nicer fonts		
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
+            base.OnPaint(e);
+        }
+
+        // Update overlay text event
+
+        public void UpdateDisplayLabel(object sender, ElapsedEventArgs e)
+        {
+            DisplayLabel.SuspendLayout();
+            DisplayLabel.Text = Guardian.DisplayText;
+            DisplayLabel.ResumeLayout(false);
+        }
+
+        // Starts timer to refresh label 	
+
+        private void InitOverlayTimer()
+        {
+            OverlayDisplayTimer = new Timer();
+            OverlayDisplayTimer.Enabled = true;
+            OverlayDisplayTimer.Elapsed += UpdateDisplayLabel;
+            OverlayDisplayTimer.Interval = 100;
+        }
+
+        // Variables for the overlay
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public readonly int Left;
+            public readonly int Top;
+            public readonly int Right;
+            public readonly int Bottom;
+        }
 
         private enum GetWindowLong
         {
@@ -3375,90 +3403,13 @@ namespace Frozen.Rotation
             WS_EX_LAYERED = 0x80000
         }
 
+        [Flags]
         private enum LayeredWindowAttributes
         {
             LWA_COLORKEY = 0x1,
             LWA_ALPHA = 0x2
         }
-		
-		// Variables for the form
-		
-        private Label DisplayLabel;
-		private Timer OverlayDisplayTimer;
-		
-		// Sets transparency
-
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-            int wl = User32_GetWindowLong(this.Handle, GetWindowLong.GWL_EXSTYLE);
-            User32_SetWindowLong(this.Handle, GetWindowLong.GWL_EXSTYLE, wl | (int)ExtendedWindowStyles.WS_EX_LAYERED | (int)ExtendedWindowStyles.WS_EX_TRANSPARENT);
-            User32_SetLayeredWindowAttributes(this.Handle, (TransparencyKey.B << 16) + (TransparencyKey.G << 8) + TransparencyKey.R, alpha, LayeredWindowAttributes.LWA_COLORKEY | LayeredWindowAttributes.LWA_ALPHA);
-        }
-		
-		// Attempt to draw nicer fonts		
-		
-		protected override void OnPaint(PaintEventArgs e) 
-		{
-			e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
-			base.OnPaint(e);
-		}
-		
-		// Update overlay text event
-		
-		public void UpdateDisplayLabel(object sender, ElapsedEventArgs e)
-		{
-			DisplayLabel.SuspendLayout();
-			DisplayLabel.Text = Guardian.DisplayText;
-			DisplayLabel.ResumeLayout(false);
-		}
-		
-		// Starts timer to refresh label 	
-
-        private void InitOverlayTimer()
-        {
-            OverlayDisplayTimer = new Timer();
-            OverlayDisplayTimer.Enabled = true;
-            OverlayDisplayTimer.Elapsed += UpdateDisplayLabel;
-            OverlayDisplayTimer.Interval = 100;
-        }
-		
-		private DisplayInfoForm()
-		{
-		
-			DisplayLabel = new Label();
-			GetWindowRect(WindowHandle, ref rect);
-			InitOverlayTimer();
-			SuspendLayout();
-			// 
-			// DisplayInfoForm
-			// 
-			SetWindowPos(this.Handle, HWND_TOPMOST, 0, 0, 0, 0, TOPMOST_FLAGS);
-			Controls.Add(DisplayLabel);
-			Location = new Point(rect.Left, rect.Top);
-            Size = new Size(rect.Right - rect.Left, rect.Bottom - rect.Top);
-            FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-			StartPosition = FormStartPosition.Manual;
-			BackColor = Color.White;
-			TransparencyKey = Color.White;
-			Name = "DisplayInfoForm";
-			Text = "Guardian Druid Info";
-			ResumeLayout(false);
-            // 
-            // DisplayLabel
-            // 
-            this.DisplayLabel.AutoSize = false;
-            this.DisplayLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 48F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(161)));
-            this.DisplayLabel.Location = new System.Drawing.Point(570, 100);
-            this.DisplayLabel.Name = "DisplayLabel";
-            this.DisplayLabel.Size = new System.Drawing.Size(820, 73);
-            this.DisplayLabel.TabIndex = 1;
-            this.DisplayLabel.Text = Guardian.DisplayText;
-            this.DisplayLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-			this.WindowState = FormWindowState.Maximized;
-
-		}
-	}
+    }
 }
 
 /*

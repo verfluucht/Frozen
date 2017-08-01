@@ -1,11 +1,7 @@
-// ReSharper disable UnusedMember.Global
-// ReSharper disable ConvertPropertyToExpressionBody
-// ReSharper disable UseStringInterpolation
-// ReSharper disable CheckNamespace
-
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Frozen.Helpers;
 
@@ -14,15 +10,7 @@ namespace Frozen.Rotation
     public class Outlaw : CombatRoutine
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
-        /*public int GetRolltheBonesBuffs()
-    {
-        string[] idBuffs = { "Shark Infested Waters", "True Bearing", "Jolly Roger", "Broadsides", "Buried Treasure", "Grand Melee"};
-        int buffs = idBuffs;
-        for (int i = 0; i < idBuffs.Length; i++)
-            if (WoW.PlayerHasBuff(buffs[i]))
-                buffs++;
-        return buffs;
-    } */
+
         public override Form SettingsForm { get; set; }
         public SettingsFormCJO SettingsFormCJO { get; set; }
 
@@ -31,25 +19,9 @@ namespace Frozen.Rotation
             get
             {
                 string[] idBuffs = {"Shark Infested Waters", "True Bearing", "Jolly Roger", "Broadsides", "Buried Treasure", "Grand Melee"};
-                var buffs = 0;
-                for (var i = 0; i < idBuffs.Length; i++)
-                    if (WoW.PlayerHasBuff(idBuffs[i]))
-                        buffs++;
-                return buffs;
+                return idBuffs.Count(WoW.PlayerHasBuff);
             }
         }
-
-        /*public string GetRolltheBonesBuffs()
-	{
-		string[] = new string[] idBuffs { "Shark Infested Waters", "True Bearing", "Jolly Roger", "Broadsides", "Buried Treasure", "Grand Melee"};
-		for (i = 0; i < idBuffs.Count; i++)
-		{
-			if (!WoW.PlayerHasBuff(buffs[i]))
-				return;
-		}
-
-	}*/
-
 
         public static int rtbCount
         {
@@ -60,28 +32,18 @@ namespace Frozen.Rotation
                 {
                     var c = WoW.GetPixelColor(5 + x, 3);
                     var e = WoW.GetPixelColor(5 + 5, 3);
-                    if ((e.R != 255) && (e.G != 255) && (e.B != 255))
-                    {
+                    if (e.R != 255 && e.G != 255 && e.B != 255)
                         rtb = 2;
-                    }
-                    if ((c.R != 255) && (c.G != 255) && (c.B != 255))
-                    {
+                    if (c.R != 255 && c.G != 255 && c.B != 255)
                         rtb++;
-                    }
                 }
                 return rtb;
             }
         }
 
-        public override string Name
-        {
-            get { return "Rogue-Outlaw"; }
-        }
+        public override string Name => "Rogue-Outlaw";
 
-        public override string Class
-        {
-            get { return "Rogue"; }
-        }
+        public override string Class => "Rogue";
 
         private static int cooldownKey
         {
@@ -100,9 +62,7 @@ namespace Frozen.Rotation
                 var hotKeyString = ConfigFile.ReadValue("Outlaw", "cooldownHotKeyString").Trim();
 
                 if (hotKeyString != "")
-                {
                     return hotKeyString;
-                }
 
                 return "Click to Set";
             }
@@ -243,7 +203,8 @@ namespace Frozen.Rotation
 
         public override void Initialize()
         {
-            Log.Write("Welcome to CreepyOutlaw rotation. V2.2. Report any issues on #rogue Discord channel with @Creepyjoker tag for further fixes.", Color.Red);
+            Log.Write("Welcome to CreepyOutlaw rotation. V2.2. Report any issues on #rogue Discord channel with @Creepyjoker tag for further fixes.",
+                Color.Red);
             Log.Write("Suggested build: 1212231");
             WoW.Speak("Welcome to CreepyOutlaw rotation.");
             SettingsFormCJO = new SettingsFormCJO();
@@ -419,16 +380,13 @@ namespace Frozen.Rotation
             }
             {
                 if (DetectKeyPress.GetKeyState(DetectKeyPress.VK_NUMPAD0) < 0)
-                {
                     if (stopwatch.ElapsedMilliseconds > 1000)
                     {
                         combatRoutine.UseCooldowns = !combatRoutine.UseCooldowns;
                         WoW.Speak("Cooldowns " + (combatRoutine.UseCooldowns ? "On" : "Off"));
                         stopwatch.Restart();
                     }
-                }
                 if (combatRoutine.Type == RotationType.SingleTarget)
-                {
                     if (WoW.IsInCombat && WoW.HasTarget && WoW.IsSpellInRange("Saber Slash"))
                     {
                         /*if (WoW.CanCast("Blade Flurry") && WoW.PlayerHasBuff("Blade Flurry"))
@@ -437,38 +395,48 @@ namespace Frozen.Rotation
                     Log.Write("Getting Blade Flurry off *Single Target rotation*");
                     return;
                 }*/
-                        if (isTalentSND && !isTalentRTB && WoW.CanCast("Slice and Dice") && !WoW.PlayerHasBuff("Slice and Dice") && WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 5 ||
-                            isTalentSND && !isTalentRTB && WoW.CanCast("Slice and Dice") && WoW.PlayerHasBuff("Slice and Dice") && WoW.PlayerBuffTimeRemaining("Slice and Dice") <= 10 &&
+                        if (isTalentSND && !isTalentRTB && WoW.CanCast("Slice and Dice") && !WoW.PlayerHasBuff("Slice and Dice") && WoW.Energy >= RTBEnergy &&
+                            WoW.CurrentComboPoints >= 5 ||
+                            isTalentSND && !isTalentRTB && WoW.CanCast("Slice and Dice") && WoW.PlayerHasBuff("Slice and Dice") &&
+                            WoW.PlayerBuffTimeRemaining("Slice and Dice") <= 10 &&
                             WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 5)
                         {
                             WoW.CastSpell("Slice and Dice");
                             return;
                         }
-                        if (isTalentSND && !isTalentRTB && WoW.CanCast("Run Through") && WoW.PlayerHasBuff("Slice and Dice") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
+                        if (isTalentSND && !isTalentRTB && WoW.CanCast("Run Through") && WoW.PlayerHasBuff("Slice and Dice") &&
+                            WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
                             WoW.IsSpellInRange("Run Through") && WoW.PlayerBuffTimeRemaining("Slice and Dice") > 10)
                         {
                             WoW.CastSpell("Run Through");
                             return;
                         }
-                        if (isTalentRTB && WoW.CanCast("Roll the Bones") && WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 4 && GetRolltheBonesBuffs < ValueRTB &&
+                        if (isTalentRTB && WoW.CanCast("Roll the Bones") && WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 4 &&
+                            GetRolltheBonesBuffs < ValueRTB &&
                             !WoW.PlayerHasBuff("True Bearing"))
                         {
                             WoW.CastSpell("Roll the Bones");
                             Log.Write("-------Rolling the boooones!-------", Color.Green);
                             return;
                         }
-                        if (isTalentRTB && GetRolltheBonesBuffs >= ValueRTB && ValueRTB >= 2 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
+                        if (isTalentRTB && GetRolltheBonesBuffs >= ValueRTB && ValueRTB >= 2 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy &&
+                            WoW.CurrentComboPoints >= 5 &&
                             !WoW.PlayerHasBuff("Killing Spree") && WoW.IsSpellInRange("Run Through") &&
                             (WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
                              WoW.PlayerHasBuff("True Bearing") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
                              WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
+                             WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Shark Infested Waters") &&
+                             WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
                              WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
                              WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Grand Melee") &&
+                             WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Broadsides") &&
+                             WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Jolly Roger") &&
+                             WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Buried Treasure") &&
+                             WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
                              WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
                              WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
                              WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
@@ -479,13 +447,15 @@ namespace Frozen.Rotation
                             WoW.CastSpell("Run Through");
                             return;
                         }
-                        if (isTalentRTB && ValueRTB >= 2 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 && WoW.PlayerHasBuff("True Bearing") &&
+                        if (isTalentRTB && ValueRTB >= 2 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
+                            WoW.PlayerHasBuff("True Bearing") &&
                             WoW.PlayerBuffTimeRemaining("True Bearing") >= 10 && !WoW.PlayerHasBuff("Killing Spree") && WoW.IsSpellInRange("Run Through"))
                         {
                             WoW.CastSpell("Run Through");
                             return;
                         }
-                        if (isTalentRTB && ValueRTB <= 1 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 && !WoW.PlayerHasBuff("Killing Spree") &&
+                        if (isTalentRTB && ValueRTB <= 1 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
+                            !WoW.PlayerHasBuff("Killing Spree") &&
                             WoW.IsSpellInRange("Run Through") &&
                             (WoW.PlayerHasBuff("True Bearing") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
                              WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Jolly Roger") > 10 ||
@@ -507,8 +477,10 @@ namespace Frozen.Rotation
 
                         if (!WoW.PlayerHasBuff("Killing Spree") && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Run Through"))
                         {
-                            if (isTalentGhostlySt && WoW.Energy >= 30 && WoW.CanCast("Ghostly Strike") && WoW.CurrentComboPoints < 5 && !WoW.TargetHasDebuff("Ghostly Strike") ||
-                                isTalentGhostlySt && WoW.CanCast("Ghostly Strike") && WoW.TargetDebuffTimeRemaining("Ghostly Strike") <= 3 && WoW.Energy >= 30 && WoW.CurrentComboPoints < 5)
+                            if (isTalentGhostlySt && WoW.Energy >= 30 && WoW.CanCast("Ghostly Strike") && WoW.CurrentComboPoints < 5 &&
+                                !WoW.TargetHasDebuff("Ghostly Strike") ||
+                                isTalentGhostlySt && WoW.CanCast("Ghostly Strike") && WoW.TargetDebuffTimeRemaining("Ghostly Strike") <= 3 &&
+                                WoW.Energy >= 30 && WoW.CurrentComboPoints < 5)
                             {
                                 WoW.CastSpell("Ghostly Strike");
                                 return;
@@ -534,14 +506,16 @@ namespace Frozen.Rotation
                                 WoW.CastSpell("Pistol Shot");
                                 return;
                             }
-                            if (isTalentGhostlySt && WoW.CanCast("Saber Slash") && !WoW.PlayerHasBuff("Killing Spree") && WoW.Energy >= 50 && WoW.CurrentComboPoints < 5 &&
+                            if (isTalentGhostlySt && WoW.CanCast("Saber Slash") && !WoW.PlayerHasBuff("Killing Spree") && WoW.Energy >= 50 &&
+                                WoW.CurrentComboPoints < 5 &&
                                 !WoW.PlayerHasBuff("Opportunity") && WoW.TargetHasDebuff("Ghostly Strike"))
                             {
                                 WoW.CastSpell("Saber Slash");
 
                                 return;
                             }
-                            if (!isTalentGhostlySt && WoW.CanCast("Saber Slash") && !WoW.PlayerHasBuff("Killing Spree") && WoW.Energy >= 50 && WoW.CurrentComboPoints < 5 &&
+                            if (!isTalentGhostlySt && WoW.CanCast("Saber Slash") && !WoW.PlayerHasBuff("Killing Spree") && WoW.Energy >= 50 &&
+                                WoW.CurrentComboPoints < 5 &&
                                 !WoW.PlayerHasBuff("Opportunity"))
                             {
                                 WoW.CastSpell("Saber Slash");
@@ -563,18 +537,21 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Killing Spree");
                         return;
                     }*/
-                            if (WoW.PlayerHasBuff("Adrenaline Rush") && WoW.PlayerBuffTimeRemaining("Adrenaline Rush") > 4 && !WoW.IsSpellOnCooldown("Curse of Dreadblades"))
+                            if (WoW.PlayerHasBuff("Adrenaline Rush") && WoW.PlayerBuffTimeRemaining("Adrenaline Rush") > 4 &&
+                                !WoW.IsSpellOnCooldown("Curse of Dreadblades"))
                                 // Curse of dreadblades + AR check
                             {
                                 WoW.CastSpell("Curse of Dreadblades");
                                 return;
                             }
-                            if (isTalentRTB && isCheckHotkeysOutlawOffensiveAR && !WoW.IsSpellOnCooldown("Adrenaline Rush") && GetRolltheBonesBuffs >= 2 && UseCooldowns)
+                            if (isTalentRTB && isCheckHotkeysOutlawOffensiveAR && !WoW.IsSpellOnCooldown("Adrenaline Rush") && GetRolltheBonesBuffs >= 2 &&
+                                UseCooldowns)
                             {
                                 WoW.CastSpell("Adrenaline Rush");
                                 return;
                             }
-                            if (isTalentSND && isCheckHotkeysOutlawOffensiveAR && !WoW.IsSpellOnCooldown("Adrenaline Rush") && UseCooldowns && WoW.PlayerHasBuff("Slice and Dice") &&
+                            if (isTalentSND && isCheckHotkeysOutlawOffensiveAR && !WoW.IsSpellOnCooldown("Adrenaline Rush") && UseCooldowns &&
+                                WoW.PlayerHasBuff("Slice and Dice") &&
                                 WoW.PlayerBuffTimeRemaining("Slice and Dice") > 15)
                             {
                                 WoW.CastSpell("Adrenaline Rush");
@@ -582,167 +559,149 @@ namespace Frozen.Rotation
                             }
                         }
                     }
-                }
 
 
                 // AoE Rotation.
 
+                if (combatRoutine.Type != RotationType.AOE) return;
 
-                if (combatRoutine.Type == RotationType.AOE)
+                if (!WoW.IsInCombat || !WoW.HasTarget || !WoW.IsSpellInRange("Saber Slash")) return;
+
+                if (isTalentSND && !isTalentRTB && WoW.CanCast("Slice and Dice") && !WoW.PlayerHasBuff("Slice and Dice") && WoW.Energy >= RTBEnergy &&
+                    WoW.CurrentComboPoints >= 5 ||
+                    isTalentSND && !isTalentRTB && WoW.CanCast("Slice and Dice") && WoW.PlayerHasBuff("Slice and Dice") &&
+                    WoW.PlayerBuffTimeRemaining("Slice and Dice") <= 10 &&
+                    WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 5)
                 {
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.IsSpellInRange("Saber Slash"))
-                    {
-                        /*if (WoW.CanCast("Blade Flurry") && WoW.PlayerHasBuff("Blade Flurry"))
-                {
-                    WoW.CastSpell("Blade Flurry");
-                    Log.Write("Getting Blade Flurry off *Single Target rotation*");
+                    WoW.CastSpell("Slice and Dice");
                     return;
-                }*/
-                        if (isTalentSND && !isTalentRTB && WoW.CanCast("Slice and Dice") && !WoW.PlayerHasBuff("Slice and Dice") && WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 5 ||
-                            isTalentSND && !isTalentRTB && WoW.CanCast("Slice and Dice") && WoW.PlayerHasBuff("Slice and Dice") && WoW.PlayerBuffTimeRemaining("Slice and Dice") <= 10 &&
-                            WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 5)
-                        {
-                            WoW.CastSpell("Slice and Dice");
-                            return;
-                        }
-                        if (isTalentSND && !isTalentRTB && WoW.CanCast("Run Through") && WoW.PlayerHasBuff("Slice and Dice") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
-                            WoW.IsSpellInRange("Run Through") && WoW.PlayerBuffTimeRemaining("Slice and Dice") > 10)
-                        {
-                            WoW.CastSpell("Run Through");
-                            return;
-                        }
-                        if (isTalentRTB && WoW.CanCast("Roll the Bones") && WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 4 && GetRolltheBonesBuffs < ValueRTB &&
-                            !WoW.PlayerHasBuff("True Bearing"))
-                        {
-                            WoW.CastSpell("Roll the Bones");
-                            Log.Write("-------Rolling the boooones!-------", Color.Green);
-                            return;
-                        }
-                        if (isTalentRTB && GetRolltheBonesBuffs >= ValueRTB && ValueRTB >= 2 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
-                            !WoW.PlayerHasBuff("Killing Spree") && WoW.IsSpellInRange("Run Through") &&
-                            (WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("True Bearing") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
-                             WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
-                             WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
-                             WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
-                             WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Jolly Roger") > 10 ||
-                             WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Jolly Roger") > 10 ||
-                             WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Grand Melee") > 10))
-                        {
-                            WoW.CastSpell("Run Through");
-                            return;
-                        }
-                        if (isTalentRTB && ValueRTB >= 2 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 && WoW.PlayerHasBuff("True Bearing") &&
-                            WoW.PlayerBuffTimeRemaining("True Bearing") >= 10 && !WoW.PlayerHasBuff("Killing Spree") && WoW.IsSpellInRange("Run Through"))
-                        {
-                            WoW.CastSpell("Run Through");
-                            return;
-                        }
-                        if (isTalentRTB && ValueRTB <= 1 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 && !WoW.PlayerHasBuff("Killing Spree") &&
-                            WoW.IsSpellInRange("Run Through") &&
-                            (WoW.PlayerHasBuff("True Bearing") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
-                             WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Jolly Roger") > 10 ||
-                             WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
-                             WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Grand Melee") > 10 ||
-                             WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Buried Treasure") > 10 ||
-                             WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10))
-
-                        {
-                            WoW.CastSpell("Run Through");
-                            return;
-                        }
-
-                        /*if (WoW.CanCast("Run Through") && WoW.Energy > 26 && WoW.CurrentComboPoints >= 5 && !WoW.PlayerHasBuff("Killing Spree") && GetRolltheBonesBuffs >= 1 && WoW.PlayerBuffTimeRemaining(GetRolltheBonesBuffs) > 10 )
-				{
-					WoW.CastSpell("Run Through");
-					return;
-				} */
-
-                        if (!WoW.PlayerHasBuff("Killing Spree") && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Run Through"))
-                        {
-                            if (isTalentGhostlySt && WoW.Energy >= 30 && WoW.CanCast("Ghostly Strike") && WoW.CurrentComboPoints < 5 && !WoW.TargetHasDebuff("Ghostly Strike") ||
-                                isTalentGhostlySt && WoW.CanCast("Ghostly Strike") && WoW.TargetDebuffTimeRemaining("Ghostly Strike") <= 3 && WoW.Energy >= 30 && WoW.CurrentComboPoints < 5)
-                            {
-                                WoW.CastSpell("Ghostly Strike");
-                                return;
-                            }
-
-
-                            if (isTalentRTB && WoW.CanCast("Roll the Bones") && WoW.CurrentComboPoints >= 4 && WoW.Energy > RTBEnergy &&
-                                (WoW.PlayerHasBuff("True Bearing") && WoW.PlayerBuffTimeRemaining("True Bearing") < 10 ||
-                                 WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") < 10 ||
-                                 WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Jolly Roger") < 10 ||
-                                 WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Grand Melee") < 10 ||
-                                 WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Buried Treasure") < 10 ||
-                                 WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("Broadsides") < 10))
-                            {
-                                WoW.CastSpell("Roll the Bones");
-                                Log.Write("-------Rerolling the bones!--------", Color.Green);
-                                return;
-                            }
-
-
-                            if (WoW.CanCast("Pistol Shot") && WoW.PlayerHasBuff("Opportunity") && WoW.CurrentComboPoints < 5)
-                            {
-                                WoW.CastSpell("Pistol Shot");
-                                return;
-                            }
-                            if (isTalentGhostlySt && WoW.CanCast("Saber Slash") && !WoW.PlayerHasBuff("Killing Spree") && WoW.Energy >= 50 && WoW.CurrentComboPoints < 5 &&
-                                !WoW.PlayerHasBuff("Opportunity") && WoW.TargetHasDebuff("Ghostly Strike"))
-                            {
-                                WoW.CastSpell("Saber Slash");
-
-                                return;
-                            }
-                            if (!isTalentGhostlySt && WoW.CanCast("Saber Slash") && !WoW.PlayerHasBuff("Killing Spree") && WoW.Energy >= 50 && WoW.CurrentComboPoints < 5 &&
-                                !WoW.PlayerHasBuff("Opportunity"))
-                            {
-                                WoW.CastSpell("Saber Slash");
-
-                                return;
-                            }
-                            /*if (WoW.IsSpellKnown("Death from Above") && WoW.IsSpellOnCooldown("Adrenaline Rush") && WoW.CurrentComboPoints >= 5 && !WoW.IsSpellOnCooldown("Death from Above") && WoW.Energy >= 25 )
-					{
-						WoW.CastSpell("Death from Above"); // No talent check implemented yet.
-						return;
-					} */
-                            if (isTalentMFD && !WoW.IsSpellOnCooldown("Marked for Death") && WoW.CurrentComboPoints <= 1)
-                            {
-                                WoW.CastSpell("Marked for Death");
-                                return;
-                            }
-                            /*if (!WoW.IsSpellOnCooldown("Killing Spree") && !WoW.PlayerHasBuff("Adrenaline Rush") && GetRolltheBonesBuffs >= 2  )
-                    {
-                        WoW.CastSpell("Killing Spree");
-                        return;
-                    }*/
-                            if (WoW.PlayerHasBuff("Adrenaline Rush") && WoW.PlayerBuffTimeRemaining("Adrenaline Rush") > 4 && !WoW.IsSpellOnCooldown("Curse of Dreadblades"))
-                                // Curse of dreadblades + AR check
-                            {
-                                WoW.CastSpell("Curse of Dreadblades");
-                                return;
-                            }
-                            if (isTalentRTB && isCheckHotkeysOutlawOffensiveAR && !WoW.IsSpellOnCooldown("Adrenaline Rush") && GetRolltheBonesBuffs >= 2 && UseCooldowns)
-                            {
-                                WoW.CastSpell("Adrenaline Rush");
-                                return;
-                            }
-                            if (isTalentSND && isCheckHotkeysOutlawOffensiveAR && !WoW.IsSpellOnCooldown("Adrenaline Rush") && UseCooldowns && WoW.PlayerHasBuff("Slice and Dice") &&
-                                WoW.PlayerBuffTimeRemaining("Slice and Dice") > 15)
-                            {
-                                WoW.CastSpell("Adrenaline Rush");
-                            }
-                        }
-                    }
                 }
+                if (isTalentSND && !isTalentRTB && WoW.CanCast("Run Through") && WoW.PlayerHasBuff("Slice and Dice") &&
+                    WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
+                    WoW.IsSpellInRange("Run Through") && WoW.PlayerBuffTimeRemaining("Slice and Dice") > 10)
+                {
+                    WoW.CastSpell("Run Through");
+                    return;
+                }
+                if (isTalentRTB && WoW.CanCast("Roll the Bones") && WoW.Energy >= RTBEnergy && WoW.CurrentComboPoints >= 4 &&
+                    GetRolltheBonesBuffs < ValueRTB &&
+                    !WoW.PlayerHasBuff("True Bearing"))
+                {
+                    WoW.CastSpell("Roll the Bones");
+                    Log.Write("-------Rolling the boooones!-------", Color.Green);
+                    return;
+                }
+                if (isTalentRTB && GetRolltheBonesBuffs >= ValueRTB && ValueRTB >= 2 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy &&
+                    WoW.CurrentComboPoints >= 5 &&
+                    !WoW.PlayerHasBuff("Killing Spree") && WoW.IsSpellInRange("Run Through") &&
+                    (WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
+                     WoW.PlayerHasBuff("True Bearing") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
+                     WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
+                     WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Shark Infested Waters") &&
+                     WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
+                     WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
+                     WoW.PlayerHasBuff("True Bearing") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
+                     WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Grand Melee") &&
+                     WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                     WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Broadsides") &&
+                     WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                     WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Jolly Roger") &&
+                     WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                     WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerHasBuff("Buried Treasure") &&
+                     WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                     WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
+                     WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
+                     WoW.PlayerHasBuff("Broadsides") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10 ||
+                     WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Jolly Roger") > 10 ||
+                     WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Jolly Roger") > 10 ||
+                     WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Grand Melee") > 10))
+                {
+                    WoW.CastSpell("Run Through");
+                    return;
+                }
+                if (isTalentRTB && ValueRTB >= 2 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
+                    WoW.PlayerHasBuff("True Bearing") &&
+                    WoW.PlayerBuffTimeRemaining("True Bearing") >= 10 && !WoW.PlayerHasBuff("Killing Spree") && WoW.IsSpellInRange("Run Through"))
+                {
+                    WoW.CastSpell("Run Through");
+                    return;
+                }
+                if (isTalentRTB && ValueRTB <= 1 && WoW.CanCast("Run Through") && WoW.Energy >= RunThroughEnergy && WoW.CurrentComboPoints >= 5 &&
+                    !WoW.PlayerHasBuff("Killing Spree") &&
+                    WoW.IsSpellInRange("Run Through") &&
+                    (WoW.PlayerHasBuff("True Bearing") && WoW.PlayerBuffTimeRemaining("True Bearing") > 10 ||
+                     WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Jolly Roger") > 10 ||
+                     WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") > 10 ||
+                     WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Grand Melee") > 10 ||
+                     WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Buried Treasure") > 10 ||
+                     WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("Broadsides") > 10))
+
+                {
+                    WoW.CastSpell("Run Through");
+                    return;
+                }
+
+
+                if (WoW.PlayerHasBuff("Killing Spree") || !WoW.IsInCombat || !WoW.HasTarget || !WoW.TargetIsEnemy || !WoW.IsSpellInRange("Run Through")) return;
+
+                if (isTalentGhostlySt && WoW.Energy >= 30 && WoW.CanCast("Ghostly Strike") && WoW.CurrentComboPoints < 5 &&
+                    !WoW.TargetHasDebuff("Ghostly Strike") || isTalentGhostlySt && WoW.CanCast("Ghostly Strike") &&
+                    WoW.TargetDebuffTimeRemaining("Ghostly Strike") <= 3 && WoW.Energy >= 30 && WoW.CurrentComboPoints < 5)
+                {
+                    WoW.CastSpell("Ghostly Strike");
+                    return;
+                }
+
+                if (isTalentRTB && WoW.CanCast("Roll the Bones") && WoW.CurrentComboPoints >= 4 && WoW.Energy > RTBEnergy &&
+                    (WoW.PlayerHasBuff("True Bearing") && WoW.PlayerBuffTimeRemaining("True Bearing") < 10 ||
+                     WoW.PlayerHasBuff("Shark Infested Waters") && WoW.PlayerBuffTimeRemaining("Shark Infested Waters") < 10 ||
+                     WoW.PlayerHasBuff("Jolly Roger") && WoW.PlayerBuffTimeRemaining("Jolly Roger") < 10 ||
+                     WoW.PlayerHasBuff("Grand Melee") && WoW.PlayerBuffTimeRemaining("Grand Melee") < 10 ||
+                     WoW.PlayerHasBuff("Buried Treasure") && WoW.PlayerBuffTimeRemaining("Buried Treasure") < 10 ||
+                     WoW.PlayerHasBuff("Broadsides") && WoW.PlayerBuffTimeRemaining("Broadsides") < 10))
+                {
+                    WoW.CastSpell("Roll the Bones");
+                    Log.Write("-------Rerolling the bones!--------", Color.Green);
+                    return;
+                }
+                if (WoW.CanCast("Pistol Shot") && WoW.PlayerHasBuff("Opportunity") && WoW.CurrentComboPoints < 5)
+                {
+                    WoW.CastSpell("Pistol Shot");
+                    return;
+                }
+                if (isTalentGhostlySt && WoW.CanCast("Saber Slash") && !WoW.PlayerHasBuff("Killing Spree") && WoW.Energy >= 50 && WoW.CurrentComboPoints < 5 &&
+                    !WoW.PlayerHasBuff("Opportunity") && WoW.TargetHasDebuff("Ghostly Strike"))
+                {
+                    WoW.CastSpell("Saber Slash");
+                    return;
+                }
+                if (!isTalentGhostlySt && WoW.CanCast("Saber Slash") && !WoW.PlayerHasBuff("Killing Spree") && WoW.Energy >= 50 && WoW.CurrentComboPoints < 5 &&
+                    !WoW.PlayerHasBuff("Opportunity"))
+                {
+                    WoW.CastSpell("Saber Slash");
+                    return;
+                }
+
+                if (isTalentMFD && !WoW.IsSpellOnCooldown("Marked for Death") && WoW.CurrentComboPoints <= 1)
+                {
+                    WoW.CastSpell("Marked for Death");
+                    return;
+                }
+
+                if (WoW.PlayerHasBuff("Adrenaline Rush") && WoW.PlayerBuffTimeRemaining("Adrenaline Rush") > 4 &&
+                    !WoW.IsSpellOnCooldown("Curse of Dreadblades"))
+                {
+                    WoW.CastSpell("Curse of Dreadblades");
+                    return;
+                }
+                if (isTalentRTB && isCheckHotkeysOutlawOffensiveAR && !WoW.IsSpellOnCooldown("Adrenaline Rush") && GetRolltheBonesBuffs >= 2 && UseCooldowns)
+                {
+                    WoW.CastSpell("Adrenaline Rush");
+                    return;
+                }
+                if (isTalentSND && isCheckHotkeysOutlawOffensiveAR && !WoW.IsSpellOnCooldown("Adrenaline Rush") && UseCooldowns &&
+                    WoW.PlayerHasBuff("Slice and Dice") && WoW.PlayerBuffTimeRemaining("Slice and Dice") > 15)
+                    WoW.CastSpell("Adrenaline Rush");
             }
         }
     }
@@ -1080,7 +1039,7 @@ namespace Frozen.Rotation
         }
 
         #endregion
-    }
+    } 
 }
 
 /*

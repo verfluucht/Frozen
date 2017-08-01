@@ -1,48 +1,32 @@
-// winifix@gmail.com
-// ReSharper disable UnusedMember.Global
-// ReSharper disable ConvertPropertyToExpressionBody
-
-using Frozen.Helpers;
+using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System;
-using System.Threading;
 using System.Windows.Forms;
+using Frozen.Helpers;
 
 namespace Frozen.Rotation
 {
     public class BalanceDruid : CombatRoutine
     {
         private readonly Stopwatch pullwatch = new Stopwatch();
-        private CheckBox NaturesBalanceBox;
-		private CheckBox IncarnationBox;
-		private CheckBox AstralCommunionBox;
-        private CheckBox StellarFlareBox;
-        private CheckBox HealingLowHPBox;
-        private CheckBox RenewalBox;
+        private CheckBox AstralCommunionBox;
         private CheckBox BlessingOfAncientsBox;
-        private CheckBox SouloftheForestBox;
-        private CheckBox StellarDriftBox;
-        private CheckBox KBWBox;
         private CheckBox EmeraldDreamcatcherBox;
+        private CheckBox HealingLowHPBox;
+        private CheckBox IncarnationBox;
+        private CheckBox KBWBox;
+        private CheckBox NaturesBalanceBox;
+        private CheckBox RenewalBox;
+        private CheckBox SouloftheForestBox;
         private CheckBox StarfallMacroBox;
         private NumericUpDown StarsurgeNum;
+        private CheckBox StellarDriftBox;
+        private CheckBox StellarFlareBox;
 
-        public override string Name
-        {
-            get
-            {
-                return "Balance Druid by Scotishdwarf";
-            }
-        }
+        public override string Name => "Balance Druid by Daniel";
 
-        public override string Class
-        {
-            get
-            {
-                return "Druid";
-            }
-        }
+        public override string Class => "Druid";
 
         private static bool NaturesBalance
         {
@@ -54,7 +38,8 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "NaturesBalance", value.ToString()); }
         }
-		private static bool Incarnation
+
+        private static bool Incarnation
         {
             get
             {
@@ -64,6 +49,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "Incarnation", value.ToString()); }
         }
+
         private static bool SouloftheForest
         {
             get
@@ -74,6 +60,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "SouloftheForest", value.ToString()); }
         }
+
         private static bool AstralCommunion
         {
             get
@@ -84,6 +71,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "AstralCommunion", value.ToString()); }
         }
+
         private static bool StellarFlare
         {
             get
@@ -94,6 +82,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "StellarFlare", value.ToString()); }
         }
+
         private static bool HealingLowHP
         {
             get
@@ -104,6 +93,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "HealingLowHP", value.ToString()); }
         }
+
         private static bool Renewal
         {
             get
@@ -114,6 +104,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "Renewal", value.ToString()); }
         }
+
         private static bool BlessingOfAncients
         {
             get
@@ -124,6 +115,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "BlessingOfAncients", value.ToString()); }
         }
+
         private static bool StellarDrift
         {
             get
@@ -134,6 +126,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "StellarDrift", value.ToString()); }
         }
+
         private static bool KBW
         {
             get
@@ -144,6 +137,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "KBW", value.ToString()); }
         }
+
         private static bool EmeraldDreamcatcher
         {
             get
@@ -154,6 +148,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "EmeraldDreamcatcher", value.ToString()); }
         }
+
         private static bool StarfallMacro
         {
             get
@@ -164,6 +159,7 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("BalanceDruid", "StarfallMacro", value.ToString()); }
         }
+
         private static int StarsurgeAsP
         {
             get
@@ -181,99 +177,112 @@ namespace Frozen.Rotation
             set { ConfigFile.WriteValue("BalanceDruid", "StarsurgeAsP", value.ToString()); }
         }
 
+        private int GCD
+        {
+            get
+            {
+                if (150 / (1 + WoW.HastePercent / 100) > 75)
+                    return 150 / (1 + WoW.HastePercent / 100);
+                return 75;
+            }
+        }
+
+        public override Form SettingsForm { get; set; }
+
         public override void Initialize()
         {
-            MessageBox.Show("Welcome to Balance Druid by Scotishdwarf r24.\n\nMy talent build : 3,1,3,1,3,3,3.\n\nNoteworthy things :\n- If using Stellar Drift and SotF, in single target use it manually, AoE will use automatically.\n- Starsurge used at 70 AP, pooling it high to minimize dps loss while moving, you can force cast it by moving.\n- On AOE, manual Starfall usage required, you can make cast at cursor macro for this.\n\nRecommended to use addon that hides Lua Errors for now.\n\nPress OK to continue loading rotation.");
+            MessageBox.Show(
+                "Welcome to Balance Druid by Scotishdwarf r24.\n\nMy talent build : 3,1,3,1,3,3,3.\n\nNoteworthy things :\n- If using Stellar Drift and SotF, in single target use it manually, AoE will use automatically.\n- Starsurge used at 70 AP, pooling it high to minimize dps loss while moving, you can force cast it by moving.\n- On AOE, manual Starfall usage required, you can make cast at cursor macro for this.\n\nRecommended to use addon that hides Lua Errors for now.\n\nPress OK to continue loading rotation.");
             Log.Write("Welcome to Balance rotation", Color.Green);
 
             // TALENT CONFIG
-            SettingsForm = new Form { Text = "Settings", StartPosition = FormStartPosition.CenterScreen, Width = 600, Height = 250, ShowIcon = false };
+            SettingsForm = new Form {Text = "Settings", StartPosition = FormStartPosition.CenterScreen, Width = 600, Height = 250, ShowIcon = false};
 
-            var lblNaturesBalanceText = new Label { Text = "Talent : NaturesBalance", Size = new Size(200, 13), Left = 12, Top = 14 };
+            var lblNaturesBalanceText = new Label {Text = "Talent : NaturesBalance", Size = new Size(200, 13), Left = 12, Top = 14};
             SettingsForm.Controls.Add(lblNaturesBalanceText);
 
-            NaturesBalanceBox = new CheckBox { Checked = NaturesBalance, TabIndex = 2, Size = new Size(15, 14), Left = 220, Top = 14 };
+            NaturesBalanceBox = new CheckBox {Checked = NaturesBalance, TabIndex = 2, Size = new Size(15, 14), Left = 220, Top = 14};
             SettingsForm.Controls.Add(NaturesBalanceBox);
 
-            var lblIncarnationText = new Label { Text = "Talent : Incarnation", Size = new Size(200, 13), Left = 12, Top = 29 };
+            var lblIncarnationText = new Label {Text = "Talent : Incarnation", Size = new Size(200, 13), Left = 12, Top = 29};
             SettingsForm.Controls.Add(lblIncarnationText);
 
-            IncarnationBox = new CheckBox { Checked = Incarnation, TabIndex = 4, Size = new Size(15, 14), Left = 220, Top = 29 };
+            IncarnationBox = new CheckBox {Checked = Incarnation, TabIndex = 4, Size = new Size(15, 14), Left = 220, Top = 29};
             SettingsForm.Controls.Add(IncarnationBox);
 
-            var lblAstralCommunionText = new Label { Text = "Talent : Astral Communion", Size = new Size(200, 13), Left = 12, Top = 44 };
+            var lblAstralCommunionText = new Label {Text = "Talent : Astral Communion", Size = new Size(200, 13), Left = 12, Top = 44};
             SettingsForm.Controls.Add(lblAstralCommunionText);
 
-            AstralCommunionBox = new CheckBox { Checked = AstralCommunion, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 44 };
+            AstralCommunionBox = new CheckBox {Checked = AstralCommunion, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 44};
             SettingsForm.Controls.Add(AstralCommunionBox);
 
-            var lblStellarFlareText = new Label { Text = "Talent : StellarFlare", Size = new Size(200, 13), Left = 12, Top = 59 };
+            var lblStellarFlareText = new Label {Text = "Talent : StellarFlare", Size = new Size(200, 13), Left = 12, Top = 59};
             SettingsForm.Controls.Add(lblStellarFlareText);
 
-            StellarFlareBox = new CheckBox { Checked = StellarFlare, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 59 };
+            StellarFlareBox = new CheckBox {Checked = StellarFlare, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 59};
             SettingsForm.Controls.Add(StellarFlareBox);
 
-            var lblRenewalText = new Label { Text = "Talent : Renewal", Size = new Size(200, 13), Left = 12, Top = 74 };
+            var lblRenewalText = new Label {Text = "Talent : Renewal", Size = new Size(200, 13), Left = 12, Top = 74};
             SettingsForm.Controls.Add(lblRenewalText);
 
-            RenewalBox = new CheckBox { Checked = Renewal, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 74 };
+            RenewalBox = new CheckBox {Checked = Renewal, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 74};
             SettingsForm.Controls.Add(RenewalBox);
 
-            var lblHealingLowHPText = new Label { Text = "Talent : Resto Affinity, 30% HP", Size = new Size(200, 13), Left = 12, Top = 89 };
+            var lblHealingLowHPText = new Label {Text = "Talent : Resto Affinity, 30% HP", Size = new Size(200, 13), Left = 12, Top = 89};
             SettingsForm.Controls.Add(lblHealingLowHPText);
 
-            HealingLowHPBox = new CheckBox { Checked = HealingLowHP, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 89 };
+            HealingLowHPBox = new CheckBox {Checked = HealingLowHP, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 89};
             SettingsForm.Controls.Add(HealingLowHPBox);
 
-            var lblBlessingOfAncientsText = new Label { Text = "Talent : BlessingOfAncients", Size = new Size(200, 13), Left = 12, Top = 104 };
+            var lblBlessingOfAncientsText = new Label {Text = "Talent : BlessingOfAncients", Size = new Size(200, 13), Left = 12, Top = 104};
             SettingsForm.Controls.Add(lblBlessingOfAncientsText);
 
-            BlessingOfAncientsBox = new CheckBox { Checked = BlessingOfAncients, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 104 };
+            BlessingOfAncientsBox = new CheckBox {Checked = BlessingOfAncients, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 104};
             SettingsForm.Controls.Add(BlessingOfAncientsBox);
 
-            var lblSouloftheForestText = new Label { Text = "Talent : SouloftheForest", Size = new Size(200, 13), Left = 12, Top = 129 };
+            var lblSouloftheForestText = new Label {Text = "Talent : SouloftheForest", Size = new Size(200, 13), Left = 12, Top = 129};
             SettingsForm.Controls.Add(lblSouloftheForestText);
 
-            SouloftheForestBox = new CheckBox { Checked = SouloftheForest, TabIndex = 4, Size = new Size(15, 14), Left = 220, Top = 129 };
+            SouloftheForestBox = new CheckBox {Checked = SouloftheForest, TabIndex = 4, Size = new Size(15, 14), Left = 220, Top = 129};
             SettingsForm.Controls.Add(SouloftheForestBox);
 
-            var lblStellarDriftText = new Label { Text = "Talent : StellarDrift", Size = new Size(200, 13), Left = 12, Top = 144 };
+            var lblStellarDriftText = new Label {Text = "Talent : StellarDrift", Size = new Size(200, 13), Left = 12, Top = 144};
             SettingsForm.Controls.Add(lblStellarDriftText);
 
-            StellarDriftBox = new CheckBox { Checked = BlessingOfAncients, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 144 };
+            StellarDriftBox = new CheckBox {Checked = BlessingOfAncients, TabIndex = 6, Size = new Size(15, 14), Left = 220, Top = 144};
             SettingsForm.Controls.Add(StellarDriftBox);
 
-            var lblKBWText = new Label { Text = "Item : Kil'jaeden's Burning Wish", Size = new Size(200, 13), Left = 312, Top = 14 };
+            var lblKBWText = new Label {Text = "Item : Kil'jaeden's Burning Wish", Size = new Size(200, 13), Left = 312, Top = 14};
             SettingsForm.Controls.Add(lblKBWText);
 
-            KBWBox = new CheckBox { Checked = KBW, TabIndex = 6, Size = new Size(15, 14), Left = 520, Top = 14 };
+            KBWBox = new CheckBox {Checked = KBW, TabIndex = 6, Size = new Size(15, 14), Left = 520, Top = 14};
             SettingsForm.Controls.Add(KBWBox);
 
-            var lblEmeraldDreamcatcherText = new Label { Text = "Item : Emerald Dreamcatcher", Size = new Size(200, 13), Left = 312, Top = 29 };
+            var lblEmeraldDreamcatcherText = new Label {Text = "Item : Emerald Dreamcatcher", Size = new Size(200, 13), Left = 312, Top = 29};
             SettingsForm.Controls.Add(lblEmeraldDreamcatcherText);
 
-            EmeraldDreamcatcherBox = new CheckBox { Checked = EmeraldDreamcatcher, TabIndex = 6, Size = new Size(15, 14), Left = 520, Top = 29 };
+            EmeraldDreamcatcherBox = new CheckBox {Checked = EmeraldDreamcatcher, TabIndex = 6, Size = new Size(15, 14), Left = 520, Top = 29};
             SettingsForm.Controls.Add(EmeraldDreamcatcherBox);
 
-            var lblStarfallMacroText = new Label { Text = "Macro : Have Starfall Macro", Size = new Size(200, 13), Left = 312, Top = 44 };
+            var lblStarfallMacroText = new Label {Text = "Macro : Have Starfall Macro", Size = new Size(200, 13), Left = 312, Top = 44};
             SettingsForm.Controls.Add(lblStarfallMacroText);
 
-            StarfallMacroBox = new CheckBox { Checked = StarfallMacro, TabIndex = 6, Size = new Size(15, 14), Left = 520, Top = 44 };
+            StarfallMacroBox = new CheckBox {Checked = StarfallMacro, TabIndex = 6, Size = new Size(15, 14), Left = 520, Top = 44};
             SettingsForm.Controls.Add(StarfallMacroBox);
 
-            var lblStarsurgeText = new Label { Text = "Starsurge Astral Power", Size = new Size(200, 13), Left = 312, Top = 89 };
+            var lblStarsurgeText = new Label {Text = "Starsurge Astral Power", Size = new Size(200, 13), Left = 312, Top = 89};
             SettingsForm.Controls.Add(lblStarsurgeText);
 
-            StarsurgeNum = new NumericUpDown { Value = StarsurgeAsP, TabIndex = 6, Size = new Size(57, 20), Left = 520, Top = 89 };
+            StarsurgeNum = new NumericUpDown {Value = StarsurgeAsP, TabIndex = 6, Size = new Size(57, 20), Left = 520, Top = 89};
             SettingsForm.Controls.Add(StarsurgeNum);
 
-            var cmdSave = new Button { Text = "Save", Width = 65, Height = 25, Left = 462, Top = 168, Size = new Size(108, 31) };
+            var cmdSave = new Button {Text = "Save", Width = 65, Height = 25, Left = 462, Top = 168, Size = new Size(108, 31)};
 
-            ((System.ComponentModel.ISupportInitialize)(StarsurgeNum)).EndInit();
+            ((ISupportInitialize) StarsurgeNum).EndInit();
 
             NaturesBalanceBox.Checked = NaturesBalance;
-			IncarnationBox.Checked = Incarnation;
-			AstralCommunionBox.Checked = AstralCommunion;
+            IncarnationBox.Checked = Incarnation;
+            AstralCommunionBox.Checked = AstralCommunion;
             StellarFlareBox.Checked = StellarFlare;
             HealingLowHPBox.Checked = HealingLowHP;
             RenewalBox.Checked = Renewal;
@@ -287,8 +296,8 @@ namespace Frozen.Rotation
 
             cmdSave.Click += CmdSave_Click;
             NaturesBalanceBox.CheckedChanged += NaturesBalance_Click;
-			IncarnationBox.CheckedChanged += Incarnation_Click;
-			AstralCommunionBox.CheckedChanged += AstralCommunion_Click;
+            IncarnationBox.CheckedChanged += Incarnation_Click;
+            AstralCommunionBox.CheckedChanged += AstralCommunion_Click;
             StellarFlareBox.CheckedChanged += StellarFlare_Click;
             HealingLowHPBox.CheckedChanged += HealingLowHP_Click;
             RenewalBox.CheckedChanged += Renewal_Click;
@@ -302,8 +311,8 @@ namespace Frozen.Rotation
 
             SettingsForm.Controls.Add(cmdSave);
             lblNaturesBalanceText.BringToFront();
-			lblIncarnationText.BringToFront();
-			lblAstralCommunionText.BringToFront();
+            lblIncarnationText.BringToFront();
+            lblAstralCommunionText.BringToFront();
             lblStellarFlareText.BringToFront();
             lblHealingLowHPText.BringToFront();
             lblRenewalText.BringToFront();
@@ -316,8 +325,8 @@ namespace Frozen.Rotation
             lblStarsurgeText.BringToFront();
 
             Log.Write("Natures Balance = " + NaturesBalance);
-			Log.Write("Incarnation = " + NaturesBalance);
-			Log.Write("Astral Communion = " + NaturesBalance);
+            Log.Write("Incarnation = " + NaturesBalance);
+            Log.Write("Astral Communion = " + NaturesBalance);
             Log.Write("StellarFlare = " + StellarFlare);
             Log.Write("Healing under 30% HP = " + HealingLowHP);
             Log.Write("Renewal = " + Renewal);
@@ -328,15 +337,14 @@ namespace Frozen.Rotation
             Log.Write("StarfallMacro = " + StarfallMacro);
             Log.Write("KBW = " + KBW);
             Log.Write("Starsurge = " + StarsurgeAsP);
-
         }
 
         // SET CLICK SAVE
         private void CmdSave_Click(object sender, EventArgs e)
         {
             NaturesBalance = NaturesBalanceBox.Checked;
-			Incarnation = IncarnationBox.Checked;
-			AstralCommunion = AstralCommunionBox.Checked;
+            Incarnation = IncarnationBox.Checked;
+            AstralCommunion = AstralCommunionBox.Checked;
             StellarFlare = StellarFlareBox.Checked;
             HealingLowHP = HealingLowHPBox.Checked;
             Renewal = RenewalBox.Checked;
@@ -346,76 +354,74 @@ namespace Frozen.Rotation
             EmeraldDreamcatcher = EmeraldDreamcatcherBox.Checked;
             StarfallMacro = StarfallMacroBox.Checked;
             KBW = KBWBox.Checked;
-            StarsurgeAsP = (int)StarsurgeNum.Value;
+            StarsurgeAsP = (int) StarsurgeNum.Value;
             MessageBox.Show("Settings saved", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
         }
 
         private void StarsurgeAsP_ValueChanged(object sender, EventArgs e)
         {
-            StarsurgeAsP = (int)StarsurgeNum.Value;
+            StarsurgeAsP = (int) StarsurgeNum.Value;
         }
+
         private void NaturesBalance_Click(object sender, EventArgs e)
         {
             NaturesBalance = NaturesBalanceBox.Checked;
         }
-		private void Incarnation_Click(object sender, EventArgs e)
+
+        private void Incarnation_Click(object sender, EventArgs e)
         {
             Incarnation = IncarnationBox.Checked;
         }
-		private void AstralCommunion_Click(object sender, EventArgs e)
+
+        private void AstralCommunion_Click(object sender, EventArgs e)
         {
             AstralCommunion = AstralCommunionBox.Checked;
         }
+
         private void StellarFlare_Click(object sender, EventArgs e)
         {
             StellarFlare = StellarFlareBox.Checked;
         }
+
         private void HealingLowHP_Click(object sender, EventArgs e)
         {
             HealingLowHP = HealingLowHPBox.Checked;
         }
+
         private void BlessingOfAncients_Click(object sender, EventArgs e)
         {
             BlessingOfAncients = BlessingOfAncientsBox.Checked;
         }
+
         private void Renewal_Click(object sender, EventArgs e)
         {
             Renewal = RenewalBox.Checked;
         }
+
         private void SouloftheForest_Click(object sender, EventArgs e)
         {
             SouloftheForest = SouloftheForestBox.Checked;
         }
+
         private void StellarDrift_Click(object sender, EventArgs e)
         {
             StellarDrift = StellarDriftBox.Checked;
         }
+
         private void KBW_Click(object sender, EventArgs e)
         {
             KBW = KBWBox.Checked;
         }
+
         private void EmeraldDreamcatcher_Click(object sender, EventArgs e)
         {
             EmeraldDreamcatcher = EmeraldDreamcatcherBox.Checked;
         }
+
         private void StarfallMacro_Click(object sender, EventArgs e)
         {
             StarfallMacro = StarfallMacroBox.Checked;
-        }
-        private int GCD
-        {
-            get
-            {
-                if (150 / (1 + (WoW.HastePercent / 100)) > 75)
-                {
-                    return 150 / (1 + (WoW.HastePercent / 100));
-                }
-                else
-                {
-                    return 75;
-                }
-            }
         }
 
         public override void Stop()
@@ -426,37 +432,36 @@ namespace Frozen.Rotation
         {
             if (combatRoutine.Type == RotationType.SingleTarget)
             {
-				// Pullwatch
-				if (WoW.IsInCombat && !pullwatch.IsRunning)
-				{
-					pullwatch.Start();
-					Log.Write("Starting Combat, Starting Pullwatch.", Color.Red);
-                    
+                // Pullwatch
+                if (WoW.IsInCombat && !pullwatch.IsRunning)
+                {
+                    pullwatch.Start();
+                    Log.Write("Starting Combat, Starting Pullwatch.", Color.Red);
                 }
-				if (!WoW.IsInCombat && pullwatch.ElapsedMilliseconds > 1000)
-				{
-					pullwatch.Reset();
-					Log.Write("Leaving Combat, Resetting Stopwatches.", Color.Red);
-					
-				}
+                if (!WoW.IsInCombat && pullwatch.ElapsedMilliseconds > 1000)
+                {
+                    pullwatch.Reset();
+                    Log.Write("Leaving Combat, Resetting Stopwatches.", Color.Red);
+                }
                 // Moonkin in Combat
                 if (!WoW.PlayerIsCasting && WoW.IsInCombat && WoW.CanCast("Moonkin") && !WoW.PlayerHasBuff("Moonkin"))
                 {
                     WoW.CastSpell("Moonkin");
-                    
+
                     return;
                 }
                 // If Blessing of the Ancients get it up.
-                if (BlessingOfAncients && WoW.CanCast("BlessingOfAncients") && !WoW.PlayerHasBuff("BlessingOfElune") && !WoW.PlayerHasBuff("BlessingOfAnshe") && WoW.HealthPercent >= 10)
+                if (BlessingOfAncients && WoW.CanCast("BlessingOfAncients") && !WoW.PlayerHasBuff("BlessingOfElune") && !WoW.PlayerHasBuff("BlessingOfAnshe") &&
+                    WoW.HealthPercent >= 10)
                 {
                     WoW.CastSpell("BlessingOfAncients");
-                    
+
                     return;
                 }
                 if (BlessingOfAncients && WoW.CanCast("BlessingOfAncients") && WoW.PlayerHasBuff("BlessingOfAnshe") && WoW.HealthPercent >= 10)
                 {
                     WoW.CastSpell("BlessingOfAncients");
-                    
+
                     return;
                 }
                 // Restoration Affinity
@@ -491,29 +496,31 @@ namespace Frozen.Rotation
                 if (EmeraldDreamcatcher && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin"))
                 {
                     // actions.ed=astral_communion,if=astral_power.deficit>=75&buff.the_emerald_dreamcatcher.up
-                    if (AstralCommunion && UseCooldowns && WoW.CanCast("AstralCommunion") && !WoW.IsSpellOnCooldown("AstralCommunion") && WoW.CurrentAstralPower <= 25 && WoW.PlayerHasBuff("EmeraldDreamcatcherBuff"))
+                    if (AstralCommunion && UseCooldowns && WoW.CanCast("AstralCommunion") && !WoW.IsSpellOnCooldown("AstralCommunion") &&
+                        WoW.CurrentAstralPower <= 25 && WoW.PlayerHasBuff("EmeraldDreamcatcherBuff"))
                     {
                         WoW.CastSpell("AstralCommunion");
                         return;
                     }
                     // actions.ed+=/incarnation,if=astral_power>=85&!buff.the_emerald_dreamcatcher.up|buff.bloodlust.up
-                    if (Incarnation && UseCooldowns && WoW.CanCast("Incarnation") && !WoW.IsSpellOnCooldown("Incarnation") &&WoW.CurrentAstralPower >= 85 && (!WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") || WoW.PlayerHasBuff("Bloodlust")))
+                    if (Incarnation && UseCooldowns && WoW.CanCast("Incarnation") && !WoW.IsSpellOnCooldown("Incarnation") && WoW.CurrentAstralPower >= 85 &&
+                        (!WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") || WoW.PlayerHasBuff("Bloodlust")))
                     {
                         WoW.CastSpell("Incarnation");
                         return;
                     }
                     // actions.ed+=/celestial_alignment,if=astral_power>=85&!buff.the_emerald_dreamcatcher.up
-                    if (!Incarnation && UseCooldowns && WoW.CanCast("CelestialAlignment") && !WoW.IsSpellOnCooldown("CelestialAlignment") && WoW.CurrentAstralPower >= 85 && !WoW.PlayerHasBuff("EmeraldDreamcatcherBuff"))
+                    if (!Incarnation && UseCooldowns && WoW.CanCast("CelestialAlignment") && !WoW.IsSpellOnCooldown("CelestialAlignment") &&
+                        WoW.CurrentAstralPower >= 85 && !WoW.PlayerHasBuff("EmeraldDreamcatcherBuff"))
                     {
                         WoW.CastSpell("CelestialAlignment");
                         return;
                     }
                     // (EXECUTE_TIME NOT CODED) actions.ed+=/starsurge,if=(buff.celestial_alignment.up&buff.celestial_alignment.remains<(10))|(buff.incarnation.up&buff.incarnation.remains<(3*execute_time)&astral_power>78)|(buff.incarnation.up&buff.incarnation.remains<(2*execute_time)&astral_power>52)|(buff.incarnation.up&buff.incarnation.remains<execute_time&astral_power>26)
-                    if (WoW.CanCast("Starsurge")
-                        && (WoW.PlayerHasBuff("CelestialAlignment") && WoW.PlayerBuffTimeRemaining("CelestialAlignment") < 100)
-                        || (WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 300 && WoW.CurrentAstralPower >= 78)
-                        || (WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 200 && WoW.CurrentAstralPower >= 52)
-                        || (WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 100 && WoW.CurrentAstralPower >= 26))
+                    if (WoW.CanCast("Starsurge") && WoW.PlayerHasBuff("CelestialAlignment") && WoW.PlayerBuffTimeRemaining("CelestialAlignment") < 100
+                        || WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 300 && WoW.CurrentAstralPower >= 78
+                        || WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 200 && WoW.CurrentAstralPower >= 52
+                        || WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 100 && WoW.CurrentAstralPower >= 26)
                     {
                         WoW.CastSpell("Starsurge");
                         return;
@@ -533,7 +540,8 @@ namespace Frozen.Rotation
                     }
                     // actions.ed+=/moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
                     if (WoW.CanCast("Moonfire")
-                        && ((NaturesBalance && WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") < 300) || (!NaturesBalance && WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") < 660))
+                        && (NaturesBalance && WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") < 300 || !NaturesBalance &&
+                            WoW.TargetHasDebuff("Moonfire") && WoW.TargetDebuffTimeRemaining("Moonfire") < 660)
                         && (WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 100 || !WoW.PlayerHasBuff("EmeraldDreamcatcherBuff")))
                     {
                         WoW.CastSpell("Moonfire");
@@ -547,20 +555,23 @@ namespace Frozen.Rotation
                     }
                     // actions.ed+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
                     if (WoW.CanCast("Sunfire")
-                        && ((NaturesBalance && WoW.TargetHasDebuff("Sunfire") && WoW.TargetDebuffTimeRemaining("Sunfire") < 300) || (!NaturesBalance && WoW.TargetHasDebuff("Sunfire") && WoW.TargetDebuffTimeRemaining("Sunfire") < 540))
+                        && (NaturesBalance && WoW.TargetHasDebuff("Sunfire") && WoW.TargetDebuffTimeRemaining("Sunfire") < 300 || !NaturesBalance &&
+                            WoW.TargetHasDebuff("Sunfire") && WoW.TargetDebuffTimeRemaining("Sunfire") < 540)
                         && (WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 100 || !WoW.PlayerHasBuff("EmeraldDreamcatcherBuff")))
                     {
                         WoW.CastSpell("Moonfire");
                         return;
                     }
                     // actions.ed+=/starfall,if=buff.oneths_overconfidence.up&buff.the_emerald_dreamcatcher.remains>execute_time&remains<2
-                    if (StarfallMacro && WoW.CanCast("Starfall") && WoW.PlayerHasBuff("OnethsOverconfidence") && WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 100)
+                    if (StarfallMacro && WoW.CanCast("Starfall") && WoW.PlayerHasBuff("OnethsOverconfidence") && WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") &&
+                        WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 100)
                     {
                         WoW.CastSpell("Starfall");
                         return;
                     }
                     // actions.ed+=/half_moon,if=astral_power<=80&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=6
-                    if (WoW.CanCast("HalfMoon") && WoW.CurrentAstralPower <= 80 && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 150 && WoW.CurrentAstralPower > 6)
+                    if (WoW.CanCast("HalfMoon") && WoW.CurrentAstralPower <= 80 && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 150 &&
+                        WoW.CurrentAstralPower > 6)
                     {
                         WoW.CastSpell("HalfMoon");
                         return;
@@ -572,25 +583,40 @@ namespace Frozen.Rotation
                         return;
                     }
                     // actions.ed+=/solar_wrath,if=buff.solar_empowerment.stack>1&buff.the_emerald_dreamcatcher.remains>2*execute_time&astral_power>=6&(dot.moonfire.remains>5|(dot.sunfire.remains<5.4&dot.moonfire.remains>6.6))&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
-                    if (WoW.CanCast("SolarW") && WoW.PlayerBuffStacks("SolarEmp") > 1 && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 300 && WoW.CurrentAstralPower >= 6 && (WoW.TargetDebuffTimeRemaining("Moonfire") > 500 || (WoW.TargetDebuffTimeRemaining("Sunfire") > 660)) && ((!WoW.PlayerHasBuff("CelestialAlignment") || !WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower <= 90 || (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower <= 85))
+                    if (WoW.CanCast("SolarW") && WoW.PlayerBuffStacks("SolarEmp") > 1 && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 300 &&
+                        WoW.CurrentAstralPower >= 6 && (WoW.TargetDebuffTimeRemaining("Moonfire") > 500 || WoW.TargetDebuffTimeRemaining("Sunfire") > 660) &&
+                        ((!WoW.PlayerHasBuff("CelestialAlignment") || !WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower <= 90 ||
+                         (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower <= 85))
                     {
                         WoW.CastSpell("SolarW");
                         return;
                     }
                     // actions.ed+=/lunar_strike,if=buff.lunar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=11&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=77.5)
-                    if (WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp") && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 250 && WoW.CurrentAstralPower>=11&&((!WoW.PlayerHasBuff("CelestialAlignment")||!WoW.PlayerHasBuff("Incarnation")&&WoW.CurrentAstralPower<=85||(WoW.PlayerHasBuff("CelestialAlignment")||WoW.PlayerHasBuff("Incarnation"))&&WoW.CurrentAstralPower<=77)))
+                    if (WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp") && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 250 &&
+                        WoW.CurrentAstralPower >= 11 && (!WoW.PlayerHasBuff("CelestialAlignment") ||
+                                                         !WoW.PlayerHasBuff("Incarnation") && WoW.CurrentAstralPower <= 85 ||
+                                                         (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) &&
+                                                         WoW.CurrentAstralPower <= 77))
                     {
                         WoW.CastSpell("LStrike");
                         return;
                     }
                     // actions.ed+=/solar_wrath,if=buff.solar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=16&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
-                    if (WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp") && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 150 && WoW.CurrentAstralPower >= 16 && ((!WoW.PlayerHasBuff("CelestialAlignment") || !WoW.PlayerHasBuff("Incarnation") && WoW.CurrentAstralPower <= 90 || (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower <= 85)))
+                    if (WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp") && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") > 150 &&
+                        WoW.CurrentAstralPower >= 16 && (!WoW.PlayerHasBuff("CelestialAlignment") ||
+                                                         !WoW.PlayerHasBuff("Incarnation") && WoW.CurrentAstralPower <= 90 ||
+                                                         (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) &&
+                                                         WoW.CurrentAstralPower <= 85))
                     {
                         WoW.CastSpell("SolarW");
                         return;
                     }
                     // actions.ed+=/starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
-                    if (WoW.CanCast("Starsurge") && (WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") < 100) || WoW.CurrentAstralPower > 90 || ((WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower >= 85) || (WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") && WoW.CurrentAstralPower >= 77 && (WoW.PlayerHasBuff("CelestialAlignment") || (WoW.PlayerHasBuff("Incarnation")))))
+                    if (WoW.CanCast("Starsurge") && WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") &&
+                        WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") < 100 || WoW.CurrentAstralPower > 90 ||
+                        (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower >= 85 ||
+                        WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") && WoW.CurrentAstralPower >= 77 &&
+                        (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")))
                     {
                         WoW.CastSpell("Starsurge");
                         return;
@@ -614,13 +640,16 @@ namespace Frozen.Rotation
                         return;
                     }
                     // actions.ed+=/full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moon.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moon.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moon.charges>2))
-                    if (WoW.CanCast("FullMoon") && WoW.CurrentAstralPower <= 60&&((Incarnation && WoW.SpellCooldownTimeRemaining("Incarnation") > 6500 && WoW.PlayerSpellCharges("FullMoon") > 0) || (WoW.SpellCooldownTimeRemaining("Incarnation") > 5000 && WoW.PlayerSpellCharges("FullMoon") > 1) || (WoW.SpellCooldownTimeRemaining("Incarnation") > 2500 && WoW.PlayerSpellCharges("FullMoon") > 2)))
+                    if (WoW.CanCast("FullMoon") && WoW.CurrentAstralPower <= 60 &&
+                        (Incarnation && WoW.SpellCooldownTimeRemaining("Incarnation") > 6500 && WoW.PlayerSpellCharges("FullMoon") > 0 ||
+                         WoW.SpellCooldownTimeRemaining("Incarnation") > 5000 && WoW.PlayerSpellCharges("FullMoon") > 1 ||
+                         WoW.SpellCooldownTimeRemaining("Incarnation") > 2500 && WoW.PlayerSpellCharges("FullMoon") > 2))
                     {
                         WoW.CastSpell("FullMoon");
                         return;
                     }
                     // actions.ed+=/solar_wrath,if=buff.solar_empowerment.up
-                    if (WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp")) 
+                    if (WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
                     {
                         WoW.CastSpell("SolarW");
                         return;
@@ -647,15 +676,15 @@ namespace Frozen.Rotation
                         WoW.CastSpell("KBW");
                         return;
                     }
-					// New Moon
-                    if (WoW.IsSpellInRange("Moon") 
+                    // New Moon
+                    if (WoW.IsSpellInRange("Moon")
                         && WoW.CanCast("Moon")
                         && WoW.PlayerSpellCharges("Moon") == 3)
                     {
                         WoW.CastSpell("Moon");
                         return;
                     }
-					// Moonfire not in target
+                    // Moonfire not in target
                     if (WoW.IsSpellInRange("Moonfire")
                         && WoW.CanCast("Moonfire")
                         && !WoW.TargetHasDebuff("Moonfire"))
@@ -671,8 +700,8 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Sunfire");
                         return;
                     }
-					// CelestialAlignment
-					if (!Incarnation && WoW.CanCast("CelestialAlignment"))
+                    // CelestialAlignment
+                    if (!Incarnation && WoW.CanCast("CelestialAlignment"))
                     {
                         WoW.CastSpell("CelestialAlignment");
                         return;
@@ -683,7 +712,7 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Incarnation");
                         return;
                     }
-					// HalfMoon
+                    // HalfMoon
                     if (WoW.CanCast("HalfMoon")
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
@@ -707,7 +736,7 @@ namespace Frozen.Rotation
                     }
                     // Under Celestial Alignment
                     if (WoW.PlayerHasBuff("CelestialAlignment"))
-						{
+                    {
                         // KBW if in use
                         if (KBW && !WoW.ItemOnCooldown("KBW") && WoW.IsSpellInRange("LStrike"))
                         {
@@ -716,64 +745,64 @@ namespace Frozen.Rotation
                         }
                         // Starsurge
                         if (WoW.IsSpellInRange("Starsurge") && WoW.CanCast("Starsurge") && WoW.CurrentAstralPower >= 40)
-						{
-							WoW.CastSpell("Starsurge");
-							return;
-						}
-						// Solar Wrath at 3 solar empowerement
-						if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
-						{
-							WoW.CastSpell("SolarW");
-                            
+                        {
+                            WoW.CastSpell("Starsurge");
                             return;
-						}
-						// Lunar Strike at 3 solar empowerement
-						if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp"))
-						{
-							WoW.CastSpell("LStrike");
-                            
+                        }
+                        // Solar Wrath at 3 solar empowerement
+                        if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
+                        {
+                            WoW.CastSpell("SolarW");
+
                             return;
-						}
-						// Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
-						if (NaturesBalance 
-							&& WoW.IsSpellInRange("SolarW")
-							&& WoW.CanCast("SolarW")
-							&& WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
-							&& WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
-						{
-							WoW.CastSpell("SolarW");
-                            
+                        }
+                        // Lunar Strike at 3 solar empowerement
+                        if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp"))
+                        {
+                            WoW.CastSpell("LStrike");
+
                             return;
-						}
-						// Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
-						if (NaturesBalance 
-							&& WoW.IsSpellInRange("LStrike")
-							&& WoW.CanCast("LStrike")
-							&& WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
-							&& WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
-						{
-							WoW.CastSpell("LStrike");
-                            
+                        }
+                        // Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
+                        if (NaturesBalance
+                            && WoW.IsSpellInRange("SolarW")
+                            && WoW.CanCast("SolarW")
+                            && WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
+                            && WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
+                        {
+                            WoW.CastSpell("SolarW");
+
                             return;
-						}
-						// StellarFlare if not in target
-						if (WoW.IsSpellInRange("StellarFlare")
-							&& WoW.CanCast("StellarFlare")
-							&& WoW.CurrentAstralPower >= 15
-							&& !WoW.TargetHasDebuff("StellarFlare"))
-						{
-							WoW.CastSpell("StellarFlare");
-							return;
-						}
-						// StellarFlare if under 5 remaining and at over 15 astral power
-						if (StellarFlare && WoW.IsSpellInRange("StellarFlare")
-							&& WoW.CanCast("StellarFlare")
-							&& WoW.CurrentAstralPower >= 15
-							&& WoW.TargetDebuffTimeRemaining("StellarFlare") <= 500)
-						{
-							WoW.CastSpell("StellarFlare");
-							return;
-						}
+                        }
+                        // Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
+                        if (NaturesBalance
+                            && WoW.IsSpellInRange("LStrike")
+                            && WoW.CanCast("LStrike")
+                            && WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
+                            && WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
+                        {
+                            WoW.CastSpell("LStrike");
+
+                            return;
+                        }
+                        // StellarFlare if not in target
+                        if (WoW.IsSpellInRange("StellarFlare")
+                            && WoW.CanCast("StellarFlare")
+                            && WoW.CurrentAstralPower >= 15
+                            && !WoW.TargetHasDebuff("StellarFlare"))
+                        {
+                            WoW.CastSpell("StellarFlare");
+                            return;
+                        }
+                        // StellarFlare if under 5 remaining and at over 15 astral power
+                        if (StellarFlare && WoW.IsSpellInRange("StellarFlare")
+                            && WoW.CanCast("StellarFlare")
+                            && WoW.CurrentAstralPower >= 15
+                            && WoW.TargetDebuffTimeRemaining("StellarFlare") <= 500)
+                        {
+                            WoW.CastSpell("StellarFlare");
+                            return;
+                        }
                         // New Moon
                         if (WoW.IsSpellInRange("Moon")
                             && WoW.CanCast("Moon")
@@ -806,15 +835,15 @@ namespace Frozen.Rotation
                         }
                         // Cast SolarWrath when nothing else to do
                         if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW"))
-						{
-							WoW.CastSpell("SolarW");
-							return;
-						}
-						return;
-					}
+                        {
+                            WoW.CastSpell("SolarW");
+                            return;
+                        }
+                        return;
+                    }
                     // Under Incarnation
                     if (Incarnation && WoW.PlayerHasBuff("Incarnation"))
-					{
+                    {
                         // KBW if in use
                         if (KBW && !WoW.ItemOnCooldown("KBW") && WoW.IsSpellInRange("LStrike"))
                         {
@@ -823,67 +852,67 @@ namespace Frozen.Rotation
                         }
                         // Starsurge
                         if (WoW.IsSpellInRange("Starsurge") && WoW.CanCast("Starsurge") && WoW.CurrentAstralPower >= 40)
-						{
-							WoW.CastSpell("Starsurge");
-							return;
-						}
-						// Solar Wrath at 3 solar empowerement
-						if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
-						{
-							WoW.CastSpell("SolarW");
-                            
+                        {
+                            WoW.CastSpell("Starsurge");
                             return;
-						}
-						// Lunar Strike at 3 solar empowerement
-						if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp"))
-						{
-							WoW.CastSpell("LStrike");
-                            
+                        }
+                        // Solar Wrath at 3 solar empowerement
+                        if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
+                        {
+                            WoW.CastSpell("SolarW");
+
                             return;
-						}
-						// Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
-						if (NaturesBalance 
-							&& WoW.IsSpellInRange("SolarW")
-							&& WoW.CanCast("SolarW")
-							&& WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
-							&& WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
-						{
-							WoW.CastSpell("SolarW");
-							return;
-						}
-						// Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
-						if (NaturesBalance 
-							&& WoW.IsSpellInRange("LStrike")
-							&& WoW.CanCast("LStrike")
-							&& WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
-							&& WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
-						{
-							WoW.CastSpell("LStrike");
-							return;
-						}
-						// StellarFlare if under 7.2 remaining and at over 15 astral power
-						if (StellarFlare && WoW.IsSpellInRange("StellarFlare")
-							&& WoW.CanCast("StellarFlare")
-							&& WoW.CurrentAstralPower >= 15
-							&& !WoW.TargetHasDebuff("StellarFlare"))
-						{
-							WoW.CastSpell("StellarFlare");
-							return;
-						}
-						// StellarFlare if under 7.2 remaining and at over 15 astral power
-						if (StellarFlare && WoW.IsSpellInRange("StellarFlare")
-							&& WoW.CanCast("StellarFlare")
-							&& WoW.CurrentAstralPower >= 15
-							&& WoW.TargetDebuffTimeRemaining("StellarFlare") <= 500)
-						{
-							WoW.CastSpell("StellarFlare");
-							return;
-						}
+                        }
+                        // Lunar Strike at 3 solar empowerement
+                        if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp"))
+                        {
+                            WoW.CastSpell("LStrike");
+
+                            return;
+                        }
+                        // Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
+                        if (NaturesBalance
+                            && WoW.IsSpellInRange("SolarW")
+                            && WoW.CanCast("SolarW")
+                            && WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
+                            && WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
+                        {
+                            WoW.CastSpell("SolarW");
+                            return;
+                        }
+                        // Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
+                        if (NaturesBalance
+                            && WoW.IsSpellInRange("LStrike")
+                            && WoW.CanCast("LStrike")
+                            && WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
+                            && WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
+                        {
+                            WoW.CastSpell("LStrike");
+                            return;
+                        }
+                        // StellarFlare if under 7.2 remaining and at over 15 astral power
+                        if (StellarFlare && WoW.IsSpellInRange("StellarFlare")
+                            && WoW.CanCast("StellarFlare")
+                            && WoW.CurrentAstralPower >= 15
+                            && !WoW.TargetHasDebuff("StellarFlare"))
+                        {
+                            WoW.CastSpell("StellarFlare");
+                            return;
+                        }
+                        // StellarFlare if under 7.2 remaining and at over 15 astral power
+                        if (StellarFlare && WoW.IsSpellInRange("StellarFlare")
+                            && WoW.CanCast("StellarFlare")
+                            && WoW.CurrentAstralPower >= 15
+                            && WoW.TargetDebuffTimeRemaining("StellarFlare") <= 500)
+                        {
+                            WoW.CastSpell("StellarFlare");
+                            return;
+                        }
                         // Cast LunarStrike if no SolarEmp and have LunarEmp
                         if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp") && !WoW.PlayerHasBuff("SolarEmp"))
                         {
                             WoW.CastSpell("LStrike");
-                            
+
                             return;
                         }
                         // New Moon
@@ -918,14 +947,14 @@ namespace Frozen.Rotation
                         }
                         // Cast SolarWrath when nothing else to do
                         if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW"))
-						{
-							WoW.CastSpell("SolarW");
-                            
+                        {
+                            WoW.CastSpell("SolarW");
+
                             return;
-						}
+                        }
                         return;
-					}
-				}
+                    }
+                }
                 // Cooldown rotation
                 if (WoW.IsInCombat && WoW.HasTarget && UseCooldowns && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin"))
                 {
@@ -944,8 +973,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Incarnation if Timewarp 80353, Heroism 2825 
-                    if (Incarnation && WoW.CanCast("Incarnation") 
-                        && WoW.CurrentAstralPower >= 40 
+                    if (Incarnation && WoW.CanCast("Incarnation")
+                        && WoW.CurrentAstralPower >= 40
                         && (WoW.PlayerHasBuff("Timewarp") || WoW.PlayerHasBuff("Heroism")))
                     {
                         WoW.CastSpell("Incarnation");
@@ -968,9 +997,10 @@ namespace Frozen.Rotation
                         return;
                     }
                 }
-				// Under Celestial Alignment
-				if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving && WoW.PlayerHasBuff("CelestialAlignment"))
-				{
+                // Under Celestial Alignment
+                if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving &&
+                    WoW.PlayerHasBuff("CelestialAlignment"))
+                {
                     // KBW if in use
                     if (KBW && !WoW.ItemOnCooldown("KBW") && WoW.IsSpellInRange("LStrike"))
                     {
@@ -1009,43 +1039,43 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Lunar Strike at 3 solar empowerement
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
-					// Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
-                    if (NaturesBalance 
-					    && WoW.IsSpellInRange("SolarW")
+                    // Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("SolarW")
                         && WoW.CanCast("SolarW")
                         && WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
                         && WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
-                    if (NaturesBalance 
-						&& WoW.IsSpellInRange("LStrike")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("LStrike")
                         && WoW.CanCast("LStrike")
                         && WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
                         && WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // Cast LunarStrike if no SolarEmp and have LunarEmp
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp") && !WoW.PlayerHasBuff("SolarEmp"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // StellarFlare if no StellarFlare
@@ -1063,41 +1093,42 @@ namespace Frozen.Rotation
                         && WoW.CurrentAstralPower <= 90
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("Moon");
-                            return;
-                        }
+                    {
+                        WoW.CastSpell("Moon");
+                        return;
+                    }
                     // HalfMoon
                     if (WoW.IsSpellInRange("HalfMoon")
                         && WoW.CanCast("HalfMoon")
                         && WoW.CurrentAstralPower <= 80
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("HalfMoon");
-                            return;
-                        } 
+                    {
+                        WoW.CastSpell("HalfMoon");
+                        return;
+                    }
                     // FullMoon
                     if (WoW.IsSpellInRange("FullMoon")
                         && WoW.CanCast("FullMoon")
                         && WoW.CurrentAstralPower <= 60
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("FullMoon");
-                            return;
-                        }
+                    {
+                        WoW.CastSpell("FullMoon");
+                        return;
+                    }
                     // Cast SolarWrath when nothing else to do
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW"))
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
-				}
-				// Under Incarnation
-				if (Incarnation && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving && WoW.PlayerHasBuff("Incarnation"))
-				{
+                }
+                // Under Incarnation
+                if (Incarnation && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving &&
+                    WoW.PlayerHasBuff("Incarnation"))
+                {
                     // KBW if in use
                     if (KBW && !WoW.ItemOnCooldown("KBW") && WoW.IsSpellInRange("LStrike"))
                     {
@@ -1136,43 +1167,43 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Lunar Strike at 3 solar empowerement
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
-					// Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
-                    if (NaturesBalance 
-					    && WoW.IsSpellInRange("SolarW")
+                    // Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("SolarW")
                         && WoW.CanCast("SolarW")
                         && WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
                         && WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
-                    if (NaturesBalance 
-						&& WoW.IsSpellInRange("LStrike")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("LStrike")
                         && WoW.CanCast("LStrike")
                         && WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
                         && WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // Cast LunarStrike if no SolarEmp and have LunarEmp
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp") && !WoW.PlayerHasBuff("SolarEmp"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // StellarFlare if no StellarFlare
@@ -1190,40 +1221,41 @@ namespace Frozen.Rotation
                         && WoW.CurrentAstralPower <= 90
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("Moon");
-                            return;
-                        }
+                    {
+                        WoW.CastSpell("Moon");
+                        return;
+                    }
                     // HalfMoon
                     if (WoW.IsSpellInRange("HalfMoon")
                         && WoW.CanCast("HalfMoon")
                         && WoW.CurrentAstralPower <= 80
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("HalfMoon");
-                            return;
-                        }
+                    {
+                        WoW.CastSpell("HalfMoon");
+                        return;
+                    }
                     // FullMoon
                     if (WoW.IsSpellInRange("FullMoon")
                         && WoW.CanCast("FullMoon")
                         && WoW.CurrentAstralPower <= 60
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("FullMoon");
-                            return;
-                        }
+                    {
+                        WoW.CastSpell("FullMoon");
+                        return;
+                    }
                     // Cast SolarWrath when nothing else to do
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW"))
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
-				}
+                }
                 // Fulmination Charge trinket prog
-                if (WoW.CanCast("Starsurge") && WoW.IsSpellInRange("Starsurge") && WoW.CurrentAstralPower >= 40 && WoW.PlayerHasBuff("FulminationCharge") && WoW.PlayerBuffStacks("FulminationCharge") >= 8)
+                if (WoW.CanCast("Starsurge") && WoW.IsSpellInRange("Starsurge") && WoW.CurrentAstralPower >= 40 && WoW.PlayerHasBuff("FulminationCharge") &&
+                    WoW.PlayerBuffStacks("FulminationCharge") >= 8)
                 {
                     WoW.CastSpell("Starsurge");
                     return;
@@ -1244,7 +1276,7 @@ namespace Frozen.Rotation
                     return;
                 }
                 // Main single target rotation
-                if (WoW.IsInCombat && WoW.HasTarget&& WoW.TargetIsEnemy&&WoW.PlayerHasBuff("Moonkin")&&!WoW.IsMoving)
+                if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving)
                 {
                     // Owlkin Frenzy
                     if (WoW.PlayerHasBuff("OwlkinFrenzy"))
@@ -1270,10 +1302,10 @@ namespace Frozen.Rotation
                         return;
                     }
                     // New Moon
-                    if (WoW.IsSpellInRange("Moon") 
+                    if (WoW.IsSpellInRange("Moon")
                         && WoW.CanCast("Moon")
                         && WoW.PlayerSpellCharges("Moon") == 3
-                        && WoW.TargetHasDebuff("Moonfire") 
+                        && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
                     {
                         WoW.CastSpell("Moon");
@@ -1309,7 +1341,7 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Sunfire if under 5.4 remaining (no Natures Balance)
-                    if (!NaturesBalance 
+                    if (!NaturesBalance
                         && WoW.IsSpellInRange("Sunfire")
                         && WoW.CanCast("Sunfire")
                         && WoW.TargetDebuffTimeRemaining("Sunfire") <= 540)
@@ -1318,8 +1350,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Moonfire if under 3 remaining (Natures Balance)
-                    if (NaturesBalance 
-					    && WoW.IsSpellInRange("Moonfire")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("Moonfire")
                         && WoW.CanCast("Moonfire")
                         && WoW.TargetDebuffTimeRemaining("Moonfire") <= 300)
                     {
@@ -1328,7 +1360,7 @@ namespace Frozen.Rotation
                     }
                     // Sunfire if under 3 remaining (Natures Balance)
                     if (NaturesBalance
-					    && WoW.IsSpellInRange("Sunfire")
+                        && WoW.IsSpellInRange("Sunfire")
                         && WoW.CanCast("Sunfire")
                         && WoW.TargetDebuffTimeRemaining("Sunfire") <= 300)
                     {
@@ -1395,30 +1427,30 @@ namespace Frozen.Rotation
                         && WoW.CurrentAstralPower <= 90
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("Moon");
-                            return;
-                        }
+                    {
+                        WoW.CastSpell("Moon");
+                        return;
+                    }
                     // HalfMoon
                     if (WoW.IsSpellInRange("HalfMoon")
                         && WoW.CanCast("HalfMoon")
                         && WoW.CurrentAstralPower <= 80
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("HalfMoon");
-                            return;
-                        }
+                    {
+                        WoW.CastSpell("HalfMoon");
+                        return;
+                    }
                     // FullMoon
                     if (WoW.IsSpellInRange("FullMoon")
                         && WoW.CanCast("FullMoon")
                         && WoW.CurrentAstralPower <= 60
                         && WoW.TargetHasDebuff("Moonfire")
                         && WoW.TargetHasDebuff("Sunfire"))
-                        {
-                            WoW.CastSpell("FullMoon");
-                            return;
-                        }
+                    {
+                        WoW.CastSpell("FullMoon");
+                        return;
+                    }
                     // Oneths progged starfall if have buff Oneth'ss Overconfidence
                     if (StarfallMacro && WoW.CanCast("Starfall") && WoW.PlayerHasBuff("OnethsOverconfidence"))
                     {
@@ -1426,7 +1458,9 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Starsurge
-                    if (WoW.IsSpellInRange("Starsurge") && WoW.CanCast("Starsurge") && WoW.CurrentAstralPower >= StarsurgeAsP && (!WoW.PlayerHasBuff("SolarEmp") || WoW.PlayerBuffStacks("SolarEmp") < 3) && (!WoW.PlayerHasBuff("LunarEmp") || WoW.PlayerBuffStacks("LunarEmp") < 3))
+                    if (WoW.IsSpellInRange("Starsurge") && WoW.CanCast("Starsurge") && WoW.CurrentAstralPower >= StarsurgeAsP &&
+                        (!WoW.PlayerHasBuff("SolarEmp") || WoW.PlayerBuffStacks("SolarEmp") < 3) &&
+                        (!WoW.PlayerHasBuff("LunarEmp") || WoW.PlayerBuffStacks("LunarEmp") < 3))
                     {
                         WoW.CastSpell("Starsurge");
                         return;
@@ -1435,12 +1469,12 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerBuffStacks("SolarEmp") <= 1)
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
-                    if (NaturesBalance 
-					    && WoW.IsSpellInRange("SolarW")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("SolarW")
                         && WoW.CanCast("SolarW")
                         && WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
                         && WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
@@ -1449,8 +1483,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
-                    if (NaturesBalance 
-						&& WoW.IsSpellInRange("LStrike")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("LStrike")
                         && WoW.CanCast("LStrike")
                         && WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
                         && WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
@@ -1462,18 +1496,17 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp") && !WoW.PlayerHasBuff("SolarEmp"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // Cast SolarWrath when nothing else to do
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW"))
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     return;
-
                 }
                 // Stellar Drift and Moving
                 if (StellarDrift && WoW.IsMoving && WoW.PlayerHasBuff("StarfallP") && WoW.IsSpellInRange("LStrike"))
@@ -1506,20 +1539,24 @@ namespace Frozen.Rotation
                     return;
                 }
                 // While moving ED
-                if (EmeraldDreamcatcher && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && (WoW.IsMoving || !WoW.PlayerHasBuff("StarfallP")))
+                if (EmeraldDreamcatcher && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") &&
+                    (WoW.IsMoving || !WoW.PlayerHasBuff("StarfallP")))
                 {
                     // ED Starsurge 1
-                    if (WoW.CanCast("Starsurge")
-                        && (WoW.PlayerHasBuff("CelestialAlignment") && WoW.PlayerBuffTimeRemaining("CelestialAlignment") < 1000)
-                        || (WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 300 && WoW.CurrentAstralPower >= 78)
-                        || (WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 200 && WoW.CurrentAstralPower >= 52)
-                        || (WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 100 && WoW.CurrentAstralPower >= 26))
+                    if (WoW.CanCast("Starsurge") && WoW.PlayerHasBuff("CelestialAlignment") && WoW.PlayerBuffTimeRemaining("CelestialAlignment") < 1000
+                        || WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 300 && WoW.CurrentAstralPower >= 78
+                        || WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 200 && WoW.CurrentAstralPower >= 52
+                        || WoW.PlayerHasBuff("Incarnation") && WoW.PlayerBuffTimeRemaining("Incarnation") <= 100 && WoW.CurrentAstralPower >= 26)
                     {
                         WoW.CastSpell("Starsurge");
                         return;
                     }
                     // ED Starsurge 2
-                    if (WoW.CanCast("Starsurge") && (WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") && WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") < 100) || WoW.CurrentAstralPower > 90 || ((WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower >= 85) || (WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") && WoW.CurrentAstralPower >= 77 && (WoW.PlayerHasBuff("CelestialAlignment") || (WoW.PlayerHasBuff("Incarnation")))))
+                    if (WoW.CanCast("Starsurge") && WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") &&
+                        WoW.PlayerBuffTimeRemaining("EmeraldDreamcatcherBuff") < 100 || WoW.CurrentAstralPower > 90 ||
+                        (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")) && WoW.CurrentAstralPower >= 85 ||
+                        WoW.PlayerHasBuff("EmeraldDreamcatcherBuff") && WoW.CurrentAstralPower >= 77 &&
+                        (WoW.PlayerHasBuff("CelestialAlignment") || WoW.PlayerHasBuff("Incarnation")))
                     {
                         WoW.CastSpell("Starsurge");
                         return;
@@ -1542,9 +1579,12 @@ namespace Frozen.Rotation
                     }
                 }
                 // While moving
-                if (!EmeraldDreamcatcher && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && (WoW.IsMoving || !WoW.PlayerHasBuff("StarfallP")))
-				{
-                    if (WoW.IsSpellInRange("Starsurge") && WoW.CanCast("Starsurge") && WoW.CurrentAstralPower >= 40 && (!WoW.PlayerHasBuff("SolarEmp") || WoW.PlayerBuffStacks("SolarEmp") < 3) && (!WoW.PlayerHasBuff("LunarEmp") || WoW.PlayerBuffStacks("LunarEmp") < 3))
+                if (!EmeraldDreamcatcher && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") &&
+                    (WoW.IsMoving || !WoW.PlayerHasBuff("StarfallP")))
+                {
+                    if (WoW.IsSpellInRange("Starsurge") && WoW.CanCast("Starsurge") && WoW.CurrentAstralPower >= 40 &&
+                        (!WoW.PlayerHasBuff("SolarEmp") || WoW.PlayerBuffStacks("SolarEmp") < 3) &&
+                        (!WoW.PlayerHasBuff("LunarEmp") || WoW.PlayerBuffStacks("LunarEmp") < 3))
                     {
                         WoW.CastSpell("Starsurge");
                         return;
@@ -1565,7 +1605,7 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Sunfire");
                         return;
                     }
-				}
+                }
             }
             if (combatRoutine.Type == RotationType.AOE)
             {
@@ -1573,7 +1613,7 @@ namespace Frozen.Rotation
                 if (!WoW.PlayerIsCasting && WoW.IsInCombat && WoW.CanCast("Moonkin") && !WoW.PlayerHasBuff("Moonkin"))
                 {
                     WoW.CastSpell("Moonkin");
-                    
+
                     return;
                 }
                 // Cooldown rotation
@@ -1628,7 +1668,8 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Moonfire");
                         return;
                     }
-                    if (StellarDrift && WoW.IsMoving && WoW.CanCast("FullMoon") && WoW.PlayerHasBuff("StarfallP") && WoW.PlayerBuffTimeRemaining("StarfallP") >= 300)
+                    if (StellarDrift && WoW.IsMoving && WoW.CanCast("FullMoon") && WoW.PlayerHasBuff("StarfallP") &&
+                        WoW.PlayerBuffTimeRemaining("StarfallP") >= 300)
                     {
                         WoW.CastSpell("FullMoon");
                         return;
@@ -1636,15 +1677,17 @@ namespace Frozen.Rotation
                     if (StellarDrift && WoW.IsMoving && WoW.PlayerHasBuff("StarfallP") && WoW.PlayerBuffTimeRemaining("StarfallP") >= 250)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
-                    if (StellarDrift && WoW.IsMoving && WoW.CanCast("Moon") && WoW.PlayerHasBuff("StarfallP") && WoW.PlayerBuffTimeRemaining("StarfallP") >= 120)
+                    if (StellarDrift && WoW.IsMoving && WoW.CanCast("Moon") && WoW.PlayerHasBuff("StarfallP") &&
+                        WoW.PlayerBuffTimeRemaining("StarfallP") >= 120)
                     {
                         WoW.CastSpell("Moon");
                         return;
                     }
-                    if (StellarDrift && WoW.IsMoving && WoW.CanCast("HalfMoon") && WoW.PlayerHasBuff("StarfallP") && WoW.PlayerBuffTimeRemaining("StarfallP") >= 200)
+                    if (StellarDrift && WoW.IsMoving && WoW.CanCast("HalfMoon") && WoW.PlayerHasBuff("StarfallP") &&
+                        WoW.PlayerBuffTimeRemaining("StarfallP") >= 200)
                     {
                         WoW.CastSpell("HalfMoon");
                         return;
@@ -1679,7 +1722,8 @@ namespace Frozen.Rotation
                         WoW.CastSpell("FullMoon");
                         return;
                     }
-                    if (WoW.CanCast("Starsurge") && WoW.CurrentAstralPower >= 40 && WoW.TargetHasDebuff("StarfallT") && (WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("CelestialAlignment")))
+                    if (WoW.CanCast("Starsurge") && WoW.CurrentAstralPower >= 40 && WoW.TargetHasDebuff("StarfallT") &&
+                        (WoW.PlayerHasBuff("Incarnation") || WoW.PlayerHasBuff("CelestialAlignment")))
                     {
                         WoW.CastSpell("Starsurge");
                         return;
@@ -1687,7 +1731,7 @@ namespace Frozen.Rotation
                     if (WoW.CanCast("LStrike") && WoW.PlayerHasBuff("StarfallP"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     return;
@@ -1709,7 +1753,7 @@ namespace Frozen.Rotation
                     if (WoW.PlayerHasBuff("StarfallP") && WoW.PlayerBuffTimeRemaining("StarfallP") >= 250)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     if (WoW.CanCast("Moon") && WoW.PlayerHasBuff("StarfallP") && WoW.PlayerBuffTimeRemaining("StarfallP") >= 120)
@@ -1723,9 +1767,10 @@ namespace Frozen.Rotation
                         return;
                     }
                 }
-				// Under Celestial Alignment, no soul of the forest
-				if (!SouloftheForest && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving && WoW.PlayerHasBuff("CelestialAlignment"))
-				{
+                // Under Celestial Alignment, no soul of the forest
+                if (!SouloftheForest && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving &&
+                    WoW.PlayerHasBuff("CelestialAlignment"))
+                {
                     // KBW if in use
                     if (KBW && !WoW.ItemOnCooldown("KBW") && WoW.IsSpellInRange("LStrike"))
                     {
@@ -1744,40 +1789,40 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Starsurge");
                         return;
                     }
-					// Solar Wrath at 3 solar empowerement
+                    // Solar Wrath at 3 solar empowerement
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Lunar Strike at 3 solar empowerement
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
-					// Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
-                    if (NaturesBalance 
-					    && WoW.IsSpellInRange("SolarW")
+                    // Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("SolarW")
                         && WoW.CanCast("SolarW")
                         && WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
                         && WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
-                    if (NaturesBalance 
-						&& WoW.IsSpellInRange("LStrike")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("LStrike")
                         && WoW.CanCast("LStrike")
                         && WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
                         && WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // StellarFlare if no StellarFlare
@@ -1793,13 +1838,14 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
-				}
-				// Under Incarnation, no soul of the forest
-				if (!SouloftheForest && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving && WoW.PlayerHasBuff("Incarnation"))
-				{
+                }
+                // Under Incarnation, no soul of the forest
+                if (!SouloftheForest && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving &&
+                    WoW.PlayerHasBuff("Incarnation"))
+                {
                     // KBW if in use
                     if (KBW && !WoW.ItemOnCooldown("KBW") && WoW.IsSpellInRange("LStrike"))
                     {
@@ -1822,36 +1868,36 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerHasBuff("LunarEmp"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
-					// Solar Wrath at 3 solar empowerement
+                    // Solar Wrath at 3 solar empowerement
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerHasBuff("SolarEmp"))
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
-					// Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
-                    if (NaturesBalance 
-					    && WoW.IsSpellInRange("SolarW")
+                    // Solar Wrath if natures balance and betwean 5-2seconds left on sunfire
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("SolarW")
                         && WoW.CanCast("SolarW")
                         && WoW.TargetDebuffTimeRemaining("Sunfire") <= 500
                         && WoW.TargetDebuffTimeRemaining("Sunfire") >= 200)
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
-                    if (NaturesBalance 
-						&& WoW.IsSpellInRange("LStrike")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("LStrike")
                         && WoW.CanCast("LStrike")
                         && WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
                         && WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // StellarFlare if no StellarFlare
@@ -1867,10 +1913,10 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
-				}
+                }
                 // Main rotation, no soul of the forest
                 if (!SouloftheForest && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && !WoW.IsMoving)
                 {
@@ -1952,8 +1998,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Moonfire if under 3 remaining (no natures balance)
-                    if (NaturesBalance 
-						&& WoW.IsSpellInRange("Moonfire")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("Moonfire")
                         && WoW.CanCast("Moonfire")
                         && WoW.TargetDebuffTimeRemaining("Moonfire") <= 300)
                     {
@@ -1961,8 +2007,8 @@ namespace Frozen.Rotation
                         return;
                     }
                     // Sunfire if under 3 remaining (no natures balance)
-                    if (NaturesBalance 
-						&& WoW.IsSpellInRange("Sunfire")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("Sunfire")
                         && WoW.CanCast("Sunfire")
                         && WoW.TargetDebuffTimeRemaining("Sunfire") <= 300)
                     {
@@ -1982,14 +2028,14 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerBuffStacks("LunarEmp") == 3)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // Solar Wrath at 3 solar empowerement
                     if (WoW.IsSpellInRange("SolarW") && WoW.CanCast("SolarW") && WoW.PlayerBuffStacks("SolarEmp") == 3)
                     {
                         WoW.CastSpell("SolarW");
-                        
+
                         return;
                     }
                     // Moonfire if not on target
@@ -2011,7 +2057,7 @@ namespace Frozen.Rotation
                     // StellarFlare if not on target
                     if (WoW.IsSpellInRange("StellarFlare")
                         && WoW.CanCast("StellarFlare")
-			&& WoW.CurrentAstralPower >= 10
+                        && WoW.CurrentAstralPower >= 10
                         && !WoW.TargetHasDebuff("StellarFlare"))
                     {
                         WoW.CastSpell("StellarFlare");
@@ -2020,7 +2066,7 @@ namespace Frozen.Rotation
                     // StellarFlare if not on target
                     if (WoW.IsSpellInRange("StellarFlare")
                         && WoW.CanCast("StellarFlare")
-			&& WoW.CurrentAstralPower >= 10
+                        && WoW.CurrentAstralPower >= 10
                         && WoW.TargetDebuffTimeRemaining("StellarFlare") < 500)
                     {
                         WoW.CastSpell("StellarFlare");
@@ -2067,28 +2113,27 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike") && WoW.PlayerBuffStacks("LunarEmp") <= 1)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // Lunar Strike if natures abalnce and betwean 5-2seconds left on moonfire
-                    if (NaturesBalance 
-						&& WoW.IsSpellInRange("LStrike")
+                    if (NaturesBalance
+                        && WoW.IsSpellInRange("LStrike")
                         && WoW.CanCast("LStrike")
                         && WoW.TargetDebuffTimeRemaining("Moonfire") <= 600
                         && WoW.TargetDebuffTimeRemaining("Moonfire") >= 300)
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
                     // Cast Lunar Strike when nothing else to do
                     if (WoW.IsSpellInRange("LStrike") && WoW.CanCast("LStrike"))
                     {
                         WoW.CastSpell("LStrike");
-                        
+
                         return;
                     }
-
                 }
                 // While moving and no soul of the forest
                 if (!SouloftheForest && WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerHasBuff("Moonkin") && WoW.IsMoving)
@@ -2112,20 +2157,17 @@ namespace Frozen.Rotation
                     if (WoW.IsSpellInRange("Sunfire") && WoW.CanCast("Sunfire") && !WoW.TargetHasDebuff("Sunfire"))
                     {
                         WoW.CastSpell("Sunfire");
-                        return;
                     }
                 }
             }
         }
-        
-        public override Form SettingsForm { get; set; }
     }
 }
 
 /*
 [AddonDetails.db]
 AddonAuthor=Daniel
-AddonName=Frozen
+AddonName=HideOrderHallBar
 WoWVersion=Legion - 72000
 [SpellBook.db]
 Spell,8921,Moonfire,D4

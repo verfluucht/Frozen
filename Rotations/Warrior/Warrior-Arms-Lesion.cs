@@ -1,7 +1,3 @@
-// winifix@gmail.com
-// ReSharper disable UnusedMember.Global
-// ReSharper disable ConvertPropertyToExpressionBody
-
 using System.Drawing;
 using System.Windows.Forms;
 using Frozen.Helpers;
@@ -10,15 +6,9 @@ namespace Frozen.Rotation
 {
     public class ArmsWarriorLe : CombatRoutine
     {
-        public override string Name
-        {
-            get { return "Arms Warrior"; }
-        }
+        public override string Name => "Arms Warrior";
 
-        public override string Class
-        {
-            get { return "Warrior"; }
-        }
+        public override string Class => "Warrior";
 
         public override Form SettingsForm { get; set; }
 
@@ -46,7 +36,6 @@ namespace Frozen.Rotation
 
                 //AOE on Press
                 if (DetectKeyPress.GetKeyState(DetectKeyPress.VK_KEY_Z) < 0)
-                {
                     if (WoW.HasTarget && WoW.IsInCombat && WoW.TargetIsEnemy)
                     {
                         if (WoW.CanCast("Bladestorm") && WoW.IsSpellOnCooldown("Warbreaker"))
@@ -78,7 +67,6 @@ namespace Frozen.Rotation
                             }
                         }
                     }
-                }
 
                 //Normal ST rotation
                 if (!WoW.PlayerHasBuff("Battle Cry") && WoW.HasTarget && WoW.IsInCombat && WoW.TargetIsEnemy && WoW.IsSpellInRange("Mortal Strike"))
@@ -88,23 +76,16 @@ namespace Frozen.Rotation
                     {
                         //opening 
                         if (WoW.CanCast("Focused Rage") && WoW.WasLastCasted("Charge") && WoW.PlayerBuffStacks("Focused Rage") == 1)
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
                         if (WoW.CanCast("Focused Rage") && WoW.WasLastCasted("Colossus Smash") && WoW.PlayerBuffStacks("Focused Rage") == 2)
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
                         //FR Control
-                        if (WoW.CanCast("Focused Rage") && WoW.Rage > 50 && WoW.SpellCooldownTimeRemaining("Battle Cry") > 6 && WoW.IsSpellOnCooldown("Mortal Strike") &&
+                        if (WoW.CanCast("Focused Rage") && WoW.Rage > 50 && WoW.SpellCooldownTimeRemaining("Battle Cry") > 6 &&
+                            WoW.IsSpellOnCooldown("Mortal Strike") &&
                             WoW.IsSpellOnCooldown("Colossus Smash"))
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
                         if (WoW.CanCast("Focused Rage") && WoW.SpellCooldownTimeRemaining("Battle Cry") < 6)
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
 
 
                         //CS Control
@@ -126,7 +107,8 @@ namespace Frozen.Rotation
                             return;
                         }
                         //Slam
-                        if (WoW.CanCast("Slam") && WoW.Rage >= 32 && WoW.IsSpellOnCooldown("Colossus Smash") && WoW.IsSpellOnCooldown("Mortal Strike") && WoW.WasLastCasted("Focused Rage"))
+                        if (WoW.CanCast("Slam") && WoW.Rage >= 32 && WoW.IsSpellOnCooldown("Colossus Smash") && WoW.IsSpellOnCooldown("Mortal Strike") &&
+                            WoW.WasLastCasted("Focused Rage"))
                         {
                             WoW.CastSpell("Slam");
                             return;
@@ -148,9 +130,7 @@ namespace Frozen.Rotation
                             return;
                         }
                         if (WoW.CanCast("Focused Rage") && WoW.Rage >= 85 && WoW.PlayerBuffStacks("Focused Rage") <= 3)
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
 
                         if (WoW.CanCast("Execute") && WoW.Rage >= 18 && WoW.PlayerHasBuff("Shattered Defenses"))
                         {
@@ -178,14 +158,10 @@ namespace Frozen.Rotation
                     {
                         //Maintain FR Stacks
                         if (WoW.CanCast("Focused Rage") && WoW.PlayerBuffStacks("Focused Rage") <= 3)
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
                         //FR after CS
                         if (WoW.CanCast("Focused Rage") && WoW.WasLastCasted("Colossus Smash"))
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
                         //CS on cooldown but not overlapping SD
                         if (WoW.CanCast("Colossus Smash") && !WoW.IsSpellOnCooldown("Colossus Smash") && !WoW.PlayerHasBuff("Shattered Defenses"))
                         {
@@ -193,18 +169,18 @@ namespace Frozen.Rotation
                             return;
                         }
                         //MS with SD
-                        if (WoW.CanCast("Mortal Strike") && WoW.PlayerHasBuff("Shattered Defenses") && !WoW.IsSpellOnCooldown("Mortal Strike") && WoW.PlayerBuffStacks("Focused Rage") == 3)
+                        if (WoW.CanCast("Mortal Strike") && WoW.PlayerHasBuff("Shattered Defenses") && !WoW.IsSpellOnCooldown("Mortal Strike") &&
+                            WoW.PlayerBuffStacks("Focused Rage") == 3)
                         {
                             WoW.CastSpell("Mortal Strike");
                             return;
                         }
                         //MS on cooldown
                         if (WoW.CanCast("Mortal Strike") && !WoW.IsSpellOnCooldown("Mortal Strike") && WoW.IsSpellOnCooldown("Colossus Smash"))
-                        {
                             WoW.CastSpell("Mortal Strike");
-                        }
                         //if all else fails, slam.
-                        if (WoW.CanCast("Slam") && WoW.IsSpellOnCooldown("Colossus Smash") && WoW.IsSpellOnCooldown("Mortal Strike") && WoW.PlayerBuffStacks("Focused Rage") >= 3)
+                        if (WoW.CanCast("Slam") && WoW.IsSpellOnCooldown("Colossus Smash") && WoW.IsSpellOnCooldown("Mortal Strike") &&
+                            WoW.PlayerBuffStacks("Focused Rage") >= 3)
                         {
                             WoW.CastSpell("Slam");
                             return;
@@ -213,14 +189,10 @@ namespace Frozen.Rotation
                     if (WoW.TargetHealthPercent <= 20)
                     {
                         if (WoW.CanCast("Focused Rage") && WoW.PlayerBuffStacks("Focused Rage") < 3)
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
                         if (WoW.CanCast("Focused Rage") && !WoW.TargetHasDebuff("Colossus Smash"))
-                        {
                             WoW.CastSpell("Focused Rage");
-                        }
-                        if (WoW.CanCast("Mortal Strike") && !WoW.IsSpellOnCooldown("Mortal Strike") && (WoW.PlayerBuffStacks("Focused Rage") == 3))
+                        if (WoW.CanCast("Mortal Strike") && !WoW.IsSpellOnCooldown("Mortal Strike") && WoW.PlayerBuffStacks("Focused Rage") == 3)
                         {
                             WoW.CastSpell("Mortal Strike");
                             return;
@@ -252,8 +224,8 @@ namespace Frozen.Rotation
 
 /*
 [AddonDetails.db]
-AddonAuthor=Dupe
-AddonName=badgggggggggerui
+AddonAuthor=Lesion
+AddonName=Frozen
 WoWVersion=Legion - 70200
 [SpellBook.db]
 Spell,12294,Mortal Strike,D1

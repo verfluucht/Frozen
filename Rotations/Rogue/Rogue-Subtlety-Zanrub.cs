@@ -1,8 +1,4 @@
-﻿// winifix@gmail.com
-// ReSharper disable UnusedMember.Global
-
-
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 using Frozen.Helpers;
 
@@ -30,30 +26,16 @@ namespace Frozen.Rotation
         public override void Pulse()
         {
             if (combatRoutine.Type == RotationType.SingleTarget) // Do Single Target Stuff here
-            {
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat)
                 {
                     if (WoW.PlayerHasBuff("Stealth") || WoW.PlayerHasBuff("Subterfuge") || WoW.PlayerHasBuff("Shadow Dance"))
                     {
-                        if (WoW.CanCast("Symbols of Death") && WoW.Energy >= 35 && (!WoW.PlayerHasBuff("Symbols of Death") || WoW.PlayerBuffTimeRemaining("Symbols of Death") <= 10))
+                        if (WoW.CanCast("Symbols of Death") && WoW.Energy >= 35 &&
+                            (!WoW.PlayerHasBuff("Symbols of Death") || WoW.PlayerBuffTimeRemaining("Symbols of Death") <= 10))
                         {
                             WoW.CastSpell("Symbols of Death");
                             return;
                         }
-
-                        /*	if (WoW.CanCast("Shadow Blades") && WoW.Cooldown && WoW.HasBuff("Symbols of Death"))
-                            {
-
-                                WoW.CastSpellByName("Shadow Blades");
-                                return;
-                            } */
-
-                        /*	if(WoW.CanCast("Goremaw's Bite") && WoW.CurrentComboPoints <= 3 && WoW.IsSpellInRange("Goremaw's Bite"))
-                            {
-
-                                WoW.CastSpellByName("Goremaw's Bite");
-                                return;
-                            } */
 
                         if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 &&
                             (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) && WoW.IsSpellInRange("Nightblade"))
@@ -62,7 +44,8 @@ namespace Frozen.Rotation
                             return;
                         }
 
-                        if (WoW.CanCast("Eviscerate") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 35 && WoW.TargetHasDebuff("Nightblade") && WoW.IsSpellInRange("Eviscerate"))
+                        if (WoW.CanCast("Eviscerate") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 35 && WoW.TargetHasDebuff("Nightblade") &&
+                            WoW.IsSpellInRange("Eviscerate"))
 
                         {
                             WoW.CastSpell("Eviscerate");
@@ -76,35 +59,39 @@ namespace Frozen.Rotation
                         }
                     }
 
-
                     if (WoW.CanCast("Shadow Blades") && WoW.HasTarget && WoW.PlayerHasBuff("Symbols of Death") && WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Shadow Blades");
                         return;
                     }
 
-                    if (WoW.CanCast("Shadow Dance") && (!WoW.PlayerHasBuff("Stealth") || !WoW.PlayerHasBuff("Shadow Dance") || !WoW.PlayerHasBuff("Subterfuge")) && WoW.Energy >= 55 &&
-                        (WoW.PlayerSpellCharges("Shadow Dance") == 3 && WoW.CurrentComboPoints <= 3 || WoW.PlayerSpellCharges("Shadow Dance") == 2 && WoW.CurrentComboPoints <= 1) &&
+                    if (WoW.CanCast("Shadow Dance") &&
+                        (!WoW.PlayerHasBuff("Stealth") || !WoW.PlayerHasBuff("Shadow Dance") || !WoW.PlayerHasBuff("Subterfuge")) && WoW.Energy >= 55 &&
+                        (WoW.PlayerSpellCharges("Shadow Dance") == 3 && WoW.CurrentComboPoints <= 3 ||
+                         WoW.PlayerSpellCharges("Shadow Dance") == 2 && WoW.CurrentComboPoints <= 1) &&
                         WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Shadow Dance");
                         return;
                     }
 
-                    if (WoW.CanCast("Goremaw's Bite") && WoW.CurrentComboPoints <= 2 && WoW.Energy <= 50 && WoW.IsSpellInRange("Goremaw's Bite") && WoW.IsSpellInRange("Eviscerate"))
+                    if (WoW.CanCast("Goremaw's Bite") && WoW.CurrentComboPoints <= 2 && WoW.Energy <= 50 && WoW.IsSpellInRange("Goremaw's Bite") &&
+                        WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Goremaw's Bite");
                         return;
                     }
 
-                    if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 && (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) &&
+                    if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 &&
+                        (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) &&
                         WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Nightblade");
                         return;
                     }
 
-                    if (WoW.CanCast("Eviscerate") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 35 && WoW.TargetHasDebuff("Nightblade") && WoW.IsSpellInRange("Eviscerate"))
+                    if (WoW.CanCast("Eviscerate") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 35 && WoW.TargetHasDebuff("Nightblade") &&
+                        WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Eviscerate");
                         return;
@@ -116,33 +103,19 @@ namespace Frozen.Rotation
                         return;
                     }
                 }
-            }
 
             if (combatRoutine.Type == RotationType.AOE || combatRoutine.Type == RotationType.SingleTargetCleave) // Do AoE Target Stuff here
-            {
                 if ((WoW.HasTarget || UseCooldowns) && WoW.TargetIsEnemy && WoW.IsInCombat)
                 {
                     if (WoW.PlayerHasBuff("Stealth") || WoW.PlayerHasBuff("Subterfuge") || WoW.PlayerHasBuff("Shadow Dance"))
                     {
-                        if (WoW.CanCast("Symbols of Death") && WoW.Energy >= 35 && (!WoW.PlayerHasBuff("Symbols of Death") || WoW.PlayerBuffTimeRemaining("Symbols of Death") <= 10))
+                        if (WoW.CanCast("Symbols of Death") && WoW.Energy >= 35 &&
+                            (!WoW.PlayerHasBuff("Symbols of Death") || WoW.PlayerBuffTimeRemaining("Symbols of Death") <= 10))
                         {
                             WoW.CastSpell("Symbols of Death");
                             return;
                         }
 
-                        /*	if (WoW.CanCast("Shadow Blades") && WoW.Cooldown && WoW.HasBuff("Symbols of Death"))
-                            {
-
-                                WoW.CastSpellByName("Shadow Blades");
-                                return;
-                            } */
-
-                        /*	if(WoW.CanCast("Goremaw's Bite") && WoW.CurrentComboPoints <= 3 && WoW.IsSpellInRange("Goremaw's Bite"))
-                            {
-
-                                WoW.CastSpellByName("Goremaw's Bite");
-                                return;
-                            } */
 
                         if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 &&
                             (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) && WoW.IsSpellInRange("Nightblade"))
@@ -151,7 +124,8 @@ namespace Frozen.Rotation
                             return;
                         }
 
-                        if (WoW.CanCast("Eviscerate") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 35 && WoW.TargetHasDebuff("Nightblade") && WoW.IsSpellInRange("Eviscerate"))
+                        if (WoW.CanCast("Eviscerate") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 35 && WoW.TargetHasDebuff("Nightblade") &&
+                            WoW.IsSpellInRange("Eviscerate"))
 
                         {
                             WoW.CastSpell("Eviscerate");
@@ -171,46 +145,47 @@ namespace Frozen.Rotation
                         }
                     }
 
-
                     if (WoW.CanCast("Shadow Blades") && WoW.HasTarget && WoW.PlayerHasBuff("Symbols of Death") && WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Shadow Blades");
                         return;
                     }
 
-                    if (WoW.CanCast("Shadow Dance") && (!WoW.PlayerHasBuff("Stealth") || !WoW.PlayerHasBuff("Shadow Dance") || !WoW.PlayerHasBuff("Subterfuge")) &&
-                        (WoW.PlayerSpellCharges("Shadow Dance") == 3 && WoW.CurrentComboPoints <= 3 || WoW.PlayerSpellCharges("Shadow Dance") == 2 && WoW.CurrentComboPoints <= 1) &&
+                    if (WoW.CanCast("Shadow Dance") &&
+                        (!WoW.PlayerHasBuff("Stealth") || !WoW.PlayerHasBuff("Shadow Dance") || !WoW.PlayerHasBuff("Subterfuge")) &&
+                        (WoW.PlayerSpellCharges("Shadow Dance") == 3 && WoW.CurrentComboPoints <= 3 ||
+                         WoW.PlayerSpellCharges("Shadow Dance") == 2 && WoW.CurrentComboPoints <= 1) &&
                         WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Shadow Dance");
                         return;
                     }
 
-                    if (WoW.CanCast("Goremaw's Bite") && WoW.CurrentComboPoints <= 2 && WoW.Energy <= 50 && WoW.IsSpellInRange("Goremaw's Bite") && WoW.IsSpellInRange("Eviscerate"))
+                    if (WoW.CanCast("Goremaw's Bite") && WoW.CurrentComboPoints <= 2 && WoW.Energy <= 50 && WoW.IsSpellInRange("Goremaw's Bite") &&
+                        WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Goremaw's Bite");
                         return;
                     }
 
-                    if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 && (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) &&
+                    if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 &&
+                        (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) &&
                         WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Nightblade");
                         return;
                     }
 
-                    if (WoW.CanCast("Eviscerate") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 35 && WoW.TargetHasDebuff("Nightblade") && WoW.IsSpellInRange("Eviscerate"))
+                    if (WoW.CanCast("Eviscerate") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 35 && WoW.TargetHasDebuff("Nightblade") &&
+                        WoW.IsSpellInRange("Eviscerate"))
                     {
                         WoW.CastSpell("Eviscerate");
                         return;
                     }
 
                     if (WoW.CanCast("Shuriken Storm") && WoW.CurrentComboPoints < 6 && WoW.Energy >= 35 && WoW.IsSpellInRange("Eviscerate"))
-                    {
                         WoW.CastSpell("Shuriken Storm");
-                    }
                 }
-            }
         }
     }
 }

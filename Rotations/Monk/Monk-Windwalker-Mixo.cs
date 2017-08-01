@@ -1,46 +1,3 @@
-// ReSharper disable UnusedMember.Global
-
-/* 	Mixo's WindWalker Rotation v2.5
-	This rotation is based on the writings of Walkingthewind.com, a prime WW theorycrafting site.
-
-	Information and guidelines:
-		-	"Stop Casting"-spell refers to the keybind to stop casting. Needed for countering the Tiger Palm issue.
-		-	In AOE mode, cycle your targets to apply Mark of the Crane debuff to everything.
-		-	Serenity/SEF will have to be activated manually in AOE mode, if you want to use it.
-
-	Feedback is appreciated in the Monk section on Frozen's Discord. Tag it with @[EU]Mixo :)
-
-	Talent Tree:
-		Tier 1:	Chi Wave
-		Tier 2:	W/E
-		Tier 3:	Energizing Elixir
-		Tier 4: W/E
-		Tier 5:	Healing Elixir
-		Tier 6: Hit Combo
-		Tier 7:	Whirling Dragon Punch / Serenity
-
-    Known issues:
-		- Not in-line with perfect manual play, mostly because of lack of intelligence.
-		- Freezes in AoE, when it should be able to cast Tiger Palm.
-
-	To Do:
-		- Improve intelligence.
-        - Maybe a toggle to save SotW & EE before bosses?
-		- Change priority on SCK depending on it's damage modifier.
-        - Add Flying Serpents Kick usage.
-        - Utility cooldowns support, mainly for Mythic+.
-        - Take a look at Energizing Elixir usage. Simc version currently, change to Walkingthewind.
-
-	Change Log:
-	v2.5
-		- Rebuilt from the ground.
-		- Openers added.
-		- More in-line with Simc rotation.
-		- Hit Combo-dropping issues fixed (Thank you Hemradinger).
-		- Provided a fix for the Tiger Palm parried issue.
-	
-*/
-
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -61,18 +18,11 @@ namespace Frozen.Rotation
 
         private readonly Stopwatch CombatTime = new Stopwatch();
 
-        private readonly string readme = "Mixo's WindWalker Rotation v2.5" + Environment.NewLine + "" + Environment.NewLine + "Not added yet. Reference the .cs file for a Readme." +
-                                         Environment.NewLine + "";
-
         private CheckBox GaleBurstBox;
-
-        //Settings
         private CheckBox KatsuoBox;
-
-        //Talents
         private CheckBox SerenityBox;
 
-        private static string HitCombo { set; get; } 
+        private static string HitCombo { set; get; }
 
         private static bool Katsuo
         {
@@ -103,25 +53,12 @@ namespace Frozen.Rotation
             }
             set { ConfigFile.WriteValue("Windwalker", "GaleBurst", value.ToString()); }
         }
-
-
+        
         public override Form SettingsForm { get; set; }
 
-        public override string Name 
-		{
-			get
-			{
-				return "Windwalker Monk";
-			}
-		}
+        public override string Name => "Windwalker Monk";
 
-        public override string Class 
-		{
-			get		
-			{
-				return "Monk";
-			}
-		}
+        public override string Class => "Monk";
 
         public override void Initialize()
         {
@@ -133,15 +70,34 @@ namespace Frozen.Rotation
             Log.Write("", Color.SpringGreen);
             Log.Write("Feedback is appreciated in the Monk section on Frozen's Discord.", Color.SpringGreen);
             Log.Write("Tag it with @[EU] Mixo to notify me. :)", Color.SpringGreen);
-            Log.DrawHorizontalLine();            
+            Log.DrawHorizontalLine();
 
-            SettingsForm = new Form {Text = "Mixo's Windwalker Monk Rotation - Settings", StartPosition = FormStartPosition.CenterScreen, Width = 480, Height = 318, ShowIcon = false};
+            SettingsForm = new Form
+            {
+                Text = "Mixo's Windwalker Monk Rotation - Settings",
+                StartPosition = FormStartPosition.CenterScreen,
+                Width = 480,
+                Height = 318,
+                ShowIcon = false
+            };
 
-            var lblDefensivesText = new Label {Text = "Legendary", Size = new Size(115, 13), Left = 15, Top = 15};
-            lblDefensivesText.ForeColor = Color.DarkOrange;
+            var lblDefensivesText = new Label
+            {
+                Text = "Legendary",
+                Size = new Size(115, 13),
+                Left = 15,
+                Top = 15,
+                ForeColor = Color.DarkOrange
+            };
             SettingsForm.Controls.Add(lblDefensivesText);
-            var lblCooldownzText = new Label {Text = "Talents / Traits", Size = new Size(115, 13), Left = 260, Top = 15};
-            lblCooldownzText.ForeColor = Color.SpringGreen;
+            var lblCooldownzText = new Label
+            {
+                Text = "Talents / Traits",
+                Size = new Size(115, 13),
+                Left = 260,
+                Top = 15,
+                ForeColor = Color.SpringGreen
+            };
             SettingsForm.Controls.Add(lblCooldownzText);
 
             var lblTextBox = new Label
@@ -152,13 +108,12 @@ namespace Frozen.Rotation
                     "Please report any issues on #Monk PM Discord Channel, use @[EU] Mixo tag. ",
                 Size = new Size(270, 220),
                 Left = 15,
-                Top = 195
+                Top = 195,
+                ForeColor = Color.DarkGreen
             };
-            lblTextBox.ForeColor = Color.DarkGreen;
             SettingsForm.Controls.Add(lblTextBox);
 
             var cmdSave = new Button {Text = "Save", Width = 65, Height = 25, Left = 332, Top = 243, Size = new Size(120, 31)};
-            var cmdReadme = new Button {Text = "Read Me", Width = 65, Height = 25, Left = 332, Top = 213, Size = new Size(120, 31)};
 
             var lblKatsuoText = new Label {Text = "Katsuo's Eclipse", Size = new Size(120, 13), Left = 15, Top = 39};
             SettingsForm.Controls.Add(lblKatsuoText);
@@ -180,21 +135,15 @@ namespace Frozen.Rotation
             GaleBurstBox.Checked = GaleBurst;
 
             cmdSave.Click += CmdSave_Click;
-            cmdReadme.Click += CmdReadme_Click;
+            
             KatsuoBox.CheckedChanged += Katsuo_Click;
             SerenityBox.CheckedChanged += Serenity_Click;
             GaleBurstBox.CheckedChanged += GaleBurst_Click;
 
             SettingsForm.Controls.Add(cmdSave);
-            SettingsForm.Controls.Add(cmdReadme);
             lblKatsuoText.BringToFront();
             lblSerenityText.BringToFront();
             lblGaleBurstText.BringToFront();
-        }
-
-        private void CmdReadme_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(readme, "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void CmdSave_Click(object sender, EventArgs e)
@@ -231,25 +180,17 @@ namespace Frozen.Rotation
         {
             //Combat Time
             if (CombatTime.IsRunning && !WoW.IsInCombat)
-            {
                 CombatTime.Reset();
-            }
             if (!CombatTime.IsRunning && WoW.IsInCombat)
-            {
                 CombatTime.Start();
-            }
 
             if (!WoW.PlayerHasBuff("HitCombo"))
-            {
                 HitCombo = "";
-            }
 
-            if (!WoW.IsInCombat || (!WoW.TargetHasDebuff("TouchOfDeath") && !WoW.PlayerHasBuff("Serenity")) || (IsOpenerDone && !Serenity))
-            {
+            if (!WoW.IsInCombat || !WoW.TargetHasDebuff("TouchOfDeath") && !WoW.PlayerHasBuff("Serenity") || IsOpenerDone && !Serenity)
                 OpenerOrder = 1;
-            }
 
-            var EnergyPct = WoW.Energy/EnergyMax*100f;
+            var EnergyPct = WoW.Energy / EnergyMax * 100f;
 
             // Single Target Rotation
             if (combatRoutine.Type == RotationType.SingleTarget)
@@ -274,8 +215,10 @@ namespace Frozen.Rotation
                     }
 
                     //Touch Of Death (Serenity talent) [Gale]
-                    if (WoW.CanCast("TouchOfDeath") && WoW.IsSpellInRange("TigerPalm") && WoW.SpellCooldownTimeRemaining("Serenity") < 2 && WoW.SpellCooldownTimeRemaining("RisingSunKick") < 2 &&
-                        WoW.SpellCooldownTimeRemaining("FistsOfFury") < 8 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") <= 4 && Serenity && GaleBurst && WoW.CurrentChi >= 2 &&
+                    if (WoW.CanCast("TouchOfDeath") && WoW.IsSpellInRange("TigerPalm") && WoW.SpellCooldownTimeRemaining("Serenity") < 2 &&
+                        WoW.SpellCooldownTimeRemaining("RisingSunKick") < 2 &&
+                        WoW.SpellCooldownTimeRemaining("FistsOfFury") < 8 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") <= 4 && Serenity &&
+                        GaleBurst && WoW.CurrentChi >= 2 &&
                         UseCooldowns)
                     {
                         WoW.CastSpell("TouchOfDeath");
@@ -285,7 +228,8 @@ namespace Frozen.Rotation
 
                     //Touch Of Death (WDP talent) [Gale]
                     if (WoW.CanCast("TouchOfDeath") && WoW.IsSpellInRange("TigerPalm") && WoW.SpellCooldownTimeRemaining("RisingSunKick") < 7 &&
-                        WoW.SpellCooldownTimeRemaining("FistsOfFury") <= 4 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") < 8 && !Serenity && GaleBurst && WoW.CurrentChi >= 2 &&
+                        WoW.SpellCooldownTimeRemaining("FistsOfFury") <= 4 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") < 8 && !Serenity &&
+                        GaleBurst && WoW.CurrentChi >= 2 &&
                         UseCooldowns)
                     {
                         WoW.CastSpell("TouchOfDeath");
@@ -294,8 +238,10 @@ namespace Frozen.Rotation
                     }
 
                     //Serenity
-                    if (WoW.CanCast("Serenity") && WoW.IsSpellInRange("TigerPalm") && (WoW.IsSpellOnCooldown("TouchOfDeath") || WoW.TargetHasDebuff("TouchOfDeath")) &&
-                        WoW.SpellCooldownTimeRemaining("FistsOfFury") < 15 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") < 13 && !WoW.IsSpellOnCooldown("RisingSunKick") && Serenity &&
+                    if (WoW.CanCast("Serenity") && WoW.IsSpellInRange("TigerPalm") &&
+                        (WoW.IsSpellOnCooldown("TouchOfDeath") || WoW.TargetHasDebuff("TouchOfDeath")) &&
+                        WoW.SpellCooldownTimeRemaining("FistsOfFury") < 15 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") < 13 &&
+                        !WoW.IsSpellOnCooldown("RisingSunKick") && Serenity &&
                         UseCooldowns)
                     {
                         WoW.CastSpell("Serenity");
@@ -303,17 +249,20 @@ namespace Frozen.Rotation
                     }
 
                     //SEF (Opener not done)
-                    if (WoW.CanCast("SEF") && WoW.IsSpellInRange("TigerPalm") && WoW.CurrentChi >= 2 && !IsOpenerDone && !WoW.PlayerHasBuff("SEF") && !Serenity && UseCooldowns)
+                    if (WoW.CanCast("SEF") && WoW.IsSpellInRange("TigerPalm") && WoW.CurrentChi >= 2 && !IsOpenerDone && !WoW.PlayerHasBuff("SEF") &&
+                        !Serenity && UseCooldowns)
                     {
                         WoW.CastSpell("SEF");
                         return;
                     }
 
                     //SEF
-                    if (WoW.CanCast("SEF") && WoW.IsSpellInRange("TigerPalm") && IsOpenerDone && (WoW.IsSpellOnCooldown("TouchOfDeath") || WoW.TargetHasDebuff("TouchOfDeath")) &&
+                    if (WoW.CanCast("SEF") && WoW.IsSpellInRange("TigerPalm") && IsOpenerDone &&
+                        (WoW.IsSpellOnCooldown("TouchOfDeath") || WoW.TargetHasDebuff("TouchOfDeath")) &&
                         WoW.SpellCooldownTimeRemaining("FistsOfFury") <= 6 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") <= 14 &&
                         WoW.SpellCooldownTimeRemaining("RisingSunKick") <= 6 && !WoW.PlayerHasBuff("SEF") && !Serenity &&
-                        (!WoW.IsSpellOnCooldown("EnergizingElixir") || WoW.PlayerSpellCharges("SEF") == 2 || WoW.TargetHasDebuff("TouchOfDeath")) && UseCooldowns)
+                        (!WoW.IsSpellOnCooldown("EnergizingElixir") || WoW.PlayerSpellCharges("SEF") == 2 || WoW.TargetHasDebuff("TouchOfDeath")) &&
+                        UseCooldowns)
                     {
                         WoW.CastSpell("SEF");
                         return;
@@ -327,7 +276,8 @@ namespace Frozen.Rotation
                     }
 
                     //Energizing Elixir
-                    if (WoW.CanCast("EnergizingElixir") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy < EnergyMax && (IsOpenerDone || !Serenity) && WoW.CurrentChi <= 1 &&
+                    if (WoW.CanCast("EnergizingElixir") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy < EnergyMax && (IsOpenerDone || !Serenity) &&
+                        WoW.CurrentChi <= 1 &&
                         (!WoW.IsSpellOnCooldown("StrikeOfTheWindlord") || !WoW.IsSpellOnCooldown("RisingSunKick")))
                     {
                         WoW.CastSpell("EnergizingElixir");
@@ -394,7 +344,8 @@ namespace Frozen.Rotation
                 }
 
                 //WDP Opener
-                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.PlayerHasBuff("SEF") && WoW.TargetHasDebuff("TouchOfDeath") &&
+                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.PlayerHasBuff("SEF") &&
+                    WoW.TargetHasDebuff("TouchOfDeath") &&
                     !IsOpenerDone)
                 {
                     //Rising Sun Kick
@@ -442,7 +393,8 @@ namespace Frozen.Rotation
                     }
 
                     //Whirling Dragon Punch
-                    if (WoW.CanCast("WhirlingDragonPunch") && WoW.IsSpellInRange("TigerPalm") && WoW.IsSpellOnCooldown("FistsOfFury") && WoW.IsSpellOnCooldown("RisingSunKick") &&
+                    if (WoW.CanCast("WhirlingDragonPunch") && WoW.IsSpellInRange("TigerPalm") && WoW.IsSpellOnCooldown("FistsOfFury") &&
+                        WoW.IsSpellOnCooldown("RisingSunKick") &&
                         OpenerOrder == 6)
                     {
                         WoW.CastSpell("WhirlingDragonPunch");
@@ -474,7 +426,8 @@ namespace Frozen.Rotation
                     }
 
                     //Fists of Fury
-                    if (WoW.CanCast("FistsOfFury") && WoW.IsSpellInRange("TigerPalm") && WasStrikeOfTheWindlordCasted && WoW.PlayerBuffTimeRemaining("Serenity") <= 2)
+                    if (WoW.CanCast("FistsOfFury") && WoW.IsSpellInRange("TigerPalm") && WasStrikeOfTheWindlordCasted &&
+                        WoW.PlayerBuffTimeRemaining("Serenity") <= 2)
                     {
                         WoW.CastSpell("FistsOfFury");
                         HitCombo = "FistsOfFury";
@@ -483,7 +436,8 @@ namespace Frozen.Rotation
                     }
 
                     //Spinning Crane Kick
-                    if (WoW.CanCast("SpinningCraneKick") && WoW.IsSpellInRange("TigerPalm") && HitCombo != "SpinningCraneKick" && (HitCombo == "BlackoutKick" || OpenerOrder == 5))
+                    if (WoW.CanCast("SpinningCraneKick") && WoW.IsSpellInRange("TigerPalm") && HitCombo != "SpinningCraneKick" &&
+                        (HitCombo == "BlackoutKick" || OpenerOrder == 5))
                     {
                         WoW.CastSpell("SpinningCraneKick");
                         HitCombo = "SpinningCraneKick";
@@ -504,7 +458,8 @@ namespace Frozen.Rotation
                     (!WoW.TargetHasDebuff("TouchOfDeath") || !Serenity))
                 {
                     //Fists of Fury
-                    if (WoW.CanCast("FistsOfFury") && WoW.IsSpellInRange("TigerPalm") && (WoW.CurrentChi >= 3 || (Katsuo && WoW.CurrentChi >= 1)) && !WoW.WasLastCasted("EnergizingElixir"))
+                    if (WoW.CanCast("FistsOfFury") && WoW.IsSpellInRange("TigerPalm") && (WoW.CurrentChi >= 3 || Katsuo && WoW.CurrentChi >= 1) &&
+                        !WoW.WasLastCasted("EnergizingElixir"))
                     {
                         WoW.CastSpell("FistsOfFury");
                         HitCombo = "FistsOfFury";
@@ -520,7 +475,8 @@ namespace Frozen.Rotation
                     }
 
                     //Tiger Palm (if <4 Chi and about to cap energy)
-                    if (WoW.CanCast("TigerPalm") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy >= 50 && EnergyPct > 90 && !WoW.WasLastCasted("EnergizingElixir") && WoW.CurrentChi < 4 &&
+                    if (WoW.CanCast("TigerPalm") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy >= 50 && EnergyPct > 90 &&
+                        !WoW.WasLastCasted("EnergizingElixir") && WoW.CurrentChi < 4 &&
                         HitCombo != "TigerPalm")
                     {
                         WoW.CastSpell("TigerPalm");
@@ -537,7 +493,8 @@ namespace Frozen.Rotation
                     }
 
                     //Whirling Dragon Punch
-                    if (WoW.CanCast("WhirlingDragonPunch") && WoW.IsSpellInRange("TigerPalm") && WoW.IsSpellOnCooldown("FistsOfFury") && WoW.IsSpellOnCooldown("RisingSunKick") && !Serenity)
+                    if (WoW.CanCast("WhirlingDragonPunch") && WoW.IsSpellInRange("TigerPalm") && WoW.IsSpellOnCooldown("FistsOfFury") &&
+                        WoW.IsSpellOnCooldown("RisingSunKick") && !Serenity)
                     {
                         WoW.CastSpell("WhirlingDragonPunch");
                         HitCombo = "WhirlingDragonPunch";
@@ -553,7 +510,8 @@ namespace Frozen.Rotation
                     }
 
                     //Blackout Kick
-                    if (WoW.CanCast("BlackoutKick") && WoW.IsSpellInRange("TigerPalm") && (WoW.CurrentChi > 1 || WoW.PlayerHasBuff("BlackoutKick!")) && HitCombo != "BlackoutKick")
+                    if (WoW.CanCast("BlackoutKick") && WoW.IsSpellInRange("TigerPalm") && (WoW.CurrentChi > 1 || WoW.PlayerHasBuff("BlackoutKick!")) &&
+                        HitCombo != "BlackoutKick")
                     {
                         WoW.CastSpell("BlackoutKick");
                         HitCombo = "BlackoutKick";
@@ -569,7 +527,8 @@ namespace Frozen.Rotation
                     }
 
                     //CracklingJadeLightning (only to counter the Tiger Palm issue)
-                    if (WoW.CanCast("CracklingJadeLightning") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy >= 20 && HitCombo == "TigerPalm" && WoW.CurrentChi == 0)
+                    if (WoW.CanCast("CracklingJadeLightning") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy >= 20 && HitCombo == "TigerPalm" &&
+                        WoW.CurrentChi == 0)
                     {
                         WoW.CastSpell("CracklingJadeLightning");
                         HitCombo = "CracklingJadeLightning";
@@ -589,15 +548,12 @@ namespace Frozen.Rotation
 
                 //Cooldowns
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
-                {
-                    //Energizing Elixir
                     if (WoW.CanCast("EnergizingElixir") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy < EnergyMax && WoW.CurrentChi <= 1 &&
                         (!WoW.IsSpellOnCooldown("StrikeOfTheWindlord") || !WoW.IsSpellOnCooldown("RisingSunKick")))
                     {
                         WoW.CastSpell("EnergizingElixir");
                         return;
                     }
-                }
 
                 //Serenity Rotation
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.PlayerHasBuff("Serenity"))
@@ -620,7 +576,8 @@ namespace Frozen.Rotation
                     }
 
                     //Fists of Fury
-                    if (WoW.CanCast("FistsOfFury") && WoW.IsSpellInRange("TigerPalm") && WasStrikeOfTheWindlordCasted && WoW.PlayerBuffTimeRemaining("Serenity") <= 2)
+                    if (WoW.CanCast("FistsOfFury") && WoW.IsSpellInRange("TigerPalm") && WasStrikeOfTheWindlordCasted &&
+                        WoW.PlayerBuffTimeRemaining("Serenity") <= 2)
                     {
                         WoW.CastSpell("FistsOfFury");
                         HitCombo = "FistsOfFury";
@@ -629,7 +586,8 @@ namespace Frozen.Rotation
                     }
 
                     //Spinning Crane Kick
-                    if (WoW.CanCast("SpinningCraneKick") && WoW.IsSpellInRange("TigerPalm") && HitCombo != "SpinningCraneKick" && (HitCombo == "BlackoutKick" || OpenerOrder == 5))
+                    if (WoW.CanCast("SpinningCraneKick") && WoW.IsSpellInRange("TigerPalm") && HitCombo != "SpinningCraneKick" &&
+                        (HitCombo == "BlackoutKick" || OpenerOrder == 5))
                     {
                         WoW.CastSpell("SpinningCraneKick");
                         HitCombo = "SpinningCraneKick";
@@ -650,7 +608,8 @@ namespace Frozen.Rotation
                     (!WoW.TargetHasDebuff("TouchOfDeath") || !Serenity))
                 {
                     //Fists of Fury
-                    if (WoW.CanCast("FistsOfFury") && WoW.IsSpellInRange("TigerPalm") && (WoW.CurrentChi >= 3 || (Katsuo && WoW.CurrentChi >= 1)) && !WoW.WasLastCasted("EnergizingElixir"))
+                    if (WoW.CanCast("FistsOfFury") && WoW.IsSpellInRange("TigerPalm") && (WoW.CurrentChi >= 3 || Katsuo && WoW.CurrentChi >= 1) &&
+                        !WoW.WasLastCasted("EnergizingElixir"))
                     {
                         WoW.CastSpell("FistsOfFury");
                         HitCombo = "FistsOfFury";
@@ -658,7 +617,8 @@ namespace Frozen.Rotation
                     }
 
                     //Whirling Dragon Punch
-                    if (WoW.CanCast("WhirlingDragonPunch") && WoW.IsSpellInRange("TigerPalm") && WoW.IsSpellOnCooldown("FistsOfFury") && WoW.IsSpellOnCooldown("RisingSunKick") && !Serenity)
+                    if (WoW.CanCast("WhirlingDragonPunch") && WoW.IsSpellInRange("TigerPalm") && WoW.IsSpellOnCooldown("FistsOfFury") &&
+                        WoW.IsSpellOnCooldown("RisingSunKick") && !Serenity)
                     {
                         WoW.CastSpell("WhirlingDragonPunch");
                         HitCombo = "WhirlingDragonPunch";
@@ -674,7 +634,8 @@ namespace Frozen.Rotation
                     }
 
                     //Rising Sun Kick
-                    if (WoW.CanCast("RisingSunKick") && WoW.IsSpellInRange("TigerPalm") && WoW.CurrentChi >= 2 && !Serenity && WoW.SpellCooldownTimeRemaining("WhirlingDragonPunch") < gcd*2 &&
+                    if (WoW.CanCast("RisingSunKick") && WoW.IsSpellInRange("TigerPalm") && WoW.CurrentChi >= 2 && !Serenity &&
+                        WoW.SpellCooldownTimeRemaining("WhirlingDragonPunch") < gcd * 2 &&
                         WoW.IsSpellOnCooldown("FistsOfFury"))
                     {
                         WoW.CastSpell("RisingSunKick");
@@ -691,7 +652,8 @@ namespace Frozen.Rotation
                     }
 
                     //Chi Wave
-                    if (WoW.CanCast("ChiWave") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy < 50 && WoW.CurrentChi < 5 && !WoW.PlayerHasBuff("SEF") && HitCombo == "TigerPalm")
+                    if (WoW.CanCast("ChiWave") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy < 50 && WoW.CurrentChi < 5 && !WoW.PlayerHasBuff("SEF") &&
+                        HitCombo == "TigerPalm")
                     {
                         WoW.CastSpell("ChiWave");
                         HitCombo = "ChiWave";
@@ -699,7 +661,8 @@ namespace Frozen.Rotation
                     }
 
                     //Blackout Kick
-                    if (WoW.CanCast("BlackoutKick") && WoW.IsSpellInRange("TigerPalm") && (WoW.CurrentChi > 1 || WoW.PlayerHasBuff("BlackoutKick!")) && HitCombo != "BlackoutKick" &&
+                    if (WoW.CanCast("BlackoutKick") && WoW.IsSpellInRange("TigerPalm") && (WoW.CurrentChi > 1 || WoW.PlayerHasBuff("BlackoutKick!")) &&
+                        HitCombo != "BlackoutKick" &&
                         (HitCombo == "TigerPalm" || !WoW.TargetHasDebuff("MotC")))
                     {
                         WoW.CastSpell("BlackoutKick");
@@ -716,7 +679,8 @@ namespace Frozen.Rotation
                     }
 
                     //CracklingJadeLightning (only to counter the Tiger Palm issue)
-                    if (WoW.CanCast("CracklingJadeLightning") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy >= 20 && HitCombo == "TigerPalm" && WoW.CurrentChi == 0)
+                    if (WoW.CanCast("CracklingJadeLightning") && WoW.IsSpellInRange("TigerPalm") && WoW.Energy >= 20 && HitCombo == "TigerPalm" &&
+                        WoW.CurrentChi == 0)
                     {
                         WoW.CastSpell("CracklingJadeLightning");
                         HitCombo = "CracklingJadeLightning";

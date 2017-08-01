@@ -1,10 +1,4 @@
-﻿// muddern@safe-mail.net
-// If you want me to consider rebuilding the rotation or adding stuff, you can find me in the official Discord
-// ReSharper disable UnusedMember.Global
-
-// Special thanks to Dova for helping me out many times
-
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 using Frozen.Helpers;
 
@@ -21,7 +15,7 @@ namespace Frozen.Rotation
         public override void Initialize()
         {
             Log.Write("Destruction Warlock beta by: Nilrem2004");
-            Log.Write("Suggested Talents: 2111323");            
+            Log.Write("Suggested Talents: 2111323");
         }
 
         public override void Stop()
@@ -99,20 +93,23 @@ namespace Frozen.Rotation
                             return;
                         }
 
-                        if (WoW.TargetDebuffTimeRemaining("AuraImmolate") >= 10 && WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.WasLastCasted("Conflagrate") && WoW.CanCast("Conflagrate"))
+                        if (WoW.TargetDebuffTimeRemaining("AuraImmolate") >= 10 && WoW.PlayerSpellCharges("Conflagrate") == 1 &&
+                            WoW.WasLastCasted("Conflagrate") && WoW.CanCast("Conflagrate"))
                         {
                             WoW.CastSpell("Conflagrate");
                             return;
                         }
 
-                        if (WoW.PlayerHasBuff("AuraConflagrateBuff") && WoW.TargetHasDebuff("AuraChaosBolt") && WoW.CanCast("Conflagrate") && WoW.CurrentSoulShards <= 4 &&
+                        if (WoW.PlayerHasBuff("AuraConflagrateBuff") && WoW.TargetHasDebuff("AuraChaosBolt") && WoW.CanCast("Conflagrate") &&
+                            WoW.CurrentSoulShards <= 4 &&
                             WoW.CanCast("Conflagrate"))
                         {
                             WoW.CastSpell("Conflagrate");
                             return;
                         }
 
-                        if (WoW.CanCast("Conflagrate") && WoW.PlayerSpellCharges("Conflagrate") == 2 && !WoW.WasLastCasted("Immolate") && WoW.CurrentSoulShards <= 4)
+                        if (WoW.CanCast("Conflagrate") && WoW.PlayerSpellCharges("Conflagrate") == 2 && !WoW.WasLastCasted("Immolate") &&
+                            WoW.CurrentSoulShards <= 4)
                         {
                             WoW.CastSpell("Conflagrate");
                             return;
@@ -134,7 +131,7 @@ namespace Frozen.Rotation
                             return;
                         }
 
-                        if (WoW.CanCast("ChaosBolt") /* && !WoW.WasLastCasted("ChaosBolt")  */&& WoW.CurrentSoulShards > 3)
+                        if (WoW.CanCast("ChaosBolt") /* && !WoW.WasLastCasted("ChaosBolt")  */ && WoW.CurrentSoulShards > 3)
                         {
                             WoW.CastSpell("ChaosBolt");
                             return;
@@ -165,7 +162,8 @@ namespace Frozen.Rotation
                             return;
                         }
 
-                        if (WoW.CanCast("Incinerate") && WoW.TargetHasDebuff("AuraChaosBolt") && WoW.TargetDebuffTimeRemaining("AuraChaosBolt") >= 2 && WoW.CurrentSoulShards <= 3)
+                        if (WoW.CanCast("Incinerate") && WoW.TargetHasDebuff("AuraChaosBolt") && WoW.TargetDebuffTimeRemaining("AuraChaosBolt") >= 2 &&
+                            WoW.CurrentSoulShards <= 3)
                         {
                             WoW.CastSpell("Incinerate");
                             return;
@@ -183,9 +181,7 @@ namespace Frozen.Rotation
                     }
 
                     if (!WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.CanCast("Conflagrate"))
-                    {
                         WoW.CastSpell("Conflagrate");
-                    }
                 }
             }
         }
@@ -195,8 +191,8 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Nilrem
-AddonName=PixelMagic
-WoWVersion=Legion - 70100
+AddonName=Frozen
+WoWVersion=Legion - 70200
 [SpellBook.db]
 Spell,29722,Incinerate,D1
 Spell,348,Immolate,D3
