@@ -1,1 +1,0 @@
-Vectarius will be updating and releasing soon, please follow up with him.
