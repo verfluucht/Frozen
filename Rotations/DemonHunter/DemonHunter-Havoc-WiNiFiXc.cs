@@ -1,7 +1,6 @@
 ﻿// winifix@gmail.com
 // ReSharper disable UnusedMember.Global
 
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Frozen.Helpers;
@@ -10,29 +9,15 @@ namespace Frozen.Rotation
 {
     public class DemonHunterHavoc : CombatRoutine
     {
-        private readonly Stopwatch interruptwatch = new Stopwatch();
-		
-        public override string Name 
-		{
-			get
-			{
-				return "Frozen DemonHunter";
-			}
-		}
+        public override string Name => "Frozen DemonHunter";
 
-        public override string Class 
-		{
-			get
-			{
-				return "DemonHunter";
-			}
-		}
+        public override string Class => "DemonHunter";
 
-		public override Form SettingsForm { get; set; }
+        public override Form SettingsForm { get; set; }
 
         public override void Initialize()
         {
-            Log.DrawHorizontalLine();            
+            Log.DrawHorizontalLine();
             Log.WriteFrozen("Welcome to Frozen Demon Hunter", Color.Black);
             Log.Write("Spec: " + WoW.PlayerSpec);
         }
@@ -42,36 +27,28 @@ namespace Frozen.Rotation
         }
 
         public override void Pulse()
-        {			
-			if (WoW.HealthPercent == 0 || WoW.IsMounted) return;
-            if (!WoW.HasTarget || !WoW.TargetIsEnemy ) return;
-			if (WoW.PlayerIsChanneling) return;
-			
-			if (!WoW.IsSpellInRange("Felblade")) 
-			{
-				if (WoW.CanCast("ThrowGlaives"))
-				{
-					WoW.CastSpell("ThrowGlaives");
-				}
-				return;
-			}			
-			
+        {
+            if (WoW.HealthPercent == 0 || WoW.IsMounted) return;
+            if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
+            if (WoW.PlayerIsChanneling) return;
+
+            if (!WoW.IsSpellInRange("Felblade"))
+            {
+                if (WoW.CanCast("ThrowGlaives"))
+                    WoW.CastSpell("ThrowGlaives");
+                return;
+            }
+
             // Cast Nemesis on your primary target, synchronise with Metamorphosis and Chaos Blades if possible.
             if (WoW.HasBossTarget || UseCooldowns)
             {
                 if (WoW.CanCast("Nemesis"))
-                {
                     WoW.CastSpell("Nemesis"); // Off the GCD no return
-                }
-                if (WoW.CanCast("Metamorphosis"))  // This requires macro to "/cast [@player] Metamorphosis"
-                {
+                if (WoW.CanCast("Metamorphosis")) // This requires macro to "/cast [@player] Metamorphosis"
                     WoW.CastSpell("Metamorphosis"); // Off the GCD no return
-                }
-                if (WoW.CanCast("ChaosBlades") && 
+                if (WoW.CanCast("ChaosBlades") &&
                     WoW.Talent(7) == 1) // If we have taken Chaos Blades Talent
-                {
                     WoW.CastSpell("ChaosBlades"); // Off the GCD no return                    
-                }
             }
 
             // Cast Fel Rush if about to hit 2 charges.
@@ -82,8 +59,8 @@ namespace Frozen.Rotation
             //}
 
             // Cast Fel Barrage at 5 charges.
-            if (WoW.CanCast("FelBarrage") && WoW.PlayerSpellCharges("FelBarrage") == 5 && 
-                WoW.Talent(7) == 2)  // If we have taken Fel Barrage Talent
+            if (WoW.CanCast("FelBarrage") && WoW.PlayerSpellCharges("FelBarrage") == 5 &&
+                WoW.Talent(7) == 2) // If we have taken Fel Barrage Talent
             {
                 WoW.CastSpell("FelBarrage");
                 return;
@@ -99,7 +76,7 @@ namespace Frozen.Rotation
             // Cast Eye Beam to trigger Demonic.
             if (WoW.CanCast("EyeBeam") &&
                 WoW.Talent(7) == 3 && // If we have taken Demonic Talent
-				WoW.Fury > 50) 
+                WoW.Fury > 50)
             {
                 WoW.CastSpell("EyeBeam");
                 return;
@@ -116,8 +93,8 @@ namespace Frozen.Rotation
             }
 
             // Cast Blade Dance / Death Sweep with First Blood.
-            if (WoW.CanCast("BladeDance") && 
-                WoW.Fury >= 15 && 
+            if (WoW.CanCast("BladeDance") &&
+                WoW.Fury >= 15 &&
                 WoW.Talent(3) == 2) // If we have taken First Blood Talent
             {
                 WoW.CastSpell("BladeDance");
@@ -151,10 +128,7 @@ namespace Frozen.Rotation
 
             // Cast Throw Glaive if nothing else is available during empty Globals with Demon Blades.
             if (WoW.CanCast("ThrowGlaives") && WoW.Talent(2) == 2)
-            {
                 WoW.CastSpell("ThrowGlaives");
-                return;
-            }
         }
     }
 }

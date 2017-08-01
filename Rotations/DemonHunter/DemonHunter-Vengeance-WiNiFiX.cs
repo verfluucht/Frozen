@@ -11,29 +11,17 @@ namespace Frozen.Rotation
     public class DemonHunterVeng : CombatRoutine
     {
         private readonly Stopwatch interruptwatch = new Stopwatch();
-		
-        public override string Name 
-		{
-			get
-			{
-				return "Frozen DemonHunter";
-			}
-		}
 
-        public override string Class 
-		{
-			get
-			{
-				return "DemonHunter";
-			}
-		}
+        public override string Name => "Frozen DemonHunter";
 
-		public override Form SettingsForm { get; set; }
+        public override string Class => "DemonHunter";
+
+        public override Form SettingsForm { get; set; }
 
         public override void Initialize()
         {
-            Log.DrawHorizontalLine();            
-            Log.WriteFrozen("Welcome to Frozen Demon Hunter", Color.Black);			
+            Log.DrawHorizontalLine();
+            Log.WriteFrozen("Welcome to Frozen Demon Hunter", Color.Black);
         }
 
         public override void Stop()
@@ -41,12 +29,12 @@ namespace Frozen.Rotation
         }
 
         public override void Pulse()
-        {		
-			if (WoW.IsMounted) return;
-		
+        {
+            if (WoW.IsMounted) return;
+
             if (WoW.IsInCombat && interruptwatch.ElapsedMilliseconds == 0)
             {
-				Log.Write("Starting interrupt timer", Color.Blue);
+                Log.Write("Starting interrupt timer", Color.Blue);
                 interruptwatch.Start();
             }
 
@@ -56,11 +44,11 @@ namespace Frozen.Rotation
 
             if (combatRoutine.Type != RotationType.SingleTarget && combatRoutine.Type != RotationType.AOE) return;
 
-			if (WoW.IsInCombat && (!WoW.TargetIsEnemy || WoW.TargetHealthPercent == 0))
-			{
-				//WoW.TargetNearestEnemy();
-			}
-			
+            if (WoW.IsInCombat && (!WoW.TargetIsEnemy || WoW.TargetHealthPercent == 0))
+            {
+                //WoW.TargetNearestEnemy();
+            }
+
             if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
 
             if (WoW.HealthPercent < 30 && !WoW.IsSpellOnCooldown("Metamorphasis"))
@@ -76,13 +64,14 @@ namespace Frozen.Rotation
                 return;
             }
 
-            if (WoW.PlayerHasBuff("Metamorphasis") && WoW.PlayerHasBuff("Soul Fragments") && (WoW.PlayerBuffStacks("Soul Fragments") >= 5) && WoW.Pain >= 50)
+            if (WoW.PlayerHasBuff("Metamorphasis") && WoW.PlayerHasBuff("Soul Fragments") && WoW.PlayerBuffStacks("Soul Fragments") >= 5 && WoW.Pain >= 50)
             {
                 WoW.CastSpell("Soul Cleave");
                 return;
             }
 
-            if (!WoW.IsSpellInRange("Soul Carver") && !WoW.IsSpellOnCooldown("Throw Glaive") && WoW.IsSpellInRange("Throw Glaive") && WoW.CanCast("Throw Glaive"))
+            if (!WoW.IsSpellInRange("Soul Carver") && !WoW.IsSpellOnCooldown("Throw Glaive") && WoW.IsSpellInRange("Throw Glaive") &&
+                WoW.CanCast("Throw Glaive"))
             {
                 WoW.CastSpell("Throw Glaive");
                 return;
@@ -110,8 +99,8 @@ namespace Frozen.Rotation
                     interruptwatch.Start();
                     return;
                 }
-				
-				if (!WoW.IsSpellOnCooldown("Consume Magic"))
+
+                if (!WoW.IsSpellOnCooldown("Consume Magic"))
                 {
                     Log.Write("Interrupting spell");
                     WoW.CastSpell("Consume Magic");
@@ -122,24 +111,16 @@ namespace Frozen.Rotation
             }
 
             if (!WoW.TargetHasDebuff("Fiery Demise") && !WoW.IsSpellOnCooldown("Fiery Brand"))
-            {
                 WoW.CastSpell("Fiery Brand");
-            }
 
             if (WoW.CanCast("Demon Spikes") && !WoW.PlayerHasBuff("Demon Spikes") && WoW.Pain > 20 && !WoW.PlayerHasBuff("Magnum Opus"))
-            {
                 WoW.CastSpell("Demon Spikes");
-            }
 
             if (WoW.CanCast("Soul Carver"))
-            {
                 WoW.CastSpell("Soul Carver");
-            }
 
             if (WoW.CanCast("Fel Devastation") && WoW.Pain >= 30)
-            {
                 WoW.CastSpell("Fel Devastation");
-            }
 
             if (WoW.CanCast("Soul Cleave") && WoW.Pain >= 50)
             {
@@ -154,15 +135,13 @@ namespace Frozen.Rotation
             }
 
             if (WoW.CanCast("Sigil of Flame") && !WoW.TargetHasDebuff("Sigil of Flame"))
-            {                
+            {
                 WoW.CastSpell("Sigil of Flame"); // NB must have "Concentrated Sigil's" talent
                 return;
             }
 
             if (WoW.CanCast("Shear")) // Pain Generator
-            {
                 WoW.CastSpell("Shear");
-            }
         }
     }
 }
