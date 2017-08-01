@@ -2,20 +2,6 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ConvertPropertyToExpressionBody
 
-// Changelog :
-// Version 2.0 beta 5
-// - Patch 7.1.5 broke Moonfire, fixed with workaround
-// Version 2.0 beta 4
-// - Basic PVP using BrutalSlash, Incarnation (if checked) and Renewal (if checked)
-// Version 2.0 beta 3
-// - Improved more on Rip usage.
-// Version 2.0 beta 2
-// - Improvements on Rip usage while cooldowns are running. Workaround to bleed snapshotting.
-// Version 2.0 beta 1
-// - Complete rebuild of rotation
-// - Bleed strenght tracking not yet implemented.
-// - PvP Missing
-
 using Frozen.Helpers;
 using System.Drawing;
 using System.Threading;
@@ -27,7 +13,7 @@ using System.Windows.Forms;
 namespace Frozen.Rotation
 {
 
-    public class Feral_Scotishdwarf : CombatRoutine
+    public class Feral_Daniel : CombatRoutine
     {
         private static readonly Stopwatch pullwatch = new Stopwatch();
         private static readonly Stopwatch ripunbuffed = new Stopwatch();
@@ -928,8 +914,8 @@ namespace Frozen.Rotation
 
 /*
 [AddonDetails.db]
-AddonAuthor=Dani
-AddonName=HideOrderHallBar
+AddonAuthor=Daniel
+AddonName=Frozen
 WoWVersion=Legion - 72000
 [SpellBook.db]
 Spell,768,Cat Form,D7

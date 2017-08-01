@@ -65,7 +65,6 @@ To do:
 Port to 308
 Get more stuff to do!
 
-
 */
 
 using System;
@@ -77,10 +76,8 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Linq;
 using Timer = System.Timers.Timer;
 using System.Windows.Forms;
-using System.Text;
 using System.Runtime.InteropServices;
 using Frozen.Helpers;
 #pragma warning disable 1998
@@ -2418,9 +2415,7 @@ namespace Frozen.Rotation
 		
         public void DisplayInfo_Click(object sender, EventArgs e)
         {
-			DisplayText = "Overlay Activated";
-            DisplayInfoFormRDI frm = new DisplayInfoFormRDI();
-			frm.Show();
+
         }
 
         // End of Initialize method
@@ -3470,7 +3465,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Inhade
 AddonName=HaloWars
-WoWVersion=Legion - 70100
+WoWVersion=Legion - 70200
 [SpellBook.db]
 Spell,22812,Barkskin,Add
 Spell,20484,Rebirth,F1

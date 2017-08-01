@@ -20,7 +20,7 @@ namespace Frozen.Rotation
         {
             Log.Write("Welcome to Rogue-Subtlety", Color.Green);
             Log.Write("Suggested build: http://www.wowhead.com/talent-calc/rogue/subtlety/cTIz");
-            WoW.Speak("Welcome to PixelMagic Subtlety");
+            WoW.Speak("Welcome to Frozen Subtlety");
         }
 
         public override void Stop()
@@ -218,8 +218,8 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Zanrub
-AddonName=PixelMagic
-WoWVersion=Legion - 70100
+AddonName=Frozen
+WoWVersion=Legion - 70200
 [SpellBook.db]
 Spell,185438,Shadowstrike,D2
 Spell,196819,Eviscerate,D3

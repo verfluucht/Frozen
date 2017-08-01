@@ -2,77 +2,6 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ConvertPropertyToExpressionBody
 
-// Balance Druid rotation by Scotishdwarf and Daniel
-// Known Bugs / TODO :
-// - Sometimes overcapping Astral Power due Frozen not detecting Astral Power fast enough.
-// - Oneth's Intuition not yet coded to normal rotation, will do it next.
-// Changelog :
-// Version r33
-// - Improved Moonfire usage while in ED rotation
-// Version r32
-// - Added more checks to ED rotation
-// Version r31 
-// - Fixed ED rotation
-// Version r30
-// - Additional checks to Emerald Dreamcatcher rotation
-// Version r29
-// - Fixed Sunfire and Moonfire
-// Version r28
-// - Fixed even more things
-// Version r27
-// - Fixed several bugs within rotation.
-// Version r26
-// - Improved Starfall usage under Oneth's Overconfidence buff (Oneth's Intuition legendary) while having Emerald Dreamcatcher legendary.
-// - Setting : Have Starfall Macro is now effective on all starfalls.
-// Version r25
-// - Added user configurable Starsurge Astral Power, default = 60AsP
-// Version r24
-// - Fixed small issue with Moonfire and Sunfire not being applied with Emerald Dreamcatcher enabled.
-// - Added buff id for Oneth's Overconfidence (Oneth's Intuition legendary) for Emerald Dreamcatcher rotation
-// - Changed build numbers from Version X.X to Version rXX
-// Version r23
-// - Added Emerald Dreamcatcher buff id and fixed overlapping settings bug.
-// Version r22
-// - Added beta version of Emerald Dreamcatcher rotation
-// Version r21
-// - Temporarily fix to problems with Empowerements (using Thread.Sleep)
-// Version r20
-// - Coded in Soul of the Forest  (AoE), Shooting Stars, Stellar Drift
-// - Legendary : Kil'jaeden's Burning Wish
-// Version r19
-// - Small improvements on movement, empowerements and Starsurge.
-// Version r18
-// - Fulmination Charge support, will try use Starsurge's at 8+ stacks.
-// Version r17
-// - Improved usage for Incarnation (will cast it in heroism)
-// - Blessing of the Ancients support
-// Version r16
-// - Added support for Talents : Renewal, Restoration Affinnity (Swiftmeld, Rejuvenation).
-// - Restoration Affinity : You need only leave Moonkin form at under 50% health and it will use Swiftmeld and Rejuvenation and go back to Moonkin.
-// - Renewal : Will cast it at under 30% health
-// - Heroism/Timewarp : Will use Incarnation if available.
-// Version r15
-// - Improved Solar Wrath and Lunar Strike usage under Empowerements.
-// Version r14
-// - Fixed to work with latest donator build.
-// - Added starfall use to aoe.
-// Version r13
-// - Improved Pull
-// Version r12
-// - Improved AoE
-// Version r11
-// - Better handling of everything
-// - Added opener
-// - More configuration options
-// Version r10
-// Added : 
-// - AoE, manual use of Starfall required. 
-// - Better handling of Solar Wrath, Lunar Strike, Starsurge etc..
-// - Basic cooldown usage on bosses.
-// Version r2
-// Completly reworked how rotation works
-// Version r1
-// Start building the rotation
 using Frozen.Helpers;
 using System.Diagnostics;
 using System.Drawing;
@@ -2196,7 +2125,7 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Daniel
-AddonName=HideOrderHallBar
+AddonName=Frozen
 WoWVersion=Legion - 72000
 [SpellBook.db]
 Spell,8921,Moonfire,D4
