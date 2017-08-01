@@ -1,1 +1,0 @@
-Will be released shortly by Vectarius as DLL
