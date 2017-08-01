@@ -392,19 +392,19 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Loodak
-AddonName=Fury
+AddonName=Frozen
 WoWVersion=Legion - 70200
 [SpellBook.db]
-Spell,23881,Bloodthirst,D1
-Spell,85288,Raging Blow,D2
-Spell,100130,Furious Slash,D3
-Spell,5308,Execute,D4
-Spell,184367,Rampage,D5
-Spell,190411,Whirlwind,D6
-Spell,1719,BattleCry,D7
-Spell,118000,DragonRoar,D8
+Spell,23881,Bloodthirst,Y
+Spell,85288,Raging Blow,B
+Spell,100130,Furious Slash,S
+Spell,5308,Execute,E
+Spell,184367,Rampage,H
+Spell,190411,Whirlwind,U
+Spell,1719,BattleCry,V
+Spell,118000,DragonRoar,D0
 Spell,107574,Avatar,D9
-Spell,205545,OdynsFury,F
+Spell,205545,OdynsFury,D1
 Aura,85739,Meat-Cleaver
 Aura,118000,DragonRoarBuff
 Aura,1719,BattleCry

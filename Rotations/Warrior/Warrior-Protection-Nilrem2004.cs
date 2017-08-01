@@ -122,14 +122,12 @@ namespace Frozen.Rotation
                             WoW.CastSpell("Battle Cry");
                             return;
                         }
-                        if (WoW.IsSpellInRange("Shield Slam") && WoW.CanCast("Shield Slam") && !WoW.IsSpellOnCooldown("Shield Slam") &&
-                            WoW.PlayerHasBuff("Legendary"))
+                        if (WoW.IsSpellInRange("Shield Slam") && WoW.CanCast("Shield Slam") && !WoW.IsSpellOnCooldown("Shield Slam") )                            
                         {
                             WoW.CastSpell("Shield Slam");
                             return;
                         }
-                        if (WoW.IsSpellInRange("Shield Slam") && WoW.CanCast("Thunder Clap") && !WoW.IsSpellOnCooldown("Thunder Clap") &&
-                            WoW.PlayerHasBuff("Legendary"))
+                        if (WoW.IsSpellInRange("Shield Slam") && WoW.CanCast("Thunder Clap") && !WoW.IsSpellOnCooldown("Thunder Clap"))
                         {
                             WoW.CastSpell("Thunder Clap");
                             return;
@@ -202,22 +200,21 @@ AddonAuthor=Nilrem2004
 AddonName=Frozen
 WoWVersion=Legion - 70200
 [SpellBook.db]
-Spell,6343,Thunder Clap,D1
-Spell,23922,Shield Slam,D2
-Spell,6572,Revenge,D3
-Spell,20243,Devastate,D4
-Spell,34428,Victory Rush,D5
-Spell,204488,Focused Rage,D6
-Spell,203526,Neltharion's Fury,D7
-Spell,46968,Shockwave,D8
-Spell,871,Shield Wall,F5
-Spell,12975,Last Stand,F6
-Spell,6552,Pummel,F7
-Spell,2565,Shield Block,F8
-Spell,190456,Ignore Pain,F9
-Spell,1719,Battle Cry,F10
-Spell,6544,HeroicLeap,F11
-Spell,23920,SpellReflect,F12
+Spell,6343,Thunder Clap,V
+Spell,23922,Shield Slam,Y
+Spell,6572,Revenge,H
+Spell,20243,Devastate,B
+Spell,34428,Victory Rush,U
+Spell,203526,Neltharion's Fury,F
+Spell,46968,Shockwave,D5
+Spell,871,Shield Wall,Z
+Spell,12975,Last Stand,D7
+Spell,6552,Pummel,D2
+Spell,2565,Shield Block,A
+Spell,190456,Ignore Pain,D1
+Spell,1719,Battle Cry,D0
+Spell,6544,HeroicLeap,D3
+Spell,23920,SpellReflect,D8
 Aura,132168,ShockWavestun
 Aura,202573,Vengeance: Focused Rage
 Aura,202574,Vengeance: Ignore Pain
