@@ -1,3 +1,42 @@
+local cooldowns = { --These should be spellIDs for the spell you want to track for cooldowns
+    6343,	 -- Thunder Clap
+    23922,	 -- Shield Slam
+    6572,	 -- Revenge
+    20243,	 -- Devastate
+    34428,	 -- Victory Rush
+    203526,	 -- Neltharion's Fury
+    46968,	 -- Shockwave
+    871,	 -- Shield Wall
+    12975,	 -- Last Stand
+    6552,	 -- Pummel
+    2565,	 -- Shield Block
+    190456,	 -- Ignore Pain
+    1719,	 -- Battle Cry
+    6544,	 -- HeroicLeap
+    23920 	 -- SpellReflect
+}
+local buffs = { --These should be auraIDs for the spell you want to track 
+    132168,	 -- ShockWavestun
+    202573,	 -- Vengeance: Focused Rage
+    202574,	 -- Vengeance: Ignore Pain
+    190456,	 -- Ignore Pain
+    132404,	 -- ShieldBlockAura
+    32216,	 -- VictoryRush
+    207844,	 -- Legendary
+    186305 	 -- Mount
+}
+local debuffs = { --These should be auraIDs for the spell you want to track 
+    132168,	 -- ShockWavestun
+    202573,	 -- Vengeance: Focused Rage
+    202574,	 -- Vengeance: Ignore Pain
+    190456,	 -- Ignore Pain
+    132404,	 -- ShieldBlockAura
+    32216,	 -- VictoryRush
+    207844,	 -- Legendary
+    186305 	 -- Mount
+}
+local items = { --These should be itemIDs for the items you want to track 
+}
 -- Configurable Variables
 local size = 1;	-- this is the size of the "pixels" at the top of the screen that will show stuff, currently 5x5 because its easier to see and debug with
 
@@ -217,6 +256,7 @@ local lastCombat = nil
 local alphaColor = 1
 local spellOverlayedFrames = {}
 local PlayerStatFrame = {}
+local PartyHealthFrames  = {}
 local playerClass, englishClass, classIndex = UnitClass("player");
 
 local function TurnOnPlates()
@@ -1509,6 +1549,35 @@ local function updateIsSpellOverlayedFrames(self, event)
     end
 end
 
+local function updatePartyHealth()		
+	local i = 1
+	
+	local groupType = IsInRaid() and "raid" or "party"; -- always returns 1 less member than raid / party size 1 is "player"
+	
+	for partyId = 1, GetNumGroupMembers() do	
+		if (partyId == 1) then		
+			health = UnitHealth("player");		
+			maxHealth = UnitHealthMax("player");
+			percHealth = ceil((health / maxHealth) * 100)
+			print("Updating health for member: Player = " .. percHealth)
+		else			
+			health = UnitHealth(groupType .. (i - 1));		
+			maxHealth = UnitHealthMax(groupType .. (i - 1));
+			percHealth = ceil((health / maxHealth) * 100)
+			print('Updating health for member: '..groupType.. (i - 1) .. " = " .. percHealth)
+		end		
+		
+		PartyHealthFrames[i].t:SetColorTexture(1, 0, 0, alphaColor)
+		PartyHealthFrames[i].t:SetAllPoints(false)
+		i = i + 1
+	end
+	-- Mark non-members as black
+	for partyId = i, 20 do			
+		PartyHealthFrames[partyId].t:SetColorTexture(0, 0, 0, alphaColor)
+		PartyHealthFrames[partyId].t:SetAllPoints(false)
+	end
+end
+
 inGame = CreateFrame("frame", "", parent)
 inGame:SetSize(size, size)
 inGame:SetPoint("TOPLEFT", 30 * size, 0)
@@ -1972,6 +2041,22 @@ local function InitializeTwo()
 	npcDetect.npcCountFrame.t:SetAllPoints(npcDetect.npcCountFrame)
 	npcDetect.npcCountFrame:Show()
 	npcDetect.npcCountFrame:SetScript("OnUpdate",NameplateFrameUPDATE)
+	
+	local groupType = IsInRaid() and "raid" or "party";
+	--print ("Initialising ".. groupType .." health frames")
+	i = 0	
+	for partyId = 1, 20 do	
+		PartyHealthFrames[partyId] = CreateFrame("frame","", parent)
+		PartyHealthFrames[partyId]:SetSize(size, size)
+		PartyHealthFrames[partyId]:SetPoint("TOPLEFT", i * size, -size * 13)                            -- row 14 [Party Health]
+		PartyHealthFrames[partyId].t = PartyHealthFrames[partyId]:CreateTexture()        
+		PartyHealthFrames[partyId].t:SetColorTexture(1, 1, 1, alphaColor)
+		PartyHealthFrames[partyId].t:SetAllPoints(PartyHealthFrames[partyId])
+		PartyHealthFrames[partyId]:Show()
+		PartyHealthFrames[partyId]:SetScript("OnUpdate",updatePartyHealth)
+		--print("Created Frame: "..i)
+		i = i + 1
+	end		
 end
 local function eventHandler(self, event, ...)
 	local arg1 = ...
@@ -2000,3 +2085,4 @@ local function eventHandler(self, event, ...)
 
 end	
 parent:SetScript("OnEvent", eventHandler)
+
