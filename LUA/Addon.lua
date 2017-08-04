@@ -1,46 +1,5 @@
-local cooldowns = { --These should be spellIDs for the spell you want to track for cooldowns
-    6343,	 -- Thunder Clap
-    23922,	 -- Shield Slam
-    6572,	 -- Revenge
-    20243,	 -- Devastate
-    34428,	 -- Victory Rush
-    203526,	 -- Neltharion's Fury
-    46968,	 -- Shockwave
-    871,	 -- Shield Wall
-    12975,	 -- Last Stand
-    6552,	 -- Pummel
-    2565,	 -- Shield Block
-    190456,	 -- Ignore Pain
-    1719,	 -- Battle Cry
-    6544,	 -- HeroicLeap
-    23920 	 -- SpellReflect
-}
-local buffs = { --These should be auraIDs for the spell you want to track 
-    132168,	 -- ShockWavestun
-    202573,	 -- Vengeance: Focused Rage
-    202574,	 -- Vengeance: Ignore Pain
-    190456,	 -- Ignore Pain
-    132404,	 -- ShieldBlockAura
-    32216,	 -- VictoryRush
-    207844,	 -- Legendary
-    186305 	 -- Mount
-}
-local debuffs = { --These should be auraIDs for the spell you want to track 
-    132168,	 -- ShockWavestun
-    202573,	 -- Vengeance: Focused Rage
-    202574,	 -- Vengeance: Ignore Pain
-    190456,	 -- Ignore Pain
-    132404,	 -- ShieldBlockAura
-    32216,	 -- VictoryRush
-    207844,	 -- Legendary
-    186305 	 -- Mount
-}
-local items = { --These should be itemIDs for the items you want to track 
-}
 -- Configurable Variables
 local size = 1;	-- this is the size of the "pixels" at the top of the screen that will show stuff, currently 5x5 because its easier to see and debug with
-
-
 
 ---Tables
 local npcDetect = {PlatesOn = 0,enemiesPlate = 0, activeUnitPlates = {}, npcCountFrame = nil}
@@ -540,7 +499,7 @@ local function updateSpellCooldowns(self, event)
         local remainingTime = (start + duration - GetTime() - select(4,GetNetStats() )/1000 )
         if remainingTime < 0 then
 			 remainingTime = 0
-		 end
+		end
         
 		if remainingTime ~= 0 then -- the spell is not ready to be cast
             	--print("Spell with Id = " .. spellId .. " is on CD")
@@ -713,7 +672,6 @@ local function updateTargetDebuffs(self, event)
                 --print("[" .. buff.. "] " .. auraName.. " Off")
             end
         end
-
     end
 end
 
@@ -1549,31 +1507,64 @@ local function updateIsSpellOverlayedFrames(self, event)
     end
 end
 
+local function needsDispel(unit)
+	--print("checking if unit ["..unit.."] needs a dispel")
+	for _, spellId in pairs(dispel) do
+        local spellName = GetSpellInfo(spellId)
+
+        if spellName == nil then            
+            return 0;
+        end
+ 		--print("Getting dispel for Spell Name = " .. spellName)
+		local name, _, _, count, _, duration, expirationTime, _, _, _, spellId, _, _, _, _, _ = UnitDebuff(unit, spellName, nil, "HARMFUL")
+
+		if (name == spellName) then -- We have Aura up and Aura ID is matching our list
+			return 1;
+		end		
+	end
+	return 0;
+end
+
 local function updatePartyHealth()		
 	local i = 1
 	
 	local groupType = IsInRaid() and "raid" or "party"; -- always returns 1 less member than raid / party size 1 is "player"
 	
 	for partyId = 1, GetNumGroupMembers() do	
+		local percHealth = 0		
+		local needToDispel = 0
+
 		if (partyId == 1) then		
 			health = UnitHealth("player");		
 			maxHealth = UnitHealthMax("player");
 			percHealth = ceil((health / maxHealth) * 100)
-			print("Updating health for member: Player = " .. percHealth)
+			--print("Updating health for member: Player = " .. percHealth)
+			needToDispel = needsDispel("player")
 		else			
 			health = UnitHealth(groupType .. (i - 1));		
 			maxHealth = UnitHealthMax(groupType .. (i - 1));
 			percHealth = ceil((health / maxHealth) * 100)
-			print('Updating health for member: '..groupType.. (i - 1) .. " = " .. percHealth)
+			needToDispel = needsDispel(groupType .. (i - 1))
+			--print('Updating health for member: '..groupType.. (i - 1) .. " = " .. percHealth)
 		end		
-		
-		PartyHealthFrames[i].t:SetColorTexture(1, 0, 0, alphaColor)
+
+		local strHealth = "0.0" .. percHealth;
+				
+		if (percHealth >= 10) then
+			strHealth = "0." .. percHealth;
+		end
+		red = tonumber(strHealth)
+        if (percHealth == 100) then
+            PartyHealthFrames[i].t:SetColorTexture(1, needToDispel, 0, alphaColor)            
+        else
+            PartyHealthFrames[i].t:SetColorTexture(red, needToDispel, 0, alphaColor)
+        end
 		PartyHealthFrames[i].t:SetAllPoints(false)
 		i = i + 1
 	end
 	-- Mark non-members as black
 	for partyId = i, 20 do			
-		PartyHealthFrames[partyId].t:SetColorTexture(0, 0, 0, alphaColor)
+		PartyHealthFrames[partyId].t:SetColorTexture(1, 0, 0, alphaColor)
 		PartyHealthFrames[partyId].t:SetAllPoints(false)
 	end
 end
@@ -2019,11 +2010,12 @@ local function InitializeTwo()
 	if(table.getn(cooldowns) ~= 0) then
 		spellOverlayedFrames[table.maxn (spellOverlayedFrames)]:SetScript("OnUpdate", updateIsSpellOverlayedFrames)
 	end
-		for i = 1, 5 do
+
+	for i = 1, 5 do
 		PlayerStatFrame[i] = CreateFrame("frame", "", parent)
 		PlayerStatFrame[i]:SetSize(size, size)
 		PlayerStatFrame[i]:SetPoint("TOPLEFT", (size * i), -size * 12 )   --  row 13,  column 2-6
-		PlayerStatFrame[i].t =PlayerStatFrame[i]:CreateTexture()        
+		PlayerStatFrame[i].t = PlayerStatFrame[i]:CreateTexture()        
 		PlayerStatFrame[i].t:SetColorTexture(1, 1, 1, alphaColor)
 		PlayerStatFrame[i].t:SetAllPoints(PlayerStatFrame[i])
 		PlayerStatFrame[i]:Show()
