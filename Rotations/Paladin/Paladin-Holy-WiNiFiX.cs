@@ -67,7 +67,7 @@ namespace Frozen.Rotation
                 var f = new frmEnterTankId {TopMost = true};
                 f.ShowDialog();
             }
-
+            
             if (WoW.HealthPercent == 0 || WoW.IsMounted) return;
             if (WoW.PlayerIsCasting) return;
 
@@ -172,20 +172,20 @@ namespace Frozen.Rotation
             }
 
             // Flash of Light use as an emergency heal to save players facing death. 
-            if (WoW.CanCast("Flash of Light") && lowest <= 50)
+            if (WoW.CanCast("Flash of Light") && lowest <= 50 && !WoW.IsMoving)
             {
                 WoW.CastSpell("Flash of Light", currentTargetId);
                 return;
             }
 
             // Holy Light use to heal moderate to high damage. 
-            if (WoW.CanCast("Holy Light") && lowest <= 90)
+            if (WoW.CanCast("Holy Light") && lowest <= 90 && !WoW.IsMoving)
             {
                 WoW.CastSpell("Holy Light", currentTargetId);
                 return;
             }
 
-            if (WoW.CanCast("Tyr's Deliverance"))
+            if (WoW.CanCast("Tyr's Deliverance") && !WoW.IsMoving)
             {
                 WoW.TargetNearestEnemy();
                 if (WoW.HasTarget && WoW.TargetIsEnemy)
