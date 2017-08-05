@@ -155,7 +155,7 @@ local resWidth, resHeight = strsplit("x", currentResolution, 2)
 local scale = GetScreenWidth() / resWidth 
 
 parent = CreateFrame("frame", "Recount", UIParent)
-parent:SetSize(55 * size, 20 * size);  -- Width, Height
+parent:SetSize(55 * size, 25 * size);  -- Width, Height
 parent:SetPoint("TOPLEFT", 0, 0)
 parent:SetScale(scale) 
 parent:RegisterEvent("ADDON_LOADED")
@@ -1530,6 +1530,44 @@ local function updatePartyHealth()
 	
 	local grpsize = GetNumGroupMembers()
 
+	local strSize = "0.0" .. grpsize;
+				
+	if (grpsize >= 10) then
+		strSize = "0." .. grpsize;
+	end
+	
+	if (IsInRaid()) then
+		inGame.t:SetColorTexture(tonumber(strSize), 1, 1, alphaColor)  
+	else
+		inGame.t:SetColorTexture(tonumber(strSize), 1, 0, alphaColor)  
+	end
+	--print ('Group Size: ' .. grpsize .. ' which is: ' .. tonumber(strSize))
+
+	if (grpsize == 0) then -- We are not in a group, but to prevent the system from firing and thinking we need heals, we need to initialize our player health details.
+		health = UnitHealth("player");		
+		maxHealth = UnitHealthMax("player");
+		percHealth = ceil((health / maxHealth) * 100)			
+		needToDispel = needsDispel("player")
+
+		local strHealth = "0.0" .. percHealth;
+				
+		if (percHealth >= 10) then
+			strHealth = "0." .. percHealth;
+		end
+		red = tonumber(strHealth)
+		
+		for partyId = 1, 5 do	
+			if (percHealth == 100) then
+			    PartyHealthFrames[partyId].t:SetColorTexture(1, needToDispel, 0, alphaColor)            
+			else
+			    PartyHealthFrames[partyId].t:SetColorTexture(red, needToDispel, 0, alphaColor)
+			end	
+		end
+
+		--print('%' .. percHealth .. ' red = ' .. red);
+		return;
+	end
+
 	for partyId = 1, grpsize do	
 		local percHealth = 0		
 		local needToDispel = 0
@@ -1574,18 +1612,13 @@ local function updatePartyHealth()
         end
 		PartyHealthFrames[partyId].t:SetAllPoints(false)		
 	end
-	-- Mark non-members as black
-	--for partyId = grpsize + 1, 20 do			
-	--	PartyHealthFrames[partyId].t:SetColorTexture(1, 0, 0, alphaColor)
-	--	PartyHealthFrames[partyId].t:SetAllPoints(false)
-	--end
 end
 
 inGame = CreateFrame("frame", "", parent)
 inGame:SetSize(size, size)
 inGame:SetPoint("TOPLEFT", 30 * size, 0)
 inGame.t = inGame:CreateTexture()        
-inGame.t:SetColorTexture(0, 1, 0, alphaColor)
+inGame.t:SetColorTexture(0, 1, 0, alphaColor) -- red = number of people in group, blue of 0 = party, blue of 1 = raid
 inGame.t:SetAllPoints(inGame)	
 inGame:Show()
 
@@ -2039,7 +2072,7 @@ local function InitializeTwo()
 
 	npcDetect.npcCountFrame = CreateFrame("frame", "", parent)
 	npcDetect.npcCountFrame:SetSize(size, size)
-	npcDetect.npcCountFrame:SetPoint("TOPLEFT", 0, -size *22 )   --  row 1  column 23
+	npcDetect.npcCountFrame:SetPoint("TOPLEFT", 0, -size *22 )   --  row 23 column 1
 	npcDetect.npcCountFrame.t = npcDetect.npcCountFrame:CreateTexture()        
 	npcDetect.npcCountFrame.t:SetColorTexture(1, 1, 1, alphaColor)
 	npcDetect.npcCountFrame.t:SetAllPoints(npcDetect.npcCountFrame)
@@ -2054,7 +2087,7 @@ local function InitializeTwo()
 		PartyHealthFrames[partyId]:SetSize(size, size)
 		PartyHealthFrames[partyId]:SetPoint("TOPLEFT", i * size, -size * 13)                            -- row 14 [Party Health]
 		PartyHealthFrames[partyId].t = PartyHealthFrames[partyId]:CreateTexture()        
-		PartyHealthFrames[partyId].t:SetColorTexture(1, 1, 1, alphaColor)
+		PartyHealthFrames[partyId].t:SetColorTexture(0, 0, 0, alphaColor)
 		PartyHealthFrames[partyId].t:SetAllPoints(PartyHealthFrames[partyId])
 		PartyHealthFrames[partyId]:Show()
 		PartyHealthFrames[partyId]:SetScript("OnUpdate",updatePartyHealth)
