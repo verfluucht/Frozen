@@ -1,5 +1,6 @@
 local rotationOn = 0;
 local cooldownOn = 0;
+local debugHealingOn = 0;
 
 local space = 5
 local width = 120
@@ -7,8 +8,8 @@ local buttonWidth = width - (space * 2);
 local buttonHeight = 20
 
 local overlay = CreateFrame("frame", "Overlay", UIParent)
-overlay:SetPoint("TOP", UIParent, "TOP", 0, 0)
-overlay:SetSize(width, 55)
+overlay:SetPoint("TOP", UIParent, "TOP", 300, 0)
+overlay:SetSize(width, 83)
 overlay:SetFrameStrata("TOOLTIP");
 overlay.t = overlay:CreateTexture()
 overlay.t:SetColorTexture(0, 0, 1, 0.5)
@@ -109,3 +110,71 @@ function cooldownOnOff()
 end
 
 button2:SetScript("OnClick", cooldownOnOff)
+
+----------------------------------------------------------------------------------------------------------------
+------------------------- Debug ----------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
+
+local button3 = CreateFrame("Button", nil, overlay)
+button3:SetPoint("TOP", overlay, "TOP", 0, -56)
+button3:SetWidth(buttonWidth)
+button3:SetHeight(buttonHeight)
+button3:SetText("Debug: Off")
+font3 = CreateFont("three")
+font3:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
+font3:SetTextColor(1, 0, 0);
+button3:SetNormalFontObject(font3);
+button3:SetHighlightFontObject(font3);
+button3:SetFrameStrata("TOOLTIP");
+
+local normalTexture3 = button3:CreateTexture()
+local highlightTexture3 = button3:CreateTexture()
+local pushedTexture3 = button3:CreateTexture()
+
+normalTexture3:SetColorTexture(0, 0, 0, alphaColor)
+normalTexture3:SetAllPoints()
+button3:SetNormalTexture(normalTexture3)
+
+highlightTexture3:SetColorTexture(0, 0, 0, 0.5)
+highlightTexture3:SetAllPoints()
+button3:SetHighlightTexture(highlightTexture3)
+
+pushedTexture3:SetColorTexture(0, 0, 0, 0.5)
+pushedTexture3:SetAllPoints()
+button3:SetPushedTexture(pushedTexture2)
+
+button3:RegisterForClicks("AnyUp")
+
+function debugHealing()
+	if debugHealingOn == 1 then				
+		button3:SetText("Debug: Off")		
+		font3:SetTextColor(1, 0, 0);		
+		debugHealingOn = 0
+	else		
+		button3:SetText("Debug: On")	
+		font3:SetTextColor(0, 1, 0);		
+		debugHealingOn = 1
+		
+		local groupType = IsInRaid() and "raid" or "party"; -- always returns 1 less member than raid / party size 1 is "player"
+	
+		if (groupType == "party") then				
+			for playerId = 1, GetNumGroupMembers() do	
+				if playerId == 1 then 
+					print('party' .. playerId .. ': ' .. UnitName("player"))
+				else
+					print('party' .. playerId .. ': ' .. UnitName(groupType .. ((playerId - 1))))
+				end
+			end
+		end
+		if (groupType == "raid") then				
+			for playerId = 1, GetNumGroupMembers() do	
+				health = UnitHealth(groupType .. playerId);					
+				maxHealth = UnitHealthMax(groupType .. playerId);
+				percHealth = ceil((health / maxHealth) * 100)
+				print('raid' .. playerId .. ': ' .. UnitName(groupType .. playerId) .. ' = '.. percHealth)
+			end
+		end
+	end		
+end
+
+button3:SetScript("OnClick", debugHealing)

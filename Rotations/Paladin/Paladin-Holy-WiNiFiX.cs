@@ -30,12 +30,8 @@ namespace Frozen.Rotation
             Log.Clear();
             Log.WriteFrozen("Welcome to Frozen Holy", Color.Black);
             Log.Write($"Supported Talents: {supportedTalents}");
-            Log.Write("Ensure you have the following 5 macros defined or the rotation will NOT work", Color.Red);
-            Log.Write("1. '/tar player' and bind it to NumPad 0", Color.Red);
-            Log.Write("2. '/tar party1' and bind it to NumPad 1", Color.Red);
-            Log.Write("3. '/tar party2' and bind it to NumPad 2", Color.Red);
-            Log.Write("4. '/tar party3' and bind it to NumPad 3", Color.Red);
-            Log.Write("5. '/tar party4' and bind it to NumPad 4", Color.Red);
+            Log.Write("Ensure you have setup healing keybinds before.", Color.Red);
+            
             Log.DrawHorizontalLine();
             Log.Write("If you do proving grounds the Tank Id is 5 when it asks you.", Color.Red);
             Log.DrawHorizontalLine();
@@ -47,6 +43,8 @@ namespace Frozen.Rotation
 
         public override void Pulse()
         {
+            if (!WoW.InGame) return;
+
             if (WoW.TankId == 0)
             {
                 string currentTalents = WoW.Talent(1) + "" + WoW.Talent(2) + "" + WoW.Talent(3) + "" + WoW.Talent(4) + "" + WoW.Talent(5) + "" + WoW.Talent(6) + "" + WoW.Talent(7);
@@ -73,17 +71,8 @@ namespace Frozen.Rotation
 
             var lowest = WoW.PartyLowestHealthPercent;
 
-            int currentTargetId;
-            if (WoW.TargetHasDebuff("Chomp") && lowest > 40) // If a player has the Chomp Debuff, keep healing them, dont change focus unless another party member drops below 40%
-            {
-                Log.Write("Focusing CHOMP Target...");
-                currentTargetId = WoW.CurrentPartyTargetId;
-            }
-            else
-            {
-                currentTargetId = WoW.PartyMemberIdWithLowestHealthPercent;
-            }
-
+            int currentTargetId = WoW.PartyMemberIdWithLowestHealthPercent;
+            
             if (WoW.PartyMemberIsNeedingADispel != 0)
             {
                 currentTargetId = WoW.PartyMemberIsNeedingADispel;
@@ -91,6 +80,8 @@ namespace Frozen.Rotation
 
             if (currentTargetId == 0) return;
             if (lowest == 100) return;
+
+            Log.Write($"Lowest Health Target = [/target raid{currentTargetId}] health = {lowest}");
 
             var averageHp = WoW.PartyAverageHealthPercent;
 
@@ -226,5 +217,5 @@ Aura,156910,Beacon of Faith
 Aura,200025,Beacon of Virtue
 Aura,145263,Chomp
 Aura,145057,Shield Wall Oto
-Dispel,145206,Aqua Bomb
+Dispel,145206,Aqua Bomb,1
 */

@@ -1526,27 +1526,40 @@ local function needsDispel(unit)
 end
 
 local function updatePartyHealth()		
-	local i = 1
-	
 	local groupType = IsInRaid() and "raid" or "party"; -- always returns 1 less member than raid / party size 1 is "player"
 	
-	for partyId = 1, GetNumGroupMembers() do	
+	local grpsize = GetNumGroupMembers()
+
+	for partyId = 1, grpsize do	
 		local percHealth = 0		
 		local needToDispel = 0
 
-		if (partyId == 1) then		
-			health = UnitHealth("player");		
-			maxHealth = UnitHealthMax("player");
+		if (groupType == "party") then	
+			if (partyId == 1) then		
+				health = UnitHealth("player");		
+				maxHealth = UnitHealthMax("player");
+				percHealth = ceil((health / maxHealth) * 100)			
+				needToDispel = needsDispel("player")
+			else			
+				health = UnitHealth(groupType .. (partyId - 1));		
+				maxHealth = UnitHealthMax(groupType .. (partyId - 1));
+				percHealth = ceil((health / maxHealth) * 100)
+				needToDispel = needsDispel(groupType .. (partyId - 1))			
+			end		
+		end
+		if (groupType == "raid") then	
+			health = UnitHealth(groupType .. partyId);					
+			maxHealth = UnitHealthMax(groupType .. partyId);
 			percHealth = ceil((health / maxHealth) * 100)
-			--print("Updating health for member: Player = " .. percHealth)
-			needToDispel = needsDispel("player")
-		else			
-			health = UnitHealth(groupType .. (i - 1));		
-			maxHealth = UnitHealthMax(groupType .. (i - 1));
-			percHealth = ceil((health / maxHealth) * 100)
-			needToDispel = needsDispel(groupType .. (i - 1))
-			--print('Updating health for member: '..groupType.. (i - 1) .. " = " .. percHealth)
-		end		
+			needToDispel = needsDispel(groupType .. partyId)	
+			if UnitIsDead(groupType .. partyId) or 
+			   UnitIsGhost(groupType .. partyId) or 
+			   UnitIsConnected(groupType .. partyId) == false or 
+			   UnitInPhase(groupType .. partyId) == false then
+				percHealth = 100;
+				needToDispel = 0;
+			end
+		end
 
 		local strHealth = "0.0" .. percHealth;
 				
@@ -1555,18 +1568,17 @@ local function updatePartyHealth()
 		end
 		red = tonumber(strHealth)
         if (percHealth == 100) then
-            PartyHealthFrames[i].t:SetColorTexture(1, needToDispel, 0, alphaColor)            
+            PartyHealthFrames[partyId].t:SetColorTexture(1, needToDispel, 0, alphaColor)            
         else
-            PartyHealthFrames[i].t:SetColorTexture(red, needToDispel, 0, alphaColor)
+            PartyHealthFrames[partyId].t:SetColorTexture(red, needToDispel, 0, alphaColor)
         end
-		PartyHealthFrames[i].t:SetAllPoints(false)
-		i = i + 1
+		PartyHealthFrames[partyId].t:SetAllPoints(false)		
 	end
 	-- Mark non-members as black
-	for partyId = i, 20 do			
-		PartyHealthFrames[partyId].t:SetColorTexture(1, 0, 0, alphaColor)
-		PartyHealthFrames[partyId].t:SetAllPoints(false)
-	end
+	--for partyId = grpsize + 1, 20 do			
+	--	PartyHealthFrames[partyId].t:SetColorTexture(1, 0, 0, alphaColor)
+	--	PartyHealthFrames[partyId].t:SetAllPoints(false)
+	--end
 end
 
 inGame = CreateFrame("frame", "", parent)
@@ -2037,7 +2049,7 @@ local function InitializeTwo()
 	local groupType = IsInRaid() and "raid" or "party";
 	--print ("Initialising ".. groupType .." health frames")
 	i = 0	
-	for partyId = 1, 20 do	
+	for partyId = 1, 30 do	
 		PartyHealthFrames[partyId] = CreateFrame("frame","", parent)
 		PartyHealthFrames[partyId]:SetSize(size, size)
 		PartyHealthFrames[partyId]:SetPoint("TOPLEFT", i * size, -size * 13)                            -- row 14 [Party Health]
