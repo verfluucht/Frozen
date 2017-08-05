@@ -81,7 +81,10 @@ namespace Frozen.Rotation
             if (currentTargetId == 0) return;
             if (lowest == 100) return;
 
-            Log.Write($"Lowest Health Target = [/target raid{currentTargetId}] health = {lowest}");
+            if (WoW.GroupSize == 5)
+                Log.Write($"Lowest Health Target = [/target party{currentTargetId}] health = {lowest}");
+            else
+                Log.Write($"Lowest Health Target = [/target raid{currentTargetId}] health = {lowest}");
 
             var averageHp = WoW.PartyAverageHealthPercent;
 

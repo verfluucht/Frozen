@@ -1,6 +1,3 @@
--- Configurable Variables
-local size = 1;	-- this is the size of the "pixels" at the top of the screen that will show stuff, currently 5x5 because its easier to see and debug with
-
 ---Tables
 local npcDetect = {PlatesOn = 0,enemiesPlate = 0, activeUnitPlates = {}, npcCountFrame = nil}
 local EquipmentManger = {
@@ -155,7 +152,7 @@ local resWidth, resHeight = strsplit("x", currentResolution, 2)
 local scale = GetScreenWidth() / resWidth 
 
 parent = CreateFrame("frame", "Recount", UIParent)
-parent:SetSize(55 * size, 25 * size);  -- Width, Height
+parent:SetSize(35, 25);  -- Width, Height
 parent:SetPoint("TOPLEFT", 0, 0)
 parent:SetScale(scale) 
 parent:RegisterEvent("ADDON_LOADED")
@@ -218,6 +215,8 @@ local PlayerStatFrame = {}
 local PartyHealthFrames  = {}
 local playerClass, englishClass, classIndex = UnitClass("player");
 
+local rc = LibStub("LibRangeCheck-2.0")
+
 local function TurnOnPlates()
 	if GetCVar("nameplateShowEnemies") == "1" then
 		npcDetect.PlatesOn= 1
@@ -234,19 +233,15 @@ local function activeEnemies()
             if UnitCanAttack("player", k) and LibStub("SpellRange-1.0").IsSpellInRange(spell, k) and 
             UnitIsDead(k) == false and UnitAffectingCombat(k) then
                 npcDetect.enemiesPlate = npcDetect.enemiesPlate + 1
-            --print("what is k:",k,"Is ",v," In range ",LibStub("SpellRange-1.0").IsSpellInRange("Mongoose Bite", v)," Is unit dead :",UnitIsDead(v))
-        
             end
         end
     end
     npcDetect.enemiesPlate = npcDetect.enemiesPlate/100
     
 end
-local function NameplateFrameUPDATE()
+local function NameplateFrameUpdate()
 	activeEnemies()
 	TurnOnPlates()
-	--TurnOnPlates()
-	--print("Npc counT",npcDetect.enemiesPlate)
 	npcDetect.npcCountFrame.t:SetColorTexture(1, npcDetect.enemiesPlate, npcDetect.PlatesOn, alphaColor)
 end
 
@@ -1526,7 +1521,15 @@ local function needsDispel(unit)
 end
 
 local function updatePartyHealth()		
-	local groupType = IsInRaid() and "raid" or "party"; -- always returns 1 less member than raid / party size 1 is "player"
+	--if UnitExists("target") then
+	--	local minRange, maxRange = rc:GetRange("target")
+	--    if (lastRange ~= maxRange) then		
+	--		print('Range ~ ' .. maxRange);
+	--		lastRange = maxRange;
+	--	end
+	--end
+
+	local groupType = IsInRaid() and "raid" or "party"; -- always returns 1 less member than party size 1 is "player"
 	
 	local grpsize = GetNumGroupMembers()
 
@@ -1582,7 +1585,19 @@ local function updatePartyHealth()
 				health = UnitHealth(groupType .. (partyId - 1));		
 				maxHealth = UnitHealthMax(groupType .. (partyId - 1));
 				percHealth = ceil((health / maxHealth) * 100)
-				needToDispel = needsDispel(groupType .. (partyId - 1))			
+				needToDispel = needsDispel(groupType .. (partyId - 1))	
+								
+				local minRange, maxRange = rc:GetRange(groupType .. (partyId - 1))
+				
+				if UnitIsDead(groupType .. (partyId - 1)) or 
+				   UnitIsGhost(groupType .. (partyId - 1)) or 
+				   UnitIsConnected(groupType .. (partyId - 1)) == false or 
+				   UnitInPhase(groupType .. (partyId - 1)) == false or 
+				   maxRange > 40 -- No healer can heal more than 40 away so we pretend their health is full, and they dont need a dispel
+				then
+					percHealth = 100;
+					needToDispel = 0;
+				end
 			end		
 		end
 		if (groupType == "raid") then	
@@ -1590,10 +1605,15 @@ local function updatePartyHealth()
 			maxHealth = UnitHealthMax(groupType .. partyId);
 			percHealth = ceil((health / maxHealth) * 100)
 			needToDispel = needsDispel(groupType .. partyId)	
+		
+			local minRange, maxRange = rc:GetRange(groupType .. partyId)
+
 			if UnitIsDead(groupType .. partyId) or 
 			   UnitIsGhost(groupType .. partyId) or 
 			   UnitIsConnected(groupType .. partyId) == false or 
-			   UnitInPhase(groupType .. partyId) == false then
+			   UnitInPhase(groupType .. partyId) == false or 
+			   maxRange > 40 -- No healer can heal more than 40 away so we pretend their health is full, and they dont need a dispel
+			   then
 				percHealth = 100;
 				needToDispel = 0;
 			end
@@ -1615,16 +1635,16 @@ local function updatePartyHealth()
 end
 
 inGame = CreateFrame("frame", "", parent)
-inGame:SetSize(size, size)
-inGame:SetPoint("TOPLEFT", 30 * size, 0)
+inGame:SetSize(1, 1)
+inGame:SetPoint("TOPLEFT", 30, 0)
 inGame.t = inGame:CreateTexture()        
 inGame.t:SetColorTexture(0, 1, 0, alphaColor) -- red = number of people in group, blue of 0 = party, blue of 1 = raid
 inGame.t:SetAllPoints(inGame)	
 inGame:Show()
 
 startStopFrame = CreateFrame("frame", "", parent)
-startStopFrame:SetSize(size, size)
-startStopFrame:SetPoint("TOPLEFT", 29 * size, 0)
+startStopFrame:SetSize(1, 1)
+startStopFrame:SetPoint("TOPLEFT", 29, 0)
 startStopFrame.t = startStopFrame:CreateTexture()        
 startStopFrame.t:SetColorTexture(0, 0, 0, alphaColor)
 startStopFrame.t:SetAllPoints(startStopFrame)	
@@ -1637,7 +1657,7 @@ local function InitializeOne()
 
 	--print ("Initialising Health Frames")	
 	healthFrame = CreateFrame("frame", "", parent)
-	healthFrame:SetSize(size, size)
+	healthFrame:SetSize(1, 1)
 	healthFrame:SetPoint("TOPLEFT", 0, 0)                         -- row 1, column 1 [Player Health]
 
 	healthFrame.t = healthFrame:CreateTexture()        
@@ -1653,8 +1673,8 @@ local function InitializeOne()
     
 	--print ("Initialising Power Frames (Rage, Energy, etc...)")  
 	powerFrame = CreateFrame("frame","", parent)
-	powerFrame:SetSize(size, size)
-	powerFrame:SetPoint("TOPLEFT", 1 * size, 0)                   -- row 1, column 2 [Player Power]
+	powerFrame:SetSize(1, 1)
+	powerFrame:SetPoint("TOPLEFT", 1, 0)                   -- row 1, column 2 [Player Power]
 	powerFrame.t = powerFrame:CreateTexture()        
 	powerFrame.t:SetColorTexture(1, 1, 1, alphaColor)
 	powerFrame.t:SetAllPoints(powerFrame)    
@@ -1667,8 +1687,8 @@ local function InitializeOne()
 
 	--print ("Initialising Target Health Frames")    
 	targetHealthFrame = CreateFrame("frame","", parent)
-	targetHealthFrame:SetSize(size, size)
-	targetHealthFrame:SetPoint("TOPLEFT", 2 * size, 0)            -- row 1, column 3 [Target Health]
+	targetHealthFrame:SetSize(1, 1)
+	targetHealthFrame:SetPoint("TOPLEFT", 2, 0)            -- row 1, column 3 [Target Health]
 
 	targetHealthFrame.t = targetHealthFrame:CreateTexture()        
 	targetHealthFrame.t:SetColorTexture(1, 1, 1, alphaColor)
@@ -1684,8 +1704,8 @@ local function InitializeOne()
  	
     --print ("Initialising InCombat Frames")    
     unitCombatFrame = CreateFrame("frame","", parent);
-    unitCombatFrame:SetSize(size, size);
-    unitCombatFrame:SetPoint("TOPLEFT", 3 * size, 0)              -- row 1, column 4 [UnitInCombat]
+    unitCombatFrame:SetSize(1, 1);
+    unitCombatFrame:SetPoint("TOPLEFT", 3, 0)              -- row 1, column 4 [UnitInCombat]
     unitCombatFrame.t = unitCombatFrame:CreateTexture()
     unitCombatFrame.t:SetColorTexture(1, 1, 1, alphaColor)
     unitCombatFrame.t:SetAllPoints(unitCombatFrame)
@@ -1696,8 +1716,8 @@ local function InitializeOne()
 
     --print ("Initialising UnitPower Frames")    
 	unitPowerFrame = CreateFrame("frame","", parent);
-	unitPowerFrame:SetSize(size, size)
-	unitPowerFrame:SetPoint("TOPLEFT", 4 * size, 0)               -- row 1, column 5 [Holy Power, etc...]
+	unitPowerFrame:SetSize(1, 1)
+	unitPowerFrame:SetPoint("TOPLEFT", 4, 0)               -- row 1, column 5 [Holy Power, etc...]
 	unitPowerFrame.t = unitPowerFrame:CreateTexture()        
 	unitPowerFrame.t:SetColorTexture(0, 0, 0, alphaColor)
 	unitPowerFrame.t:SetAllPoints(unitPowerFrame)
@@ -1710,8 +1730,8 @@ local function InitializeOne()
 	
     --print ("Initialising IsTargetFriendly Frame")
     isTargetFriendlyFrame = CreateFrame("frame","", parent);
-    isTargetFriendlyFrame:SetSize(size, size);
-    isTargetFriendlyFrame:SetPoint("TOPLEFT", 5 * size, 0)     -- row 1, column 6 [Target Is Friendly]
+    isTargetFriendlyFrame:SetSize(1, 1);
+    isTargetFriendlyFrame:SetPoint("TOPLEFT", 5, 0)     -- row 1, column 6 [Target Is Friendly]
     isTargetFriendlyFrame.t = isTargetFriendlyFrame:CreateTexture()        
     isTargetFriendlyFrame.t:SetColorTexture(0, 1, 0, alphaColor)
     isTargetFriendlyFrame.t:SetAllPoints(isTargetFriendlyFrame)
@@ -1726,8 +1746,8 @@ local function InitializeOne()
 
 	--print ("Initialising HasTarget Frame")
 	hasTargetFrame = CreateFrame("frame","", parent);
-	hasTargetFrame:SetSize(size, size);
-	hasTargetFrame:SetPoint("TOPLEFT", 6 * size, 0)                           -- row 1, column 7 [Has Target]
+	hasTargetFrame:SetSize(1, 1);
+	hasTargetFrame:SetPoint("TOPLEFT", 6, 0)                           -- row 1, column 7 [Has Target]
 	hasTargetFrame.t = hasTargetFrame:CreateTexture()        
 	hasTargetFrame.t:SetColorTexture(0, 1, 0, alphaColor)
 	hasTargetFrame.t:SetAllPoints(hasTargetFrame)
@@ -1739,8 +1759,8 @@ local function InitializeOne()
 	
 	--print ("Initialising PlayerIsCasting Frame")
 	playerIsCastingFrame = CreateFrame("frame","", parent);
-	playerIsCastingFrame:SetSize(size, size);
-	playerIsCastingFrame:SetPoint("TOPLEFT", 7 * size, 0)                     -- row 1, column 8 [Player Is Casting]
+	playerIsCastingFrame:SetSize(1, 1);
+	playerIsCastingFrame:SetPoint("TOPLEFT", 7, 0)                     -- row 1, column 8 [Player Is Casting]
 	playerIsCastingFrame.t = playerIsCastingFrame:CreateTexture()        
 	playerIsCastingFrame.t:SetColorTexture(1, 1, 1, alphaColor)
 	playerIsCastingFrame.t:SetAllPoints(playerIsCastingFrame)
@@ -1749,8 +1769,8 @@ local function InitializeOne()
 	
 	--print ("Initialising TargetIsCasting Frame")
 	targetIsCastingFrame = CreateFrame("frame","", parent);
-	targetIsCastingFrame:SetSize(size, size);
-	targetIsCastingFrame:SetPoint("TOPLEFT", 8 * size, 0)                     -- row 1, column 9 [Target Is Casting]
+	targetIsCastingFrame:SetSize(1, 1);
+	targetIsCastingFrame:SetPoint("TOPLEFT", 8, 0)                     -- row 1, column 9 [Target Is Casting]
 	targetIsCastingFrame.t = targetIsCastingFrame:CreateTexture()        
 	targetIsCastingFrame.t:SetColorTexture(1, 1, 1, alphaColor)
 	targetIsCastingFrame.t:SetAllPoints(targetIsCastingFrame)
@@ -1759,8 +1779,8 @@ local function InitializeOne()
 
 	--print ("Initialising Haste Frames")  
 	hasteFrame = CreateFrame("frame","", parent)
-	hasteFrame:SetSize(size, size)
-	hasteFrame:SetPoint("TOPLEFT", 9 * size, 0)                               -- row 1, column 10 [Player Haste]
+	hasteFrame:SetSize(1, 1)
+	hasteFrame:SetPoint("TOPLEFT", 9, 0)                               -- row 1, column 10 [Player Haste]
 	hasteFrame.t = hasteFrame:CreateTexture()        
 	hasteFrame.t:SetColorTexture(1, 1, 1, alphaColor)
 	hasteFrame.t:SetAllPoints(hasteFrame)    
@@ -1771,8 +1791,8 @@ local function InitializeOne()
 
 	--print ("Initialising Target Is Visible Frame")
 	unitIsVisibleFrame = CreateFrame("frame","", parent);
-	unitIsVisibleFrame:SetSize(size, size);
-	unitIsVisibleFrame:SetPoint("TOPLEFT", 10 * size, 0)                      -- row 1, column 11 [Target Visible]
+	unitIsVisibleFrame:SetSize(1, 1);
+	unitIsVisibleFrame:SetPoint("TOPLEFT", 10, 0)                      -- row 1, column 11 [Target Visible]
 	unitIsVisibleFrame.t = unitIsVisibleFrame:CreateTexture()        
 	unitIsVisibleFrame.t:SetColorTexture(0, 1, 0, alphaColor)
 	unitIsVisibleFrame.t:SetAllPoints(unitIsVisibleFrame)
@@ -1786,8 +1806,8 @@ local function InitializeOne()
         classIndex == 7)                                    -- Shaman (Enh. Needs it for Wolves)
     then
         unitPetFrame = CreateFrame("frame","", parent);
-        unitPetFrame:SetSize(size, size);
-        unitPetFrame:SetPoint("TOPLEFT", 11 * size, 0)                        -- row 1, column 12 [Has Pet]
+        unitPetFrame:SetSize(1, 1);
+        unitPetFrame:SetPoint("TOPLEFT", 11, 0)                        -- row 1, column 12 [Has Pet]
 	    unitPetFrame.t = unitPetFrame:CreateTexture()    
         unitPetFrame.t:SetColorTexture(0, 1, 0, alphaColor)
         unitPetFrame.t:SetAllPoints(unitPetFrame)
@@ -1795,8 +1815,8 @@ local function InitializeOne()
         unitPetFrame:SetScript("OnUpdate", updateUnitPet)
 
         petHealthFrame = CreateFrame("frame","", parent)
-	    petHealthFrame:SetSize(size, size)
-	    petHealthFrame:SetPoint("TOPLEFT", size * 12, 0)                      -- row 1, column 13 [Pet Health]
+	    petHealthFrame:SetSize(1, 1)
+	    petHealthFrame:SetPoint("TOPLEFT", 12, 0)                      -- row 1, column 13 [Pet Health]
 	    petHealthFrame.t = petHealthFrame:CreateTexture()        
 	    petHealthFrame.t:SetColorTexture(1, 1, 1, alphaColor)
 	    petHealthFrame.t:SetAllPoints(petHealthFrame)	
@@ -1805,8 +1825,8 @@ local function InitializeOne()
 	    petHealthFrame:SetScript("OnEvent", updatePetHealth)
 
         wildPetsFrame = CreateFrame("frame","", parent);
-        wildPetsFrame:SetSize(size, size);
-        wildPetsFrame:SetPoint("TOPLEFT", size * 13, 0)                       -- row 1, column 14 [Wild Pets]
+        wildPetsFrame:SetSize(1, 1);
+        wildPetsFrame:SetPoint("TOPLEFT", 13, 0)                       -- row 1, column 14 [Wild Pets]
         wildPetsFrame.t = wildPetsFrame:CreateTexture()
         wildPetsFrame.t:SetColorTexture(0, 1, 0, alphaColor)
         wildPetsFrame.t:SetAllPoints(wildPetsFrame)
@@ -1817,8 +1837,8 @@ local function InitializeOne()
 	    local i = 0
 	    for _, buffId in pairs(buffs) do
 		    petBuffFrames[buffId] = CreateFrame("frame","", parent)
-		    petBuffFrames[buffId]:SetSize(size, size)
-		    petBuffFrames[buffId]:SetPoint("TOPLEFT", i * size, -size * 9)                      -- row 10 [Pet Buffs]
+		    petBuffFrames[buffId]:SetSize(1, 1)
+		    petBuffFrames[buffId]:SetPoint("TOPLEFT", i, -9)                      -- row 10 [Pet Buffs]
 		    petBuffFrames[buffId].t = petBuffFrames[buffId]:CreateTexture()        
 		    petBuffFrames[buffId].t:SetColorTexture(1, 1, 1, alphaColor)
 		    petBuffFrames[buffId].t:SetAllPoints(petBuffFrames[buffId])
@@ -1833,8 +1853,8 @@ local function InitializeOne()
     i = 0
     for _, spellId in pairs(cooldowns) do	
     	cooldownframes[spellId] = CreateFrame("frame","", parent)
-    	cooldownframes[spellId]:SetSize(size, size)
-    	cooldownframes[spellId]:SetPoint("TOPLEFT", i * size, -size)    -- row 2, column 1+ [Spell Cooldowns]
+    	cooldownframes[spellId]:SetSize(1, 1)
+    	cooldownframes[spellId]:SetPoint("TOPLEFT", i, -1)    -- row 2, column 1+ [Spell Cooldowns]
     	cooldownframes[spellId].t = cooldownframes[spellId]:CreateTexture()        
     	cooldownframes[spellId].t:SetColorTexture(1, 1, 1, alphaColor)
     	cooldownframes[spellId].t:SetAllPoints(cooldownframes[spellId])
@@ -1846,8 +1866,8 @@ local function InitializeOne()
 	i = 0
 	for _, spellId in pairs(cooldowns) do	
 		spellInRangeFrames[spellId] = CreateFrame("frame","", parent)
-		spellInRangeFrames[spellId]:SetSize(size, size)
-		spellInRangeFrames[spellId]:SetPoint("TOPLEFT", i * size, -size * 2)          -- row 3, column 1+ [Spell In Range]
+		spellInRangeFrames[spellId]:SetSize(1, 1)
+		spellInRangeFrames[spellId]:SetPoint("TOPLEFT", i, -2)          -- row 3, column 1+ [Spell In Range]
 		spellInRangeFrames[spellId].t = spellInRangeFrames[spellId]:CreateTexture()        
 		spellInRangeFrames[spellId].t:SetColorTexture(1, 1, 1, alphaColor)
 		spellInRangeFrames[spellId].t:SetAllPoints(spellInRangeFrames[spellId])
@@ -1859,8 +1879,8 @@ local function InitializeOne()
 	i = 0
 	for _, debuffId in pairs(debuffs) do
 		targetDebuffFrames[debuffId] = CreateFrame("frame","", parent)
-		targetDebuffFrames[debuffId]:SetSize(size, size)
-		targetDebuffFrames[debuffId]:SetPoint("TOPLEFT", i * size, -size * 3)         -- row 4, column 1+ [Spell In Range]
+		targetDebuffFrames[debuffId]:SetSize(1, 1)
+		targetDebuffFrames[debuffId]:SetPoint("TOPLEFT", i, -3)         -- row 4, column 1+ [Spell In Range]
 		targetDebuffFrames[debuffId].t = targetDebuffFrames[debuffId]:CreateTexture()        
 		targetDebuffFrames[debuffId].t:SetColorTexture(1, 1, 1, alphaColor)
 		targetDebuffFrames[debuffId].t:SetAllPoints(targetDebuffFrames[debuffId])
@@ -1872,8 +1892,8 @@ local function InitializeOne()
 	i = 0
 	for _, spellId in pairs(cooldowns) do	
 		updateSpellChargesFrame[spellId] = CreateFrame("frame","", parent)
-		updateSpellChargesFrame[spellId]:SetSize(size, size)
-		updateSpellChargesFrame[spellId]:SetPoint("TOPLEFT", i * size, -size * 4)    -- row 5, column 1+ [Spell Charges]
+		updateSpellChargesFrame[spellId]:SetSize(1, 1)
+		updateSpellChargesFrame[spellId]:SetPoint("TOPLEFT", i, -4)    -- row 5, column 1+ [Spell Charges]
 		updateSpellChargesFrame[spellId].t = updateSpellChargesFrame[spellId]:CreateTexture()        
 		updateSpellChargesFrame[spellId].t:SetColorTexture(1, 1, 1, alphaColor)
 		updateSpellChargesFrame[spellId].t:SetAllPoints(updateSpellChargesFrame[spellId])
@@ -1886,8 +1906,8 @@ local function InitializeOne()
     i = 0
 	for _, buffId in pairs(buffs) do
 		TargetBuffs[buffId] = CreateFrame("frame","", parent)
-        TargetBuffs[buffId]:SetSize(size, size)
-        TargetBuffs[buffId]:SetPoint("TOPLEFT", i * size, -size * 5)                            -- row 6, column 1+ [Target Buffs]
+        TargetBuffs[buffId]:SetSize(1, 1)
+        TargetBuffs[buffId]:SetPoint("TOPLEFT", i, -5)                            -- row 6, column 1+ [Target Buffs]
 		TargetBuffs[buffId].t = TargetBuffs[buffId]:CreateTexture()
         TargetBuffs[buffId].t:SetColorTexture(1, 1, 1, alphaColor)
         TargetBuffs[buffId].t:SetAllPoints(TargetBuffs[buffId])
@@ -1897,8 +1917,8 @@ local function InitializeOne()
 	TargetBuffs[table.maxn (TargetBuffs)]:SetScript("OnUpdate", updateTargetBuffs)
 
     PlayerMovingFrame = CreateFrame("frame","", parent);
-    PlayerMovingFrame:SetSize(size, size);
-    PlayerMovingFrame:SetPoint("TOPLEFT", 0, -size * 6)                                         -- row 7, column 1 [Player Is Moving]
+    PlayerMovingFrame:SetSize(1, 1);
+    PlayerMovingFrame:SetPoint("TOPLEFT", 0, -6)                                         -- row 7, column 1 [Player Is Moving]
     PlayerMovingFrame.t = PlayerMovingFrame:CreateTexture()
     PlayerMovingFrame.t:SetColorTexture(1, 1, 1, alphaColor)
     PlayerMovingFrame.t:SetAllPoints(PlayerMovingFrame)
@@ -1906,8 +1926,8 @@ local function InitializeOne()
     PlayerMovingFrame:SetScript("OnUpdate", PlayerNotMove)
 
     AutoAtackingFrame = CreateFrame("frame","", parent);
-    AutoAtackingFrame:SetSize(size, size);
-    AutoAtackingFrame:SetPoint("TOPLEFT", size, -size * 6)                                      -- row 7, column 2 [Auto Attacking]
+    AutoAtackingFrame:SetSize(1, 1);
+    AutoAtackingFrame:SetPoint("TOPLEFT", 1, -6)                                      -- row 7, column 2 [Auto Attacking]
     AutoAtackingFrame.t = AutoAtackingFrame:CreateTexture()
     AutoAtackingFrame.t:SetColorTexture(1, 1, 1, alphaColor)
     AutoAtackingFrame.t:SetAllPoints(AutoAtackingFrame)
@@ -1919,8 +1939,8 @@ local function InitializeOne()
 
     --print ("Initialising Is Player Frame")
     targetIsPlayerFrame = CreateFrame("frame","", parent);
-    targetIsPlayerFrame:SetSize(size, size);
-    targetIsPlayerFrame:SetPoint("TOPLEFT", 2 * size, -size * 6)                                -- row 7, column 3 [Target Is Player]
+    targetIsPlayerFrame:SetSize(1, 1);
+    targetIsPlayerFrame:SetPoint("TOPLEFT", 2, -6)                                -- row 7, column 3 [Target Is Player]
     targetIsPlayerFrame.t = targetIsPlayerFrame:CreateTexture()
     targetIsPlayerFrame.t:SetColorTexture(1, 1, 1, alphaColor)
     targetIsPlayerFrame.t:SetAllPoints(targetIsPlayerFrame)
@@ -1929,8 +1949,8 @@ local function InitializeOne()
     targetIsPlayerFrame:SetScript("OnEvent", updateIsPlayer)
 	
     flagFrame = CreateFrame("frame","", parent);
-    flagFrame:SetSize(size, size);
-    flagFrame:SetPoint("TOPLEFT", 3 * size, -size * 6)                                          -- row 7, column 4 [Outdoors] // Was Flag but was not used
+    flagFrame:SetSize(1, 1);
+    flagFrame:SetPoint("TOPLEFT", 3, -6)                                          -- row 7, column 4 [Outdoors] // Was Flag but was not used
     flagFrame.t = flagFrame:CreateTexture()
     flagFrame.t:SetColorTexture(1, 1, 1, alphaColor)
     flagFrame.t:SetAllPoints(flagFrame)
@@ -1943,8 +1963,8 @@ local function InitializeTwo()
 	local i = 0
 	    for i = 1, 2 do
         lastSpellFrame[i] = CreateFrame("FRAME", "", parent);
-        lastSpellFrame[i]:SetSize(size, size);
-        lastSpellFrame[i]:SetPoint("TOPLEFT", (i + 3) * size, -size * 6)                        -- row 7, column 5 & 6 [Last Spell Casted]
+        lastSpellFrame[i]:SetSize(1, 1);
+        lastSpellFrame[i]:SetPoint("TOPLEFT", (i + 3), -6)                        -- row 7, column 5 & 6 [Last Spell Casted]
         lastSpellFrame[i].t = lastSpellFrame[i]:CreateTexture()
         lastSpellFrame[i].t:SetColorTexture(0, 0, 0, alphaColor)
         lastSpellFrame[i].t:SetAllPoints(lastSpellFrame[i])
@@ -1957,8 +1977,8 @@ local function InitializeTwo()
     --print ("Initialising Target Last Spell Frame")
     for i = 1, 2 do
         targetLastSpellFrame[i] = CreateFrame("FRAME", "", parent);
-        targetLastSpellFrame[i]:SetSize(size, size);
-        targetLastSpellFrame[i]:SetPoint("TOPLEFT", (i + 5) * size, -size * 6)                  -- row 7, column 7 & 8 [Target Spell Casting Id]
+        targetLastSpellFrame[i]:SetSize(1, 1);
+        targetLastSpellFrame[i]:SetPoint("TOPLEFT", (i + 5), -6)                  -- row 7, column 7 & 8 [Target Spell Casting Id]
         targetLastSpellFrame[i].t = targetLastSpellFrame[i]:CreateTexture()
         targetLastSpellFrame[i].t:SetColorTexture(0, 0, 0, alphaColor)
         targetLastSpellFrame[i].t:SetAllPoints(targetLastSpellFrame[i])
@@ -1968,8 +1988,8 @@ local function InitializeTwo()
     --print ("Initialising Arena1 Frame")
     for i = 1, 2 do
         targetArena1Frame[i] = CreateFrame("FRAME", "", parent);
-        targetArena1Frame[i]:SetSize(size, size);
-        targetArena1Frame[i]:SetPoint("TOPLEFT", (i + 7) * size, -size * 6)                     -- row 7, column 9 & 10 [Arena1 Spell Casting Id]
+        targetArena1Frame[i]:SetSize(1, 1);
+        targetArena1Frame[i]:SetPoint("TOPLEFT", (i + 7), -6)                     -- row 7, column 9 & 10 [Arena1 Spell Casting Id]
         targetArena1Frame[i].t = targetArena1Frame[i]:CreateTexture()
         targetArena1Frame[i].t:SetColorTexture(0, 0, 0, alphaColor)
         targetArena1Frame[i].t:SetAllPoints(targetArena1Frame[i])
@@ -1979,8 +1999,8 @@ local function InitializeTwo()
     --print ("Initialising Arena2 Frame")
     for i = 1, 2 do
         targetArena2Frame[i] = CreateFrame("FRAME", "", parent);
-        targetArena2Frame[i]:SetSize(size, size);
-        targetArena2Frame[i]:SetPoint("TOPLEFT", (i + 9) * size, -size * 6)                     -- row 7, column 10 & 11 [Arena1 Spell Casting Id]
+        targetArena2Frame[i]:SetSize(1, 1);
+        targetArena2Frame[i]:SetPoint("TOPLEFT", (i + 9), -6)                     -- row 7, column 10 & 11 [Arena1 Spell Casting Id]
         targetArena2Frame[i].t = targetArena2Frame[i]:CreateTexture()
         targetArena2Frame[i].t:SetColorTexture(0, 0, 0, alphaColor)
         targetArena2Frame[i].t:SetAllPoints(targetArena2Frame[i])
@@ -1990,8 +2010,8 @@ local function InitializeTwo()
     --print ("Initialising Arena3 Frame")
     for i = 1, 2 do
         targetArena3Frame[i] = CreateFrame("FRAME", "", parent);
-        targetArena3Frame[i]:SetSize(size, size);
-        targetArena3Frame[i]:SetPoint("TOPLEFT", (i + 11) * size, -size * 6)                    -- row 7, column 12 & 13 [Arena1 Spell Casting Id]
+        targetArena3Frame[i]:SetSize(1, 1);
+        targetArena3Frame[i]:SetPoint("TOPLEFT", (i + 11), -6)                    -- row 7, column 12 & 13 [Arena1 Spell Casting Id]
         targetArena3Frame[i].t = targetArena3Frame[i]:CreateTexture()
         targetArena3Frame[i].t:SetColorTexture(0, 0, 0, alphaColor)
         targetArena3Frame[i].t:SetAllPoints(targetArena3Frame[i])
@@ -2003,8 +2023,8 @@ local function InitializeTwo()
 	i = 0
 	for _, buffId in pairs(buffs) do
 		buffFrames[buffId] = CreateFrame("frame","", parent)
-		buffFrames[buffId]:SetSize(size, size)
-		buffFrames[buffId]:SetPoint("TOPLEFT", i * size, -size * 7)                            -- row 8 [Player Buffs]
+		buffFrames[buffId]:SetSize(1, 1)
+		buffFrames[buffId]:SetPoint("TOPLEFT", i, -7)                            -- row 8 [Player Buffs]
 		buffFrames[buffId].t = buffFrames[buffId]:CreateTexture()        
 		buffFrames[buffId].t:SetColorTexture(1, 1, 1, alphaColor)
 		buffFrames[buffId].t:SetAllPoints(buffFrames[buffId])
@@ -2015,8 +2035,8 @@ local function InitializeTwo()
     i = 0
     for _, itemId in pairs(items) do    
         itemframes[itemId] = CreateFrame("frame","", parent)
-        itemframes[itemId]:SetSize(size, size)
-        itemframes[itemId]:SetPoint("TOPLEFT", i* size, -(size * 8))                           -- row 9 [Item Cooldowns]
+        itemframes[itemId]:SetSize(1, 1)
+        itemframes[itemId]:SetPoint("TOPLEFT", i, -(8))                           -- row 9 [Item Cooldowns]
         itemframes[itemId].t = itemframes[itemId]:CreateTexture()
         itemframes[itemId].t:SetColorTexture(1, 1, 1, alphaColor)
         itemframes[itemId].t:SetAllPoints(itemframes[itemId])
@@ -2029,8 +2049,8 @@ local function InitializeTwo()
 
 	for _, debuffId in pairs(debuffs) do
 		playerDebuffFrames[debuffId] = CreateFrame("frame","", parent)
-		playerDebuffFrames[debuffId]:SetSize(size, size)
-		playerDebuffFrames[debuffId]:SetPoint("TOPLEFT", i * size, -size * 10)                 -- row 11, column 1+ [Player Debuff Frames]
+		playerDebuffFrames[debuffId]:SetSize(1, 1)
+		playerDebuffFrames[debuffId]:SetPoint("TOPLEFT", i, -10)                 -- row 11, column 1+ [Player Debuff Frames]
 		playerDebuffFrames[debuffId].t = playerDebuffFrames[debuffId]:CreateTexture()        
 		playerDebuffFrames[debuffId].t:SetColorTexture(1, 1, 1, alphaColor)
 		playerDebuffFrames[debuffId].t:SetAllPoints(playerDebuffFrames[debuffId])
@@ -2044,8 +2064,8 @@ local function InitializeTwo()
     i = 0
     for _, spellId in pairs(cooldowns) do	
     	spellOverlayedFrames[spellId] = CreateFrame("frame","", parent)
-    	spellOverlayedFrames[spellId]:SetSize(size, size)
-    	spellOverlayedFrames[spellId]:SetPoint("TOPLEFT", i * size, -size * 11)    -- row 12, column 1+ [Spell IsOverlayed]
+    	spellOverlayedFrames[spellId]:SetSize(1, 1)
+    	spellOverlayedFrames[spellId]:SetPoint("TOPLEFT", i, -11)    -- row 12, column 1+ [Spell IsOverlayed]
     	spellOverlayedFrames[spellId].t = spellOverlayedFrames[spellId]:CreateTexture()        
     	spellOverlayedFrames[spellId].t:SetColorTexture(1, 1, 1, alphaColor)
     	spellOverlayedFrames[spellId].t:SetAllPoints(spellOverlayedFrames[spellId])
@@ -2058,8 +2078,8 @@ local function InitializeTwo()
 
 	for i = 1, 5 do
 		PlayerStatFrame[i] = CreateFrame("frame", "", parent)
-		PlayerStatFrame[i]:SetSize(size, size)
-		PlayerStatFrame[i]:SetPoint("TOPLEFT", (size * i), -size * 12 )   --  row 13,  column 2-6
+		PlayerStatFrame[i]:SetSize(1, 1)
+		PlayerStatFrame[i]:SetPoint("TOPLEFT", (i), -12 )   --  row 13,  column 2-6
 		PlayerStatFrame[i].t = PlayerStatFrame[i]:CreateTexture()        
 		PlayerStatFrame[i].t:SetColorTexture(1, 1, 1, alphaColor)
 		PlayerStatFrame[i].t:SetAllPoints(PlayerStatFrame[i])
@@ -2071,21 +2091,21 @@ local function InitializeTwo()
 		PlayerStatFrame[table.maxn (PlayerStatFrame)]:SetScript("OnEvent",Talents)
 
 	npcDetect.npcCountFrame = CreateFrame("frame", "", parent)
-	npcDetect.npcCountFrame:SetSize(size, size)
-	npcDetect.npcCountFrame:SetPoint("TOPLEFT", 0, -size *22 )   --  row 23 column 1
+	npcDetect.npcCountFrame:SetSize(1, 1)
+	npcDetect.npcCountFrame:SetPoint("TOPLEFT", 0, -22 )   --  row 23 column 1
 	npcDetect.npcCountFrame.t = npcDetect.npcCountFrame:CreateTexture()        
 	npcDetect.npcCountFrame.t:SetColorTexture(1, 1, 1, alphaColor)
 	npcDetect.npcCountFrame.t:SetAllPoints(npcDetect.npcCountFrame)
 	npcDetect.npcCountFrame:Show()
-	npcDetect.npcCountFrame:SetScript("OnUpdate",NameplateFrameUPDATE)
+	npcDetect.npcCountFrame:SetScript("OnUpdate", NameplateFrameUpdate)
 	
 	local groupType = IsInRaid() and "raid" or "party";
 	--print ("Initialising ".. groupType .." health frames")
 	i = 0	
 	for partyId = 1, 30 do	
 		PartyHealthFrames[partyId] = CreateFrame("frame","", parent)
-		PartyHealthFrames[partyId]:SetSize(size, size)
-		PartyHealthFrames[partyId]:SetPoint("TOPLEFT", i * size, -size * 13)                            -- row 14 [Party Health]
+		PartyHealthFrames[partyId]:SetSize(1, 1)
+		PartyHealthFrames[partyId]:SetPoint("TOPLEFT", i, -13)                            -- row 14 [Party Health]
 		PartyHealthFrames[partyId].t = PartyHealthFrames[partyId]:CreateTexture()        
 		PartyHealthFrames[partyId].t:SetColorTexture(0, 0, 0, alphaColor)
 		PartyHealthFrames[partyId].t:SetAllPoints(PartyHealthFrames[partyId])
