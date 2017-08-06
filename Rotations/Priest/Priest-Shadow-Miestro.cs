@@ -25,7 +25,6 @@ namespace Frozen.Rotation
         private const string POWER_WORD_SHIELD = "Power Word: Shield";
         private const string VOID_BOLT = "Void Bolt";
         private const string VOID_ERUPTION = "Void Eruption";
-        private const string SURRENDER_MADNESS = "Surrender to Madness";
         private const string SHADOW_DEATH = "Shadow Word: Death";
         private const string SHADOWFORM = "Shadowform";
         private const string SILENCE = "Silence";
@@ -59,8 +58,8 @@ namespace Frozen.Rotation
         {
             Log.Write("Welcome to Miestro's Shadow rotation", Color.Orange);
             Log.Write("Please make sure your specialization is as follows: http://us.battle.net/wow/en/tool/talent-calculator#Xba!0100000", Color.Orange);
-            Log.Write("Note: legendaries are not supported. If you need one supported or something fixed, please make note of it in the discord.",
-                Color.Orange);
+            Log.Write("Note: legendaries are not supported. If you need one supported or something fixed, please make note of it in the discord.", Color.Orange);
+            Log.Write("Needs talent 'Legacy of the void'");
         }
 
         public override void Stop()
@@ -135,8 +134,6 @@ namespace Frozen.Rotation
         /// </summary>
         private void doRotation()
         {
-            var ignoreMovement = WoW.PlayerHasBuff(SURRENDER_MADNESS);
-
             if (WoW.Insanity >= 70 || WoW.PlayerHasBuff(VOIDFORM_AURA))
             {
                 //Expend insanity in voidform.
@@ -150,7 +147,8 @@ namespace Frozen.Rotation
                     castWithRangeCheck(VOID_BOLT);
 
                     //Cast it.
-                    castWithRangeCheck(VOID_TORRENT, ignoreMovement);
+                    if (WoW.Level > 100)
+                        castWithRangeCheck(VOID_TORRENT);
 
                     //If the boss health is at or below our set threshold SW:D
                     if (WoW.TargetHealthPercent <= HEALTH_PERCENT_FOR_SWD)
@@ -259,26 +257,25 @@ AddonAuthor=Miestro
 AddonName=Frozen
 WoWVersion=Legion - 70200
 [SpellBook.db]
-Spell,589,Shadow Word: Pain,Q
-Spell,34914,Vampiric Touch,E
-Spell,205065,Void Torrent,G
-Spell,15407,Mind Flay,D1
-Spell,8092,Mind Blast,D2
-Spell,186263,Shadow Mend,D3
-Spell,17,Power Word: Shield,D4
-Spell,205448,Void Bolt,D5
-Spell,228260,Void Eruption,D5
+Spell,589,Shadow Word: Pain,E
+Spell,34914,Vampiric Touch,V
+Spell,205065,Void Torrent,
+Spell,15407,Mind Flay,Y
+Spell,8092,Mind Blast,T
+Spell,186263,Shadow Mend,W
+Spell,17,Power Word: Shield,S
+Spell,205448,Void Bolt,Z
+Spell,228260,Void Eruption,Z
 Spell,193223,Surrender to Madness,F
-Spell,32379,Shadow Word: Death,D6
-Spell,34433,Shadowfiend,D7
-Spell,232698,Shadowform,D0
-Spell,15487,Silence,R
-Spell,47585,Dispersion,T
+Spell,32379,Shadow Word: Death,H
+Spell,34433,Shadowfiend,D6
+Spell,232698,Shadowform,B
+Spell,15487,Silence,D2
+Spell,47585,Dispersion,None
 Aura,232698,Shadowform
 Aura,34914,Vampiric Touch
 Aura,589,Shadow Word: Pain
 Aura,197937,Lingering Insanity
 Aura,194249,Voidform
-Aura,193223,Surrender to Madness
 Aura,17,Power Word: Shield
 */

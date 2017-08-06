@@ -881,19 +881,6 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Moonfire");
                         return;
                     }
-                    //if (LunarInspiration && WoW.IsSpellInRange("Moonfire") && WoW.CanCast("Moonfire") && WoW.Energy >= 30)
-                    //{
-                    //    if (WoW.CurrentComboPoints < 5 && WoW.TargetDebuffTimeRemaining("Moonfire") <= 4.2)
-                    //    {
-                    //        WoW.CastSpell("Moonfire");
-                    //        return;
-                    //    }
-                    //    if (WoW.CurrentComboPoints < 5 && !WoW.TargetHasDebuff("Moonfire"))
-                    //    {
-                    //        WoW.CastSpell("Moonfire");
-                    //        return;
-                    //    }
-                    //}
                     if (BrutalSlash && WoW.IsSpellInRange("Rake") && WoW.CanCast("BrutalSlash") && WoW.PlayerSpellCharges("BrutalSlash") == 3 &&
                         WoW.Energy >= 20)
                     {

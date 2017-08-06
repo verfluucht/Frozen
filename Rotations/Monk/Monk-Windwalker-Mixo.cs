@@ -409,7 +409,7 @@ namespace Frozen.Rotation
                     !WoW.TargetHasDebuff("TouchOfDeath"))
                 {
                     //Strike Of The Windlord
-                    if (WoW.CanCast("StrikeOfTheWindlord") && WoW.IsSpellInRange("TigerPalm"))
+                    if (WoW.CanCast("StrikeOfTheWindlord") && WoW.IsSpellInRange("TigerPalm") && WoW.Level > 100)
                     {
                         WoW.CastSpell("StrikeOfTheWindlord");
                         HitCombo = "StrikeOfTheWindlord";
@@ -467,7 +467,7 @@ namespace Frozen.Rotation
                     }
 
                     //Strike Of The Windlord
-                    if (WoW.CanCast("StrikeOfTheWindlord") && WoW.IsSpellInRange("TigerPalm") && WoW.CurrentChi >= 2)
+                    if (WoW.CanCast("StrikeOfTheWindlord") && WoW.IsSpellInRange("TigerPalm") && WoW.CurrentChi >= 2 && WoW.Level > 100)
                     {
                         WoW.CastSpell("StrikeOfTheWindlord");
                         HitCombo = "StrikeOfTheWindlord";
@@ -697,20 +697,20 @@ AddonAuthor=Mixo
 AddonName=Frozen
 WoWVersion=Legion - 70200
 [SpellBook.db]
-Spell,115080,TouchOfDeath,G
-Spell,113656,FistsOfFury,F3
-Spell,205320,StrikeOfTheWindlord,F6
-Spell,100780,TigerPalm,F1
-Spell,107428,RisingSunKick,F4
-Spell,115098,ChiWave,F5
-Spell,100784,BlackoutKick,F2
-Spell,101546,SpinningCraneKick,V
-Spell,152173,Serenity,T
-Spell,115288,EnergizingElixir,C
-Spell,152175,WhirlingDragonPunch,F7
-Spell,137639,SEF,T
-Spell,221771,SEF:Fix,T
-Spell,117952,CracklingJadeLightning,F11
+Spell,115080,TouchOfDeath,F
+Spell,113656,FistsOfFury,B
+Spell,205320,StrikeOfTheWindlord,None
+Spell,100780,TigerPalm,T
+Spell,107428,RisingSunKick,V
+Spell,115098,ChiWave,D3
+Spell,100784,BlackoutKick,Y
+Spell,101546,SpinningCraneKick,D5
+Spell,152173,Serenity,A
+Spell,115288,EnergizingElixir,D8
+Spell,152175,WhirlingDragonPunch,A
+Spell,137639,SEF,None
+Spell,221771,SEF:Fix,None
+Spell,117952,CracklingJadeLightning,D6
 Spell,0,StopCasting,S
 Aura,152173,Serenity
 Aura,116768,BlackoutKick!

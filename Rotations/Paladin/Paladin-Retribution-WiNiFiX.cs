@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Frozen.Helpers;
@@ -114,7 +114,7 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=WiNiFiX
-AddonName=RGB
+AddonName=Frozen
 WoWVersion=Legion - 70200
 [SpellBook.db]
 Spell,35395,Crusader Strike,Y
