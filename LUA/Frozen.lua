@@ -1587,8 +1587,12 @@ local function updatePartyHealth()
 				percHealth = ceil((health / maxHealth) * 100)
 				needToDispel = needsDispel(groupType .. (partyId - 1))	
 								
-				local minRange, maxRange = rc:GetRange(groupType .. (partyId - 1))
-				
+				local minRange, maxRange = rc:GetRange(groupType .. (partyId - 1))				
+
+				if (maxRange == nil) then
+					maxRange = 41
+				end
+
 				if UnitIsDead(groupType .. (partyId - 1)) or 
 				   UnitIsGhost(groupType .. (partyId - 1)) or 
 				   UnitIsConnected(groupType .. (partyId - 1)) == false or 
@@ -1607,6 +1611,10 @@ local function updatePartyHealth()
 			needToDispel = needsDispel(groupType .. partyId)	
 		
 			local minRange, maxRange = rc:GetRange(groupType .. partyId)
+
+			if (maxRange == nil) then
+				maxRange = 41
+			end
 
 			if UnitIsDead(groupType .. partyId) or 
 			   UnitIsGhost(groupType .. partyId) or 
