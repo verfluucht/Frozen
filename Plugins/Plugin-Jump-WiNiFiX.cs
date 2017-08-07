@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using Frozen.Helpers;
 
@@ -24,11 +25,11 @@ namespace Frozen.Plugins
 
         public override void Pulse()
         {
-            if (jumpInterval.ElapsedMilliseconds >= 5000)
-            {
-                WoW.KeyPressRelease(WoW.Keys.Space);
-                jumpInterval.Restart();
-            }
+            if (jumpInterval.ElapsedMilliseconds < 5000 + random.Next(5000, 20000) || WoW.PlayerIsCasting || WoW.PlayerIsChanneling) return;
+
+            Log.Write("Jumping is so much fun...", Color.Aqua);
+            WoW.KeyPressRelease(WoW.Keys.Space);
+            jumpInterval.Restart();
         }
     }
 }
