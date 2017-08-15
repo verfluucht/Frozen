@@ -244,13 +244,14 @@ namespace Frozen.Rotation
             if (ConfigFile.ReadValue("Hunter", "Potion Percent") == "")
                 ConfigFile.WriteValue("Hunter", "Potion Percent", "30");
 
-            SettingsForm = new Form
+            SettingsForm = new DevExpress.XtraEditors.XtraForm
             {
                 Text = "Beast Mastery Hunter",
                 StartPosition = FormStartPosition.CenterScreen,
                 Width = 400,
-                Height = 650,
-                ShowIcon = false
+                Height = 550,
+                ShowIcon = false,
+                LookAndFeel = { SkinName = "Money Twins", UseDefaultLookAndFeel = false }
             };
 
             nudAspectoftheTurtlePercentValue = new NumericUpDown
@@ -524,28 +525,24 @@ namespace Frozen.Rotation
             };
 
             SettingsForm.Controls.Add(lblRacialsBox);
-
-
+            
             var cmdSave = new Button
             {
                 Text = "Save",
                 Width = 65,
                 Height = 25,
-                Left = 5,
-                Top = 520,
-                Size = new Size(120, 31)
+                Left = 300,
+                Top = 480
             };
 
             var cmdReadme = new Button
             {
-                Text = "Macros! Use Them",
+                Text = "Macros",
                 Width = 65,
                 Height = 25,
-                Left = 125,
-                Top = 520,
-                Size = new Size(120, 31)
+                Left = 230,
+                Top = 480
             };
-
 
             //items
             KilJaedenBox = new CheckBox
