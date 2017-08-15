@@ -854,7 +854,7 @@ namespace Frozen.Rotation
                 return;
             }
 
-            if (WoW.PlayerSpec == "Beast Mastery")
+            if (WoW.PlayerClassSpec == "Hunter-BeastMastery")
             {
                 if (!WoW.HasPet && WoW.CanCast("Wolf"))
                 {
@@ -897,7 +897,7 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Counter Shot");
                         return;
                     }
-                    if (WoW.CanCast("Intimidation") && WoW.Level >= 32 && WoW.PlayerSpec == "BeastMastery"
+                    if (WoW.CanCast("Intimidation") && WoW.Level >= 32 && WoW.PlayerClassSpec == "Hunter-BeastMastery"
                         && Intimidation
                         && WoW.TargetIsCastingAndSpellIsInterruptible
                         && WoW.TargetPercentCast <= ConfigFile.ReadValue<int>("Hunter", "Intimidation Percent")

@@ -47,7 +47,7 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Greater Blessing of Wisdom");
                         return;
                     }
-                //Log.Write("Player Spec: " + WoW.PlayerSpec);
+                //Log.Write("Player Spec: " + WoW.PlayerClassSpec);
                 //Log.Write("Player Race: " + WoW.PlayerRace);
                 Log.Write("Rotation On: " + WoW.RotationOn);
             }

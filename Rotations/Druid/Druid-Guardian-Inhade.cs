@@ -16,7 +16,6 @@ using Timer = System.Timers.Timer;
 
 #pragma warning disable 1998
 
-
 namespace Frozen.Rotation
 {
     public class Guardian : CombatRoutine
@@ -1613,7 +1612,7 @@ namespace Frozen.Rotation
             DPSBurstKeyCombo.Name = "DPSBurstKeyCombo";
             DPSBurstKeyCombo.Size = new Size(87, 21);
             DPSBurstKeyCombo.TabIndex = 5;
-            DPSBurstKeyCombo.DataSource = Enum.GetValues(typeof(WoW.Keys));
+            DPSBurstKeyCombo.DataSource = Enum.GetValues(typeof(Keys));
             DPSBurstKeyCombo.SelectedIndex = DPSBurstKeyCombo.FindStringExact(DPSBurstKey);
             DPSBurstKeyCombo.SelectedIndexChanged += DPSBurstKeyCombo_SelectedIndexChanged;
             // 
@@ -1635,7 +1634,7 @@ namespace Frozen.Rotation
             CoolDownKeyCombo.Name = "CoolDownKeyCombo";
             CoolDownKeyCombo.Size = new Size(87, 21);
             CoolDownKeyCombo.TabIndex = 3;
-            CoolDownKeyCombo.DataSource = Enum.GetValues(typeof(WoW.Keys));
+            CoolDownKeyCombo.DataSource = Enum.GetValues(typeof(Keys));
             CoolDownKeyCombo.SelectedIndex = CoolDownKeyCombo.FindStringExact(CoolDownKey);
             CoolDownKeyCombo.SelectedIndexChanged += CoolDownKeyCombo_SelectedIndexChanged;
             // 
@@ -1681,7 +1680,7 @@ namespace Frozen.Rotation
             MitigationKeyCombo.Name = "MitigationKeyCombo";
             MitigationKeyCombo.Size = new Size(87, 21);
             MitigationKeyCombo.TabIndex = 8;
-            MitigationKeyCombo.DataSource = Enum.GetValues(typeof(WoW.Keys));
+            MitigationKeyCombo.DataSource = Enum.GetValues(typeof(Keys));
             MitigationKeyCombo.SelectedIndex = MitigationKeyCombo.FindStringExact(MitigationKey);
             MitigationKeyCombo.SelectedIndexChanged += MitigationKeyCombo_SelectedIndexChanged;
             // 
@@ -2340,7 +2339,7 @@ namespace Frozen.Rotation
         private void MitigationKeyCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             MitigationKey = Convert.ToString(MitigationKeyCombo.SelectedItem);
-            MitKey = (int) Enum.Parse(typeof(WoW.Keys), MitigationKey);
+            MitKey = (int) Enum.Parse(typeof(Keys), MitigationKey);
         }
 
         private void MitigationModCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -2352,7 +2351,7 @@ namespace Frozen.Rotation
         private void DPSBurstKeyCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             DPSBurstKey = Convert.ToString(DPSBurstKeyCombo.SelectedItem);
-            DPSKey = (int) Enum.Parse(typeof(WoW.Keys), DPSBurstKey);
+            DPSKey = (int) Enum.Parse(typeof(Keys), DPSBurstKey);
         }
 
         private void DPSBurstModCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -2364,7 +2363,7 @@ namespace Frozen.Rotation
         private void CoolDownKeyCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             CoolDownKey = Convert.ToString(CoolDownKeyCombo.SelectedItem);
-            CoolKey = (int) Enum.Parse(typeof(WoW.Keys), CoolDownKey);
+            CoolKey = (int) Enum.Parse(typeof(Keys), CoolDownKey);
         }
 
         private void CoolDownModCombo_SelectedIndexChanged(object sender, EventArgs e)

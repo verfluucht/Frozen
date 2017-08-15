@@ -36,7 +36,8 @@ namespace Frozen.Rotation
         public override void Pulse()
         {
             if (WoW.HealthPercent == 0 || WoW.IsMounted) return;
-            if (!WoW.IsInCombat && WoW.CanCast("Mount") && WoW.IsOutdoors && !WoW.IsMoving && !WoW.PlayerIsChanneling) 
+            if (!WoW.IsInCombat && WoW.CanCast("Mount") && WoW.IsOutdoors && !WoW.IsMoving && !WoW.PlayerIsChanneling &&
+                ConfigFile.ReadValue<bool>("Protection-Paladin-WiNiFiX", "AutoMount"))
                 WoW.CastSpell("Mount");
 
             if (WoW.TargetHealthPercent == 0) return;

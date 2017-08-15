@@ -19,7 +19,7 @@ namespace Frozen.Rotation
         {
             Log.DrawHorizontalLine();
             Log.WriteFrozen("Welcome to Frozen Demon Hunter", Color.Black);
-            Log.Write("Spec: " + WoW.PlayerSpec);
+            Log.Write("Spec: " + WoW.PlayerClassSpec);
         }
 
         public override void Stop()

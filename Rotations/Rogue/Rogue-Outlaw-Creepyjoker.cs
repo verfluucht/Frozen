@@ -23,24 +23,6 @@ namespace Frozen.Rotation
             }
         }
 
-        public static int rtbCount
-        {
-            get
-            {
-                var rtb = 0;
-                for (var x = 1; x <= 6; x++)
-                {
-                    var c = WoW.GetPixelColor(5 + x, 3);
-                    var e = WoW.GetPixelColor(5 + 5, 3);
-                    if (e.R != 255 && e.G != 255 && e.B != 255)
-                        rtb = 2;
-                    if (c.R != 255 && c.G != 255 && c.B != 255)
-                        rtb++;
-                }
-                return rtb;
-            }
-        }
-
         public override string Name => "Rogue-Outlaw";
 
         public override string Class => "Rogue";

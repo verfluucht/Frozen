@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Frozen.Helpers;
+#pragma warning disable 168
+#pragma warning disable 169
 
 namespace Frozen.Rotation.DKFrost
 {
@@ -708,7 +710,7 @@ namespace Frozen.Rotation.DKFrost
         /// <summary>
         ///     Required designer variable.
         /// </summary>
-        private IContainer components = null;
+        //private IContainer components = null;
 
         public ListBox spellList;
         public TextBox spellText;
