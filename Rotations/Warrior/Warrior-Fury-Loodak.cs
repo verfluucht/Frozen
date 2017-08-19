@@ -295,7 +295,7 @@ namespace Frozen.Rotation
                         return;
                     }
                 }
-            if (combatRoutine.Type == RotationType.SingleTargetCleave) // Do AOE Stuff here     
+            if (combatRoutine.Type == RotationType.Cleave) // Do AOE Stuff here     
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Bloodthirst"))
                 {
                     if (WoW.CanCast("DragonRoar") && !WoW.PlayerHasBuff("DragonRoarBuff")) //cooldown.battle_cry.remains<1|cooldown.battle_cry.remains>10

@@ -110,7 +110,7 @@ namespace Frozen.Rotation
 
                     //Against 2 or more
                     case RotationType.AOE:
-                    case RotationType.SingleTargetCleave:
+                    case RotationType.Cleave:
                         doRotation();
                         break;
                 }

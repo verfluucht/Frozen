@@ -2989,7 +2989,7 @@ namespace Frozen.Rotation
 
                     break;
 
-                case RotationType.SingleTargetCleave:
+                case RotationType.Cleave:
 
                     if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy)
                     {

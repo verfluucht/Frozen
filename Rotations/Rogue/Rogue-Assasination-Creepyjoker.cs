@@ -170,7 +170,7 @@ namespace Frozen.Rotation
                     }
 
 
-                if (combatRoutine.Type == RotationType.AOE || combatRoutine.Type == RotationType.SingleTargetCleave) // Do AoE Target Stuff here
+                if (combatRoutine.Type == RotationType.AOE || combatRoutine.Type == RotationType.Cleave) // Do AoE Target Stuff here
                 {
                     if (WoW.HasTarget && WoW.IsSpellInRange("Rupture") && WoW.IsInCombat)
                     {

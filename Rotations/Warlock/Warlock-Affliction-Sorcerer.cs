@@ -160,7 +160,7 @@ namespace Frozen.Rotation
                         return;
                     }
                 }
-            if (combatRoutine.Type == RotationType.SingleTargetCleave)
+            if (combatRoutine.Type == RotationType.Cleave)
             {
                 // Do Single Target Cleave stuff here if applicable else ignore this one
             }
@@ -180,7 +180,7 @@ namespace Frozen.Rotation
             if (count >= aoe)
                 combatRoutine.ChangeType(RotationType.AOE);
             if (count == cleave)
-                combatRoutine.ChangeType(RotationType.SingleTargetCleave);
+                combatRoutine.ChangeType(RotationType.Cleave);
             if (count <= single)
                 combatRoutine.ChangeType(RotationType.SingleTarget);
         }

@@ -510,7 +510,7 @@ namespace Frozen.Rotation.DKFrost
             if (combatRoutine.UseCooldowns && IsCheckHotkeysFrostOffensiveErW && isMelee && currentRunes == 0 && WoW.PlayerHasBuff("PillarofFrost") &&
                 !WoW.IsSpellOnCooldown("Empower Rune"))
                 WoW.CastSpell("Empower Rune");
-            if (combatRoutine.Type == RotationType.SingleTarget || combatRoutine.Type == RotationType.SingleTargetCleave) // Do Single Target Stuff here
+            if (combatRoutine.Type == RotationType.SingleTarget || combatRoutine.Type == RotationType.Cleave) // Do Single Target Stuff here
             {
                 if (CanCastInRange("Frost Strike") && (!WoW.PlayerHasBuff("Icy Talons") || WoW.PlayerBuffTimeRemaining("Icy Talons") <= 2) &&
                     runicPower >= 25 &&

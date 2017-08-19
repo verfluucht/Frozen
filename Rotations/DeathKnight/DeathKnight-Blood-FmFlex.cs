@@ -200,7 +200,7 @@ namespace Frozen.Rotation.DKBlood
             bonesStack = WoW.PlayerBuffStacks("Bone Shield");
             currentRunes = WoW.CurrentRunes;
             runicPower = WoW.RunicPower;
-            if (combatRoutine.Type == RotationType.SingleTarget || combatRoutine.Type == RotationType.SingleTargetCleave) // Do Single Target Stuff here
+            if (combatRoutine.Type == RotationType.SingleTarget || combatRoutine.Type == RotationType.Cleave) // Do Single Target Stuff here
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsChanneling && !WoW.PlayerIsCasting && WoW.TargetIsVisible)
                 {
                     if (IsCDDefEnable)

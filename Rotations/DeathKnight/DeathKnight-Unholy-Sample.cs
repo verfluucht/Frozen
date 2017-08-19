@@ -59,7 +59,7 @@ namespace Frozen.Rotation
             {
                 // Do AOE stuff here
             }
-            if (combatRoutine.Type == RotationType.SingleTargetCleave)
+            if (combatRoutine.Type == RotationType.Cleave)
             {
                 // Do Single Target Cleave stuff here if applicable else ignore this one
             }

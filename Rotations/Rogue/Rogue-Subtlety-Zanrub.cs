@@ -104,7 +104,7 @@ namespace Frozen.Rotation
                     }
                 }
 
-            if (combatRoutine.Type == RotationType.AOE || combatRoutine.Type == RotationType.SingleTargetCleave) // Do AoE Target Stuff here
+            if (combatRoutine.Type == RotationType.AOE || combatRoutine.Type == RotationType.Cleave) // Do AoE Target Stuff here
                 if ((WoW.HasTarget || UseCooldowns) && WoW.TargetIsEnemy && WoW.IsInCombat)
                 {
                     if (WoW.PlayerHasBuff("Stealth") || WoW.PlayerHasBuff("Subterfuge") || WoW.PlayerHasBuff("Shadow Dance"))
