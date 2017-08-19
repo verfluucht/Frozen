@@ -23,21 +23,17 @@ For a sample rotations see below<br>
 - Legion
 
 **Sample screenshots**<br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/Demo.png)
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/1.png)
 <br>
-**Sample ingame screenshot of the addon in action**
 <br>
-![Alt Text](http://i.imgur.com/4Afi2pp.jpg)
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/2.png)
 <br>
-**Sample recount from Unholy DK in Legion**
+**Sample recount from Routine**
 <br>
-![Alt Text](http://i.imgur.com/xicfSBl.jpg)
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/4.png)
 
-**Sample Keybindings in-game** (for Unholy DeathKnight)<br>
-![Alt Text](http://i.imgur.com/3Szujlv.jpg)
-
-**How to setup your spellbook** (sample for basic Unholy DeathKnight)<br>
-![Alt Text](http://i.imgur.com/T281wlY.png)
+**How to setup your Keybinds to Spells**<br>
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/3.png)
 
 ---
 
