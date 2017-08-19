@@ -69,7 +69,7 @@ namespace Frozen.Rotation
 
         public override void Stop()
         {
-			Log.Write("Do you have to go? :(");
+            Log.Write("Do you have to go? :(");
         }
 
         public override void Pulse()
@@ -84,7 +84,7 @@ namespace Frozen.Rotation
 
             if (UseCooldowns)
             {
-				// Do awesome CD stuff here
+			    // Do awesome CD stuff here
             }
 
             if (combatRoutine.Type != RotationType.SingleTarget && combatRoutine.Type != RotationType.AOE) return;
