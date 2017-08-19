@@ -23,20 +23,14 @@ For a sample rotations see below<br>
 - Legion
 
 **Sample screenshots**<br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/1.png)
 <br>
-<br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/2.png)
-<br>
-**Sample recount from Routine**
-<br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/4.png)
-
-**How to setup your Keybinds to Spells**<br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/3.png)
-
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/1.png)<br><br>
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/2.png)<br><br>
+**Sample recount from Routine**<br><br>
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/4.png)<br><br>
+**How to setup your Keybinds to Spells**<br><br>
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/3.png)<br><br>
 ---
-
 **License Agreement**<br>
 The software is provided "as is", without warranty of any kind, express or implied, including<br>
 but not limited to the warranties of merchantability, fitness for a particular purpose and<br>
