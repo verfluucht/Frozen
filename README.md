@@ -1,6 +1,6 @@
 # Frozen - where color unlocks the World of Warcraft
-.
-Developer and copyright owner: WiNiFiX<br>
+
+**Developer and copyright owner: WiNiFiX**<br>
 Project started in: January 2016<br>
 Project considered complete and ready for beta testing on: 2016.07.29<br>
 
@@ -10,8 +10,7 @@ For those of you whom don't know how to compile the source and run it you can do
 the application "Frozen.exe"<br>
 
 **Sample Rotations:**<br>
-For a sample rotation which shows you how to create custom configuration screens for your rotation look at the Warrior.cs<br>
-rotation file.
+For a sample rotations see below<br>
 
 ---
 
@@ -24,7 +23,7 @@ rotation file.
 - Legion
 
 **Sample screenshots**<br>
-![Alt Text](http://i.imgur.com/oLkqrRF.png)
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/Demo.png)
 <br>
 **Sample ingame screenshot of the addon in action**
 <br>
