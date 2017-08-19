@@ -23,13 +23,12 @@ For a sample rotations see below<br>
 - Legion
 
 **Sample screenshots**<br>
-<br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/1.png)<br><br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/2.png)<br><br>
-**Sample recount from Routine**<br><br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/4.png)<br><br>
-**How to setup your Keybinds to Spells**<br><br>
-![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/3.png)<br><br>
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/1.png)<br>
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/2.png)<br>
+**Sample recount from Routine**<br>
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/4.png)<br>
+**How to setup your Keybinds to Spells**<br>
+![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/3.png)<br>
 ---
 **License Agreement**<br>
 The software is provided "as is", without warranty of any kind, express or implied, including<br>
@@ -42,9 +41,6 @@ Anyone using / copying any part of the software must include this license<br>
 
 **Sample Combat Routine**<br>
 ```javascript
-// winifix@gmail.com
-// ReSharper disable UnusedMember.Global
-
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -52,11 +48,11 @@ using Frozen.Helpers;
 
 namespace Frozen.Rotation
 {
-    public class DemonHunterVeng : CombatRoutine
+    public class DemonHunterVengeance : CombatRoutine
     {
         private readonly Stopwatch interruptwatch = new Stopwatch();
 
-        public override string Name => "Frozen DemonHunter";
+        public override string Name => "DemonHunter Vengeance";
 
         public override string Class => "DemonHunter";
 
@@ -65,11 +61,12 @@ namespace Frozen.Rotation
         public override void Initialize()
         {
             Log.DrawHorizontalLine();
-            Log.WriteFrozen("Welcome to Frozen Demon Hunter", Color.Black);
+            Log.WriteFrozen("Welcome to Frozen Demon Hunter Vengeance", Color.Black);
         }
 
         public override void Stop()
         {
+			Log.Write("Do you have to go? :(");
         }
 
         public override void Pulse()
@@ -84,6 +81,7 @@ namespace Frozen.Rotation
 
             if (UseCooldowns)
             {
+				// Do awesome CD stuff here
             }
 
             if (combatRoutine.Type != RotationType.SingleTarget && combatRoutine.Type != RotationType.AOE) return;
@@ -217,6 +215,5 @@ Aura,207472,Magnum Opus
 Aura,187827,Metamorphasis
 Aura,204598,Sigil of Flame
 Aura,203981,Soul Fragments
-Item,80610,Mana
 */
 ```
