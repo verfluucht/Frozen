@@ -22,12 +22,15 @@ For a sample rotations see below<br>
 - Warlords of Dreanor
 - Legion
 
-**Sample screenshots**<br>
+**Sample screenshots**
+<br>
 ![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/1.png)<br>
 ![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/2.png)<br>
-**Sample recount from Routine**<br>
+**Sample recount from Routine**
+<br>
 ![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/4.png)<br>
-**How to setup your Keybinds to Spells**<br>
+**How to setup your Keybinds to Spells**
+<br>
 ![Alt Text](https://raw.githubusercontent.com/winifix/Frozen/master/img/3.png)<br>
 ---
 **License Agreement**<br>
