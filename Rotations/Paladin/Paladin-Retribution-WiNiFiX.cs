@@ -54,6 +54,11 @@ namespace Frozen.Rotation
 
             if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
 
+            if (WoW.CanCast("Shield of Vengeance"))
+            {
+                WoW.CastSpell("Shield of Vengeance");  // Off the GCD no return needed
+            }
+
             if (WoW.CanCast("Judgment") && WoW.UnitPower >= 5)
             {
                 WoW.CastSpell("Judgment");
@@ -84,11 +89,17 @@ namespace Frozen.Rotation
                 return;
             }
 
-            if (WoW.CanCast("Templars Verdict") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment"))
+            if (WoW.CanCast("Divine Storm") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment"))
             {
-                WoW.CastSpell("Templars Verdict");
+                WoW.CastSpell("Divine Storm");
                 return;
             }
+
+            //if (WoW.CanCast("Templars Verdict") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment"))
+            //{
+            //    WoW.CastSpell("Templars Verdict");
+            //    return;
+            //}
 
             if (WoW.CanCast("Blade of Justice") && WoW.UnitPower <= 3
             ) // Higher Priority because it can generate 2 holy power in 1 go
@@ -127,6 +138,8 @@ Spell,231895,Crusade,E
 Spell,205273,Wake of Ashes,D7
 Spell,203538,Greater Blessing of Kings,D9
 Spell,203539,Greater Blessing of Wisdom,D0
+Spell,53385,Divine Storm,D5
+Spell,184662,Shield of Vengeance,S
 Aura,197277,Judgment
 Aura,213757,Execution Sentence
 Aura,203538,Greater Blessing of Kings
