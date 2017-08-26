@@ -172,6 +172,11 @@ namespace Frozen.Rotation
             }
             if ((combatRoutine.Type == RotationType.AOE) || (combatRoutine.Type == RotationType.Cleave))
             {
+                if (WoW.CanCast("OdynsFury") && WoW.IsSpellInRange("OdynsFury") && (WoW.PlayerHasBuff("BattleCry") || WoW.HealthPercent < 10))
+                {
+                    WoW.CastSpell("OdynsFury");
+                    return;
+                }
                 if (!WoW.PlayerHasBuff("Meat-Cleaver"))
                 {
                     WoW.CastSpell("Whirlwind");
@@ -187,11 +192,7 @@ namespace Frozen.Rotation
                     WoW.CastSpell("Bloodthirst");
                     return;
                 }
-                if (WoW.CanCast("OdynsFury") && WoW.IsSpellInRange("OdynsFury") && (WoW.PlayerHasBuff("BattleCry") || WoW.HealthPercent < 10))
-                {
-                    WoW.CastSpell("OdynsFury");
-                    return;
-                }
+
                 if (WoW.CanCast("Bloodthirst") && WoW.IsSpellInRange("Bloodthirst") && WoW.PlayerHasBuff("Meat-Cleaver"))
                 {
                     WoW.CastSpell("Bloodthirst");
@@ -229,7 +230,7 @@ Spell,184364,Enraged Regeneration,D8
 Spell,97642,Commanding Shout,D9
 Spell,18499,Berserker Rage,D0
 Spell,6552,Pummel,Y
-Spell,59752,Every Man For Himself,=
+Spell,59752,Every Man For Himself,U
 Spell,1719,BattleCry,R
 Spell,107574,Avatar,T
 Aura,184364,Enraged Regeneration
@@ -238,7 +239,7 @@ Aura,184362,Enrage
 Aura,215572,Frothing Berserker
 Aura,215560,Wrecking Ball
 Aura,238574,Stunned
-Aura,205398,Fear
+Aura,118699,Fear
 Aura,186305,Mount
 Aura,85739,Meat-Cleaver
 */
