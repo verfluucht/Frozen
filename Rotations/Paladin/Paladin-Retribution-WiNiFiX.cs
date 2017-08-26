@@ -32,7 +32,94 @@ namespace Frozen.Rotation
 
         public override void Pulse()
         {
-            Log.Write("Power: " + WoW.UnitPower);            
+            if (!WoW.HasTarget || WoW.TargetIsFriend)
+            {
+                //Log.Write(WoW.CountEnemyNPCsInRange.ToString());
+
+                if (!WoW.PlayerHasBuff("Greater Blessing of Kings"))
+                    if (WoW.CanCast("Greater Blessing of Kings"))
+                    {
+                        WoW.CastSpell("Greater Blessing of Kings");
+                        return;
+                    }
+
+                if (!WoW.PlayerHasBuff("Greater Blessing of Wisdom"))
+                    if (WoW.CanCast("Greater Blessing of Wisdom"))
+                    {
+                        WoW.CastSpell("Greater Blessing of Wisdom");
+                        return;
+                    }
+                //Log.Write("Player Spec: " + WoW.PlayerClassSpec);
+                //Log.Write("Player Race: " + WoW.PlayerRace);
+                Log.Write("Rotation On: " + WoW.RotationOn);
+            }
+
+            if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
+
+            if (WoW.CanCast("Shield of Vengeance"))
+            {
+                WoW.CastSpell("Shield of Vengeance");  // Off the GCD no return needed
+            }
+
+            if (WoW.CanCast("Judgment") && WoW.UnitPower >= 5)
+            {
+                WoW.CastSpell("Judgment");
+                return;
+            }
+
+            if (WoW.UnitPower == 0 && WoW.CanCast("Wake of Ashes"))
+            {
+                WoW.CastSpell("Wake of Ashes");
+                return;
+            }
+
+            if (WoW.CanCast("Crusade") && WoW.UnitPower >= 5 && WoW.TargetHasDebuff("Judgment"))
+            {
+                WoW.CastSpell("Crusade");
+                return;
+            }
+
+            //if (WoW.CanCast("Avenging Wrath") && WoW.UnitPower >= 5 && WoW.TargetHasDebuff("Judgment")) {
+            //    WoW.CastSpell("Avenging Wrath");
+            //    return;
+            //}
+
+            if (WoW.CanCast("Execution Sentence") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment") &&
+                !WoW.TargetHasDebuff("Execution Sentence"))
+            {
+                WoW.CastSpell("Execution Sentence");
+                return;
+            }
+
+            if (WoW.CanCast("Divine Storm") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment"))
+            {
+                WoW.CastSpell("Divine Storm");
+                return;
+            }
+
+            //if (WoW.CanCast("Templars Verdict") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment"))
+            //{
+            //    WoW.CastSpell("Templars Verdict");
+            //    return;
+            //}
+
+            if (WoW.CanCast("Blade of Justice") && WoW.UnitPower <= 3
+            ) // Higher Priority because it can generate 2 holy power in 1 go
+            {
+                WoW.CastSpell("Blade of Justice");
+                return;
+            }
+
+            if (WoW.CanCast("Crusader Strike") && WoW.UnitPower < 5 && WoW.PlayerSpellCharges("Crusader Strike") >= 0)
+            {
+                WoW.CastSpell("Crusader Strike");
+                return;
+            }
+
+            if (WoW.CanCast("Blade of Justice"))
+            {
+                WoW.CastSpell("Blade of Justice");
+            }
         }
     }
 }
