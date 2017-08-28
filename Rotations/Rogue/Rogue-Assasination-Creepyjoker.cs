@@ -221,8 +221,8 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=CreepyJoker
-AddonName=Sucstobeyou
-WoWVersion=Legion - 70200
+AddonName=Frozen
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,1943,Rupture,D2
 Spell,79140,Vendetta,D5

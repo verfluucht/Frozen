@@ -174,7 +174,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Toomicek
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]  
 Spell,188389,Flame Shock,D3
 Spell,108271,Astral Shift,D6

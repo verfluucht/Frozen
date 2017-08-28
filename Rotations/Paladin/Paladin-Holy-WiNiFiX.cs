@@ -193,7 +193,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=WiNiFiX
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,34767,Mount,D4
 Spell,20473,Holy Shock,H

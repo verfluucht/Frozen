@@ -393,7 +393,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Loodak
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,23881,Bloodthirst,Y
 Spell,85288,Raging Blow,B

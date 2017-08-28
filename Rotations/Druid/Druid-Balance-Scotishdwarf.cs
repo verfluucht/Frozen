@@ -1817,7 +1817,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Scotishdwarf
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,8921,Moonfire,D4
 Spell,93402,Sunfire,F8

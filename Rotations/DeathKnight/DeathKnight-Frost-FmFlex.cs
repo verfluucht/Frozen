@@ -1083,7 +1083,7 @@ namespace Frozen.Rotation.DKFrost
 [AddonDetails.db]
 AddonAuthor=FmFlex
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,49143,Frost Strike,D1
 Spell,207230,Frostscythe,D2

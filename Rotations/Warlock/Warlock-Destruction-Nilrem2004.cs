@@ -192,7 +192,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Nilrem
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,29722,Incinerate,D1
 Spell,348,Immolate,D3

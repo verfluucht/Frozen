@@ -137,7 +137,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=WiNiFiX
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,206491,Nemesis,D1
 Spell,191427,Metamorphosis,A

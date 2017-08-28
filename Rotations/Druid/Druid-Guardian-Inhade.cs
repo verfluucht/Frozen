@@ -3414,8 +3414,8 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Inhade
-AddonName=HaloWars
-WoWVersion=Legion - 70200
+AddonName=Frozen
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,22812,Barkskin,Add
 Spell,20484,Rebirth,F1

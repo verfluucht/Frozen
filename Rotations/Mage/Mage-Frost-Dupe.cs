@@ -154,7 +154,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Dupe
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,116,Frostbolt,D1
 Spell,84714,Frozen Orb,D6

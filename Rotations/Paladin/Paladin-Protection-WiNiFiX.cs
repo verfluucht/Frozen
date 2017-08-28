@@ -176,7 +176,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=WiNiFiX
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,20271,Judgment,U
 Spell,26573,Consecration,V

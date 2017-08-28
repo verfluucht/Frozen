@@ -151,7 +151,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=BrewDrinkCode
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,121253,Keg Smash,D1
 Spell,115181,Breath of Fire,D2

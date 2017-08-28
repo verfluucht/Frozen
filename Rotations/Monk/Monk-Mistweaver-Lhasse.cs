@@ -224,7 +224,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Lhasse
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,116849,LifeCocoon,S
 Spell,115098,ChiWave,D7

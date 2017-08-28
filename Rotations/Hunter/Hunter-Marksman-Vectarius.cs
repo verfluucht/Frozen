@@ -109,8 +109,8 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Vectarius
-AddonName=PixelMagic
-WoWVersion=Legion-70200
+AddonName=Frozen
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,204147,Windburst,D2
 Spell,120360,Barrage,D3

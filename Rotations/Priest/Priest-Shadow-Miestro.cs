@@ -255,7 +255,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Miestro
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,589,Shadow Word: Pain,E
 Spell,34914,Vampiric Touch,V

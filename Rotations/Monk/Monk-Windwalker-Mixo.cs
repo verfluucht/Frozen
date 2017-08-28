@@ -695,7 +695,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Mixo
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,115080,TouchOfDeath,F
 Spell,113656,FistsOfFury,B

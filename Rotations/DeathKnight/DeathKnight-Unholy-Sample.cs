@@ -71,7 +71,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=WiNiFiX
 AddonName=PixelMagic
-WoWVersion=Legion - 70100
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,85948,Festering Strike,D1
 Spell,77575,Outbreak,D2

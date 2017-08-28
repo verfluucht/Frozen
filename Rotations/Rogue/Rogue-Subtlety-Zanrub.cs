@@ -194,7 +194,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Zanrub
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,185438,Shadowstrike,D2
 Spell,196819,Eviscerate,D3

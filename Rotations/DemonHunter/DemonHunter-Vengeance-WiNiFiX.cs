@@ -150,7 +150,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=WiNiFiX
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,203782,Shear,T
 Spell,235964,Sever,T

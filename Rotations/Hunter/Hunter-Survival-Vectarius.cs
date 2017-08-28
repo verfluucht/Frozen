@@ -108,8 +108,8 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Vectarius
-AddonName=PixelMagic
-WoWVersion=Legion - 70200
+AddonName=Frozen
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,190928,Mongoose Bite,D1
 Spell,202800,Flanking Strike,D2

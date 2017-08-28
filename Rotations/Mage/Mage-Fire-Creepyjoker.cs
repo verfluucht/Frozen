@@ -930,7 +930,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Creepyjoker
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,190319,Combustion,E
 Spell,198929,Cinderstorm,C

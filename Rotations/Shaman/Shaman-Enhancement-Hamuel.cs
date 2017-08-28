@@ -411,8 +411,8 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Hamuel
-AddonName=Hamuel
-WoWVersion=Legion - 72500
+AddonName=Frozen
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,57994,Wind Shear,NumPad1
 Spell,196884,Feral Lunge,F9

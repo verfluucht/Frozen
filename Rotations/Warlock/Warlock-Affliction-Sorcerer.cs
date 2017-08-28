@@ -1,4 +1,4 @@
-using System.Drawing;
+﻿using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Frozen.Helpers;
@@ -60,7 +60,7 @@ namespace Frozen.Rotation
                          || WoW.TargetHasDebuff("Unstable Affliction3") && WoW.TargetHasDebuff("Unstable Affliction4")
                          || WoW.TargetHasDebuff("Unstable Affliction3") && WoW.TargetHasDebuff("Unstable Affliction5")
                          || WoW.TargetHasDebuff("Unstable Affliction4") && WoW.TargetHasDebuff("Unstable Affliction5")
-                         || WoW.PlayerBuffStacks("Tormented Souls") >= 12)
+                         || WoW.PlayerBuffStacks("Reap Souls") >= 12)
                         && !WoW.PlayerIsCasting
                         && WoW.CanCast("Reap Souls")
                         && !WoW.PlayerHasBuff("Deadwind Harvester")
@@ -192,7 +192,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Sorcerer
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,980,Agony,NumPad1
 Spell,63106,Siphon Life,NumPad2

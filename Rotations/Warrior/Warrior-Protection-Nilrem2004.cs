@@ -198,7 +198,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Nilrem2004
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,6343,Thunder Clap,V
 Spell,23922,Shield Slam,Y

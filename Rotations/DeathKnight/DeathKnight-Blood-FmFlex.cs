@@ -365,9 +365,9 @@ namespace Frozen.Rotation.DKBlood
 
 /*
 [AddonDetails.db]
-AddonAuthor=Tyalieva
-AddonName=tyahelper
-WoWVersion=Legion - 70200
+AddonAuthor=FmFlex
+AddonName=Frozen
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,195182,Marrowrend,D1
 Spell,50842,Blood Boil,D2

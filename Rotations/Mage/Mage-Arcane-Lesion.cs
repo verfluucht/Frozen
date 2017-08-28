@@ -148,7 +148,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Lesion
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,11426,Ice Barrier,S
 Spell,205022,Arcane Familiar,D6

@@ -226,7 +226,7 @@ namespace Frozen.Rotation
 [AddonDetails.db]
 AddonAuthor=Lesion
 AddonName=Frozen
-WoWVersion=Legion - 70200
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,12294,Mortal Strike,D1
 Spell,167105,Colossus Smash,D2

@@ -286,8 +286,8 @@ namespace Frozen.Rotation
 /*
 [AddonDetails.db]
 AddonAuthor=Sorcerer
-AddonName=Quartz
-WoWVersion=Legion - 72000
+AddonName=Frozen
+WoWVersion=Legion - 70300
 [SpellBook.db]
 Spell,686,Shadow Bolt,NumPad1
 Spell,157695,Demonbolt,NumPad1
