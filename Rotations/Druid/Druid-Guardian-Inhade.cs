@@ -2505,8 +2505,8 @@ namespace Frozen.Rotation
             // and prioritizes it of over active mitigation if Guardian of Elune is up
 
             if (WoW.CanCast("Frenzied Regeneration") && FrenziedRegen
-                && (HPROC1sAny || HPRateOfChange < -HPROC1sMax * 0.8 && WoW.PlayerHasBuff("Guardian of Elune") && WoW.HealthPercent <= 85 &&
-                    !WoW.PlayerHasBuff("Frenzied Regeneration") && WoW.HealthPercent <= 80)
+                && (HPROC1sAny || HPRateOfChange < -HPROC1sMax * 0.8 && WoW.PlayerHasBuff("Guardian of Elune") && WoW.PlayerHealthPercent <= 85 &&
+                    !WoW.PlayerHasBuff("Frenzied Regeneration") && WoW.PlayerHealthPercent <= 80)
                 && WoW.PlayerHasBuff("Bear Form") && (!FrenziedTimer.IsRunning || FrenziedTimer.ElapsedMilliseconds > 5000))
             {
                 WoW.CastSpell("Frenzied Regeneration");
@@ -2545,7 +2545,7 @@ namespace Frozen.Rotation
 
 
             if (WoW.CanCast("Barkskin") &&
-                (WoW.HealthPercent <= BarkskinHealth && Barkskin
+                (WoW.PlayerHealthPercent <= BarkskinHealth && Barkskin
                  || CoolDowns && WoW.PlayerSpellCharges("Survival Instincts") == 0 && (WoW.IsSpellOnCooldown("Rage of the Sleeper") || !RageOfTheSleeperCD)
                  && !WoW.PlayerHasBuff("Survival Instincts") && !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper")))
             {
@@ -2555,7 +2555,7 @@ namespace Frozen.Rotation
             }
 
             if (WoW.CanCast("Rage of the Sleeper") &&
-                (WoW.HealthPercent <= RageOfTheSleeperHealthPercentage && RageOfTheSleeperHealth ||
+                (WoW.PlayerHealthPercent <= RageOfTheSleeperHealthPercentage && RageOfTheSleeperHealth ||
                  CoolDowns && WoW.PlayerSpellCharges("Survival Instincts") == 0 && SaveRageOfTheSleeper == 0)
                 && !WoW.PlayerHasBuff("Survival Instincts") && !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper"))
             {
@@ -2564,7 +2564,7 @@ namespace Frozen.Rotation
                 return;
             }
 
-            if (WoW.CanCast("Survival Instincts") && (WoW.HealthPercent <= SurvivalInstinctsHealth && SurvivalInstincts || CoolDowns) &&
+            if (WoW.CanCast("Survival Instincts") && (WoW.PlayerHealthPercent <= SurvivalInstinctsHealth && SurvivalInstincts || CoolDowns) &&
                 !WoW.PlayerHasBuff("Survival Instincts")
                 && !WoW.PlayerHasBuff("Barkskin") && !WoW.PlayerHasBuff("Rage of the Sleeper"))
             {
@@ -2814,7 +2814,7 @@ namespace Frozen.Rotation
 
                         // Cast Lunar Beam if selected, available and we are low on health						
 
-                        if (WoW.CanCast("Lunar Beam") && LunarBeam && WoW.HealthPercent <= 45)
+                        if (WoW.CanCast("Lunar Beam") && LunarBeam && WoW.PlayerHealthPercent <= 45)
                         {
                             WoW.CastSpell("Lunar Beam");
                             return;
@@ -2936,7 +2936,7 @@ namespace Frozen.Rotation
 
                         // Cast Lunar Beam if selected, available and we are low on health						
 
-                        if (WoW.CanCast("Lunar Beam") && LunarBeam && WoW.HealthPercent <= 45)
+                        if (WoW.CanCast("Lunar Beam") && LunarBeam && WoW.PlayerHealthPercent <= 45)
                         {
                             WoW.CastSpell("Lunar Beam");
                             return;
@@ -3031,7 +3031,7 @@ namespace Frozen.Rotation
 
                         // Cast Lunar Beam if selected, available and we are low on health						
 
-                        if (WoW.CanCast("Lunar Beam") && LunarBeam && WoW.HealthPercent <= 45)
+                        if (WoW.CanCast("Lunar Beam") && LunarBeam && WoW.PlayerHealthPercent <= 45)
                         {
                             WoW.CastSpell("Lunar Beam");
                             return;
@@ -3078,8 +3078,7 @@ namespace Frozen.Rotation
 
         private void InitTimer()
         {
-            timer = new Timer();
-            timer.Enabled = true;
+            timer = new Timer {Enabled = true};
             timer.Elapsed += timer_Tick;
             timer.Interval = 200;
         }
@@ -3096,12 +3095,12 @@ namespace Frozen.Rotation
             Interlocked.Increment(ref CurrentHP);
             if (CurrentHP == 0)
             {
-                CurrentHP = WoW.HealthPercent;
+                CurrentHP = WoW.PlayerHealthPercent;
             }
             else
             {
                 PreviousHP = CurrentHP;
-                CurrentHP = WoW.HealthPercent;
+                CurrentHP = WoW.PlayerHealthPercent;
                 HPRateOfChange = CurrentHP - PreviousHP;
                 Thread.Sleep(200);
             }
@@ -3374,8 +3373,7 @@ namespace Frozen.Rotation
 
         private void InitOverlayTimer()
         {
-            OverlayDisplayTimer = new Timer();
-            OverlayDisplayTimer.Enabled = true;
+            OverlayDisplayTimer = new Timer {Enabled = true};
             OverlayDisplayTimer.Elapsed += UpdateDisplayLabel;
             OverlayDisplayTimer.Interval = 100;
         }

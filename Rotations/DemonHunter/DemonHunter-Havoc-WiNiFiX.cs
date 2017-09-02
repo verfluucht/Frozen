@@ -28,7 +28,7 @@ namespace Frozen.Rotation
 
         public override void Pulse()
         {
-            if (WoW.HealthPercent == 0 || WoW.IsMounted) return;
+            if (WoW.PlayerHealthPercent == 0 || WoW.IsMounted) return;
             if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
             if (WoW.PlayerIsChanneling) return;
 

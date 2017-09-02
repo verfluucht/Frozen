@@ -48,7 +48,7 @@ namespace Frozen.Rotation
                 f.ShowDialog();
             }
 
-            if (WoW.HealthPercent == 0 || WoW.IsMounted) return;
+            if (WoW.PlayerHealthPercent == 0 || WoW.IsMounted) return;
             if (WoW.PlayerIsCasting) return;
 
             var lowest = WoW.PartyLowestHealthPercent;
@@ -100,7 +100,7 @@ namespace Frozen.Rotation
                 !WoW.PlayerHasBuff("RenewingMist") &&
                 !WoW.IsSpellOnCooldown("RenewingMist"))
             {
-                WoW.CastSpell("RenewingMist", currentTargetId);
+                WoW.CastSpell("RenewingMist");
                 return;
             }
             if (UseCooldowns)
@@ -141,7 +141,7 @@ namespace Frozen.Rotation
                 lowest <= 25 &&
                 !WoW.IsSpellOnCooldown("LifeCocoon"))
             {
-                WoW.CastSpell("LifeCocoon", currentTargetId);
+                WoW.CastSpell("LifeCocoon");
                 return;
             }
 
@@ -165,7 +165,7 @@ namespace Frozen.Rotation
 
                 if (WoW.CanCast("Vivify"))
                 {
-                    WoW.CastSpell("Vivify", currentTargetId);
+                    WoW.CastSpell("Vivify");
                     return;
                 }
             }
@@ -176,7 +176,7 @@ namespace Frozen.Rotation
                     lowest <= 75 && !WoW.IsMoving &&
                     WoW.PlayerSpellCharges("SheilunsGift") >= 4)
                 {
-                    WoW.CastSpell("SheilunsGift", currentTargetId);
+                    WoW.CastSpell("SheilunsGift");
                     return;
                 }
             }
@@ -187,28 +187,28 @@ namespace Frozen.Rotation
                 !WoW.TargetHasBuff("EnvelopingMist") &&
                 WoW.LastSpell != ("EnvelopingMist"))
             {
-                WoW.CastSpell("EnvelopingMist", currentTargetId);
+                WoW.CastSpell("EnvelopingMist");
                 return;
             }
 
             if (WoW.CanCast("Vivify") &&
                 lowest <= 65)
             {
-                WoW.CastSpell("Vivify", currentTargetId);
+                WoW.CastSpell("Vivify");
                 return;
             }
 
             if (WoW.CanCast("Effuse") && lowest <= 90 &&
                 !WoW.PlayerIsChanneling)
             {
-                WoW.CastSpell("Effuse", currentTargetId);
+                WoW.CastSpell("Effuse");
                 return;
             }
 
             if (WoW.CanCast("ChiWave") && lowest <= 90 &&
                 WoW.IsInCombat)
             {
-                WoW.CastSpell("ChiWave", currentTargetId);
+                WoW.CastSpell("ChiWave");
                 return;
             }
 

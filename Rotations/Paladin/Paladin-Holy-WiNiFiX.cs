@@ -66,7 +66,7 @@ namespace Frozen.Rotation
                 f.ShowDialog();
             }
             
-            if (WoW.HealthPercent == 0 || WoW.IsMounted) return;
+            if (WoW.PlayerHealthPercent == 0 || WoW.IsMounted) return;
             if (WoW.PlayerIsCasting) return;
 
             var lowest = WoW.PartyLowestHealthPercent;
@@ -88,7 +88,7 @@ namespace Frozen.Rotation
 
             var averageHp = WoW.PartyAverageHealthPercent;
 
-            if (WoW.HealthPercent < 10 && WoW.IsInCombat && WoW.CanCast("Divine Shield") &&
+            if (WoW.PlayerHealthPercent < 10 && WoW.IsInCombat && WoW.CanCast("Divine Shield") &&
                 !WoW.PlayerHasDebuff("Forbearance"))
                 WoW.CastSpell("Divine Shield");
 
@@ -125,7 +125,7 @@ namespace Frozen.Rotation
                 !WoW.TargetHasDebuff("Forbearance") && // Make sure we dont LOH a tank with forbearance debuff
                 WoW.TankId == currentTargetId) // Make sure we only use LOH on tank
             {
-                WoW.CastSpell("Lay On Hands", currentTargetId);
+                WoW.CastSpell("Lay On Hands");
                 return;
             }
 
@@ -134,7 +134,7 @@ namespace Frozen.Rotation
                 WoW.TankId == currentTargetId && 
                 !WoW.TargetHasBuff("Shield Wall Oto")) 
             {
-                WoW.CastSpell("Blessing of Sacrifice", currentTargetId);
+                WoW.CastSpell("Blessing of Sacrifice");
                 return;
             }
 
@@ -142,7 +142,7 @@ namespace Frozen.Rotation
             // Consume Infusion of Light procs using the appropriate heal before your next Holy Shock.
             if (WoW.CanCast("Holy Shock") && !WoW.PlayerHasBuff("Infusion of Light"))
             {
-                WoW.CastSpell("Holy Shock", currentTargetId);
+                WoW.CastSpell("Holy Shock");
                 return;
             }
 
@@ -151,7 +151,7 @@ namespace Frozen.Rotation
                     WoW.TankId == currentTargetId &&
                     WoW.IsInCombat)
                 {
-                    WoW.CastSpell("Holy Prism", currentTargetId);
+                    WoW.CastSpell("Holy Prism");
                     return;
                 }
 
@@ -159,23 +159,23 @@ namespace Frozen.Rotation
             //                  Judgment to maintain the buff from Judgment of Light (if selected).
 
             // Light of the Martyr a potent emergency heal as long as you have health to spare.
-            if (WoW.CanCast("Light of the Martyr") && lowest <= 40 && WoW.HealthPercent >= 70)
+            if (WoW.CanCast("Light of the Martyr") && lowest <= 40 && WoW.PlayerHealthPercent >= 70)
             {
-                WoW.CastSpell("Light of the Martyr", currentTargetId);
+                WoW.CastSpell("Light of the Martyr");
                 return;
             }
 
             // Flash of Light use as an emergency heal to save players facing death. 
             if (WoW.CanCast("Flash of Light") && lowest <= 50 && !WoW.IsMoving)
             {
-                WoW.CastSpell("Flash of Light", currentTargetId);
+                WoW.CastSpell("Flash of Light");
                 return;
             }
 
             // Holy Light use to heal moderate to high damage. 
             if (WoW.CanCast("Holy Light") && lowest <= 90 && !WoW.IsMoving)
             {
-                WoW.CastSpell("Holy Light", currentTargetId);
+                WoW.CastSpell("Holy Light");
                 return;
             }
 

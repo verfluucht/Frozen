@@ -516,7 +516,7 @@ namespace Frozen.Rotation
                             WoW.CastSpell("Ring of Frost");
                             return;
                         }
-                        if (Barrier && WoW.CanCast("Blazing Barrier") && WoW.HealthPercent <= 80 && !WoW.IsSpellOnCooldown("Blazing Barrier") &&
+                        if (Barrier && WoW.CanCast("Blazing Barrier") && WoW.PlayerHealthPercent <= 80 && !WoW.IsSpellOnCooldown("Blazing Barrier") &&
                             !WoW.PlayerHasBuff("Blazing Barrier"))
                         {
                             WoW.CastSpell("Blazing Barrier");
@@ -581,7 +581,7 @@ namespace Frozen.Rotation
                             WoW.CastSpell("Living Bomb");
                             return;
                         }
-                        if (WoW.CanCast("Ice Block") && !WoW.PlayerHasBuff("Ice Block") && IceBlock && WoW.HealthPercent < 20 &&
+                        if (WoW.CanCast("Ice Block") && !WoW.PlayerHasBuff("Ice Block") && IceBlock && WoW.PlayerHealthPercent < 20 &&
                             !WoW.IsSpellOnCooldown("Ice Block"))
                         {
                             WoW.CastSpell("Ice Block");
@@ -765,7 +765,7 @@ namespace Frozen.Rotation
                     WoW.CastSpell("Ring of Frost");
                     return;
                 }
-                if (Barrier && WoW.CanCast("Blazing Barrier") && WoW.HealthPercent <= 80 && !WoW.IsSpellOnCooldown("Blazing Barrier") &&
+                if (Barrier && WoW.CanCast("Blazing Barrier") && WoW.PlayerHealthPercent <= 80 && !WoW.IsSpellOnCooldown("Blazing Barrier") &&
                     !WoW.PlayerHasBuff("Blazing Barrier"))
                 {
                     WoW.CastSpell("Blazing Barrier");
@@ -828,7 +828,7 @@ namespace Frozen.Rotation
                     WoW.CastSpell("Living Bomb");
                     return;
                 }
-                if (WoW.CanCast("Ice Block") && !WoW.PlayerHasBuff("Ice Block") && IceBlock && WoW.HealthPercent < 20 && !WoW.IsSpellOnCooldown("Ice Block"))
+                if (WoW.CanCast("Ice Block") && !WoW.PlayerHasBuff("Ice Block") && IceBlock && WoW.PlayerHealthPercent < 20 && !WoW.IsSpellOnCooldown("Ice Block"))
                 {
                     WoW.CastSpell("Ice Block");
                     Log.Write("--------Activating Ice Block, you were below 20%HealthPoints.--------");

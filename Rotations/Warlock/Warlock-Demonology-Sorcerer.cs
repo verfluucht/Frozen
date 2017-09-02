@@ -23,15 +23,19 @@ namespace Frozen.Rotation
         {
         }
 
+
+        
         public override void Pulse() // Updated for Legion (tested and working for single target)
         {
+
+            
             if (WoW.IsInCombat && Control.IsKeyLocked(Keys.Scroll) && !WoW.TargetIsPlayer && !WoW.IsMounted)
                 SelectRotation(4, 9999, 1);
 
             //Dark Pact
             if (WoW.CanCast("Dark Pact")
                 && WoW.Talent(5) == 3
-                && WoW.HealthPercent <= 30
+                && WoW.PlayerHealthPercent <= 30
                 && !WoW.IsMounted)
             {
                 WoW.CastSpell("Dark Pact");
@@ -166,7 +170,7 @@ namespace Frozen.Rotation
 
                     if (WoW.CanCast("Life Tap")
                         && WoW.Mana < 60
-                        && WoW.HealthPercent > 50)
+                        && WoW.PlayerHealthPercent > 50)
                     {
                         WoW.CastSpell("Life Tap");
                         return;
@@ -241,7 +245,7 @@ namespace Frozen.Rotation
 
                     if (WoW.CanCast("Life Tap")
                         && WoW.Mana < 60
-                        && WoW.HealthPercent > 50)
+                        && WoW.PlayerHealthPercent > 50)
                     {
                         WoW.CastSpell("Life Tap");
                         return;
@@ -289,24 +293,24 @@ AddonAuthor=Sorcerer
 AddonName=Frozen
 WoWVersion=Legion - 70300
 [SpellBook.db]
-Spell,686,Shadow Bolt,NumPad1
-Spell,157695,Demonbolt,NumPad1
-Spell,104316,Call Dreadstalkers,NumPad2
-Spell,105174,Hand of Guldan,NumPad3
-Spell,193396,Demonic Empowerment,NumPad4
-Spell,603,Doom,NumPad5
-Spell,193440,Demonwrath,NumPad6
-Spell,1454,Life Tap,NumPad7
-Spell,205180,Darkglare,NumPad8
-Spell,111897,Grimoire: Felguard,NumPad9
-Spell,211714,Talkiels Consumption,Add
-Spell,205181,Shadowflame,NumPad0
-Spell,18540,Doomguard,Decimal
-Spell,119914,Felstorm,D4
-Spell,196098,Soul Harvest,D0
-Spell,196277,Implosion,D7
-Spell,30283,Shadowfury,D3
-Spell,108416,Dark Pact,Multiply
+Spell,686,Shadow Bolt,T
+Spell,157695,Demonbolt,T
+Spell,104316,Call Dreadstalkers,Y
+Spell,105174,Hand of Guldan,V
+Spell,193396,Demonic Empowerment,H
+Spell,603,Doom,F
+Spell,193440,Demonwrath,E
+Spell,1454,Life Tap,S
+Spell,205180,Darkglare,D8
+Spell,111897,Grimoire: Felguard,D5
+Spell,211714,Talkiels Consumption,D6
+Spell,205181,Shadowflame,D7
+Spell,18540,Doomguard,D0
+Spell,119914,Felstorm,OemMinus
+Spell,196098,Soul Harvest,None
+Spell,196277,Implosion,D1
+Spell,30283,Shadowfury,None
+Spell,108416,Dark Pact,None
 Aura,2825,Bloodlust
 Aura,32182,Heroism
 Aura,80353,Time Warp

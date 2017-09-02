@@ -352,29 +352,29 @@ namespace Frozen.Rotation
                 }
                 // If Blessing of the Ancients get it up.
                 if (BlessingOfAncients && WoW.CanCast("BlessingOfAncients") && !WoW.PlayerHasBuff("BlessingOfElune") && !WoW.PlayerHasBuff("BlessingOfAnshe") &&
-                    WoW.HealthPercent >= 10)
+                    WoW.PlayerHealthPercent >= 10)
                 {
                     WoW.CastSpell("BlessingOfAncients");
                     Thread.Sleep(100);
                     return;
                 }
-                if (BlessingOfAncients && WoW.CanCast("BlessingOfAncients") && WoW.PlayerHasBuff("BlessingOfAnshe") && WoW.HealthPercent >= 10)
+                if (BlessingOfAncients && WoW.CanCast("BlessingOfAncients") && WoW.PlayerHasBuff("BlessingOfAnshe") && WoW.PlayerHealthPercent >= 10)
                 {
                     WoW.CastSpell("BlessingOfAncients");
                     Thread.Sleep(100);
                     return;
                 }
                 // Restoration Affinity
-                if (HealingLowHP && !WoW.PlayerHasBuff("Moonkin") && WoW.HealthPercent >= 1)
+                if (HealingLowHP && !WoW.PlayerHasBuff("Moonkin") && WoW.PlayerHealthPercent >= 1)
                 {
                     // If dont have rejuvenation buff
-                    if (WoW.CanCast("Rejuvenation") && !WoW.PlayerHasBuff("Rejuvenation") && WoW.HealthPercent <= 50 && WoW.HealthPercent >= 1)
+                    if (WoW.CanCast("Rejuvenation") && !WoW.PlayerHasBuff("Rejuvenation") && WoW.PlayerHealthPercent <= 50 && WoW.PlayerHealthPercent >= 1)
                     {
                         WoW.CastSpell("Rejuvenation");
                         return;
                     }
                     // If can cast swiftment
-                    if (WoW.CanCast("Swiftmend") && WoW.HealthPercent <= 50 && !WoW.IsSpellOnCooldown("Swiftmend") && WoW.HealthPercent >= 1)
+                    if (WoW.CanCast("Swiftmend") && WoW.PlayerHealthPercent <= 50 && !WoW.IsSpellOnCooldown("Swiftmend") && WoW.PlayerHealthPercent >= 1)
                     {
                         WoW.CastSpell("Swiftmend");
                         return;
@@ -387,7 +387,7 @@ namespace Frozen.Rotation
                     }
                 }
                 // Renewal if under 30% HP
-                if (Renewal && WoW.CanCast("Renewal") && WoW.HealthPercent >= 1 && WoW.HealthPercent <= 30)
+                if (Renewal && WoW.CanCast("Renewal") && WoW.PlayerHealthPercent >= 1 && WoW.PlayerHealthPercent <= 30)
                 {
                     WoW.CastSpell("Renewal");
                     return;

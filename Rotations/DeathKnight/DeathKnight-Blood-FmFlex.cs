@@ -236,7 +236,7 @@ namespace Frozen.Rotation.DKBlood
                         WoW.CastSpell("DnD");
                         return;
                     }
-                    if (isMelee && runicPower >= 45 && (WoW.PlayerHasBuff("Ossuary") && (runicPower >= 85 || WoW.HealthPercent < 80) || WoW.HealthPercent < 50))
+                    if (isMelee && runicPower >= 45 && (WoW.PlayerHasBuff("Ossuary") && (runicPower >= 85 || WoW.PlayerHealthPercent < 80) || WoW.PlayerHealthPercent < 50))
                     {
                         WoW.CastSpell("Death Strike");
                         return;
@@ -284,7 +284,7 @@ namespace Frozen.Rotation.DKBlood
                         WoW.CastSpell("Blood Boil");
                         return;
                     }
-                    if (IsTalentBloodDrinker && CanCastInRange("BD") && WoW.HealthPercent <= 60 && !renewBones && currentRunes >= 1)
+                    if (IsTalentBloodDrinker && CanCastInRange("BD") && WoW.PlayerHealthPercent <= 60 && !renewBones && currentRunes >= 1)
                     {
                         WoW.CastSpell("BD");
                         return;
@@ -305,12 +305,12 @@ namespace Frozen.Rotation.DKBlood
                         return;
                     }
                     if (IsTalentBoneStorm && isMelee && runicPower >= 45 &&
-                        (runicPower >= 85 && WoW.SpellCooldownTimeRemaining("Bonestorm") >= 3 || WoW.HealthPercent < 70 || WoW.HealthPercent < 50))
+                        (runicPower >= 85 && WoW.SpellCooldownTimeRemaining("Bonestorm") >= 3 || WoW.PlayerHealthPercent < 70 || WoW.PlayerHealthPercent < 50))
                     {
                         WoW.CastSpell("Death Strike");
                         return;
                     }
-                    if (!IsTalentBoneStorm && isMelee && runicPower >= 45 && (runicPower >= 85 || WoW.HealthPercent < 70))
+                    if (!IsTalentBoneStorm && isMelee && runicPower >= 45 && (runicPower >= 85 || WoW.PlayerHealthPercent < 70))
                     {
                         WoW.CastSpell("Death Strike");
                         return;
@@ -339,17 +339,17 @@ namespace Frozen.Rotation.DKBlood
 
         public void useCDDef()
         {
-            if (CanCastNoRange("Anti-Magic Shell") && WoW.HealthPercent < 70 && !WoW.IsSpellOnCooldown("Anti-Magic Shell"))
+            if (CanCastNoRange("Anti-Magic Shell") && WoW.PlayerHealthPercent < 70 && !WoW.IsSpellOnCooldown("Anti-Magic Shell"))
             {
                 WoW.CastSpell("Anti-Magic Shell");
                 return;
             }
-            if (CanCastNoRange("Icebound Fortitude") && WoW.HealthPercent < 40 && !WoW.IsSpellOnCooldown("Icebound Fortitude"))
+            if (CanCastNoRange("Icebound Fortitude") && WoW.PlayerHealthPercent < 40 && !WoW.IsSpellOnCooldown("Icebound Fortitude"))
             {
                 WoW.CastSpell("Icebound Fortitude");
                 return;
             }
-            if (CanCastNoRange("Vampiric Blood") && WoW.HealthPercent < 50 && !WoW.IsSpellOnCooldown("Vampiric Blood"))
+            if (CanCastNoRange("Vampiric Blood") && WoW.PlayerHealthPercent < 50 && !WoW.IsSpellOnCooldown("Vampiric Blood"))
                 WoW.CastSpell("Vampiric Blood");
         }
 

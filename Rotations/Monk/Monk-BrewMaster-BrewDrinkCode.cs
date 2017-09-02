@@ -33,7 +33,7 @@ namespace Frozen.Rotation
             if (combatRoutine.Type == RotationType.SingleTarget)
             {
                 //Heal if not in combat
-                if (!WoW.IsInCombat && (WoW.HealthPercent <= 95) & (WoW.Energy >= 30) && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
+                if (!WoW.IsInCombat && (WoW.PlayerHealthPercent <= 95) & (WoW.Energy >= 30) && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
                     return;
 
                 //Sanity Checks
@@ -46,7 +46,7 @@ namespace Frozen.Rotation
 
 
             //Cooldown saves
-            if (WoW.HealthPercent <= 85 && WoW.PlayerSpellCharges("Healing Elixir") > 0 && !WoW.IsSpellOnCooldown("Healing Elixir"))
+            if (WoW.PlayerHealthPercent <= 85 && WoW.PlayerSpellCharges("Healing Elixir") > 0 && !WoW.IsSpellOnCooldown("Healing Elixir"))
             {
                 WoW.CastSpell("Healing Elixir");
                 return;
@@ -68,7 +68,7 @@ namespace Frozen.Rotation
             }
 
             //Look for Expel Harm Charges.. if 3 and health low then hit
-            if (WoW.PlayerSpellCharges("Expel Harm") >= 3 && WoW.HealthPercent <= 75 && WoW.Energy >= 15)
+            if (WoW.PlayerSpellCharges("Expel Harm") >= 3 && WoW.PlayerHealthPercent <= 75 && WoW.Energy >= 15)
             {
                 WoW.CastSpell("Expel Harm");
                 return;

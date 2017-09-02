@@ -99,7 +99,7 @@ namespace Frozen.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 40 && !WoW.IsSpellOnCooldown("Astral Shift")
+                    if (WoW.CanCast("Astral Shift") && WoW.PlayerHealthPercent < 40 && !WoW.IsSpellOnCooldown("Astral Shift")
                     ) //ASTRAL SHIFT - DMG REDUCTION if we are below 40% of HP
                     {
                         WoW.CastSpell("Astral Shift");
@@ -162,7 +162,7 @@ namespace Frozen.Rotation
                     if (WoW.CanCast("Chain Lightning") && !WoW.IsMoving) //Filler
                         WoW.CastSpell("Chain Lightning");
 
-                    if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 40 && !WoW.IsSpellOnCooldown("Astral Shift")
+                    if (WoW.CanCast("Astral Shift") && WoW.PlayerHealthPercent < 40 && !WoW.IsSpellOnCooldown("Astral Shift")
                     ) //ASTRAL SHIFT - DMG REDUCTION if we are below 40% of HP
                         WoW.CastSpell("Astral Shift");
                 }

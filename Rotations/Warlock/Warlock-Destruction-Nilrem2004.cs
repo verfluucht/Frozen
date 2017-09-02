@@ -27,7 +27,7 @@ namespace Frozen.Rotation
         {
             if (combatRoutine.Type == RotationType.SingleTarget) /* Singel Target Rotation*/
             {
-                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasTarget && WoW.IsInCombat && WoW.HealthPercent <= 20)
+                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasTarget && WoW.IsInCombat && WoW.PlayerHealthPercent <= 20)
                     /* Defensive Cooldowns */
                 {
                     if (WoW.IsMoving && WoW.CanCast("UnendingResolve"))

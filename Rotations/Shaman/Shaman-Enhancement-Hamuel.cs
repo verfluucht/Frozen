@@ -368,12 +368,12 @@ namespace Frozen.Rotation
                 WoW.CastSpell("Rainfall");
                 return;
             }
-            if (WoW.CanCast("Astral Shift") && WoW.HealthPercent < 60 && !WoW.IsSpellOnCooldown("Astral Shift")) 
+            if (WoW.CanCast("Astral Shift") && WoW.PlayerHealthPercent < 60 && !WoW.IsSpellOnCooldown("Astral Shift")) 
             {
                 WoW.CastSpell("Astral Shift");
                 return;
             }
-            if (WoW.PlayerRace == "Dreanei" && WoW.HealthPercent < 80 && !WoW.IsSpellOnCooldown("Gift Naaru"))
+            if (WoW.PlayerRace == "Dreanei" && WoW.PlayerHealthPercent < 80 && !WoW.IsSpellOnCooldown("Gift Naaru"))
                 WoW.CastSpell("Gift Naaru");
         }
 

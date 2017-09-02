@@ -69,18 +69,18 @@ namespace Frozen.Rotation
 
         public override void Pulse()
         {
-            if (WoW.HealthPercent <= 1)
+            if (WoW.PlayerHealthPercent <= 1)
                 return;
 
             //Heal yourself, Can't do damage if you're dead.
-            if (WoW.HealthPercent <= 60)
+            if (WoW.PlayerHealthPercent <= 60)
             {
                 if (isPlayerBusy(true, false) && !WoW.PlayerHasBuff(POWER_WORD_SHIELD))
                     castWithRangeCheck(POWER_WORD_SHIELD);
                 castWithRangeCheck(SHADOW_MEND);
             }
             //Shield if health is dropping.
-            if (WoW.HealthPercent <= 80 && !WoW.PlayerHasBuff(POWER_WORD_SHIELD))
+            if (WoW.PlayerHealthPercent <= 80 && !WoW.PlayerHasBuff(POWER_WORD_SHIELD))
                 castWithRangeCheck(POWER_WORD_SHIELD, true);
 
             //Always have shadowform.

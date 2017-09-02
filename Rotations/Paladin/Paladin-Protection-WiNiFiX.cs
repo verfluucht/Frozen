@@ -35,7 +35,7 @@ namespace Frozen.Rotation
 
         public override void Pulse()
         {
-            if (WoW.HealthPercent == 0 || WoW.IsMounted) return;
+            if (WoW.PlayerHealthPercent == 0 || WoW.IsMounted) return;
             if (!WoW.IsInCombat && WoW.CanCast("Mount") && WoW.IsOutdoors && !WoW.IsMoving && !WoW.PlayerIsChanneling &&
                 ConfigFile.ReadValue<bool>("Protection-Paladin-WiNiFiX", "AutoMount"))
                 WoW.CastSpell("Mount");
@@ -43,7 +43,7 @@ namespace Frozen.Rotation
             if (WoW.TargetHealthPercent == 0) return;
 
             if (!WoW.TargetIsEnemy &&
-                WoW.HealthPercent < 100 &&
+                WoW.PlayerHealthPercent < 100 &&
                 WoW.CanCast("FlashHeal") &&
                 WoW.Mana > 25 &&
                 !WoW.IsMoving &&
@@ -63,14 +63,14 @@ namespace Frozen.Rotation
                 return;
             }
 
-            if (WoW.CanCast("ArdentDefender") && WoW.HealthPercent < 15)
+            if (WoW.CanCast("ArdentDefender") && WoW.PlayerHealthPercent < 15)
             {
                 Log.Write("Health < 15% using CD: [Ardent Defender]", Color.Red);
                 WoW.CastSpell("ArdentDefender");
                 return;
             }
 
-            if (WoW.HealthPercent < 20 && !WoW.PlayerHasBuff("ArdentDefender"))
+            if (WoW.PlayerHealthPercent < 20 && !WoW.PlayerHasBuff("ArdentDefender"))
             {
                 if (WoW.CanCast("LayOnHands") &&
                     !WoW.PlayerHasDebuff("Forbearance"))
@@ -91,7 +91,7 @@ namespace Frozen.Rotation
                 }
             }
 
-            if (WoW.HealthPercent < 50)
+            if (WoW.PlayerHealthPercent < 50)
                 if (WoW.CanCast("GuardianOfAncientKings") &&
                     !WoW.PlayerHasBuff("ArdentDefender"))
                 {
@@ -112,7 +112,7 @@ namespace Frozen.Rotation
                 return;
             }
 
-            if (WoW.HealthPercent < 100)
+            if (WoW.PlayerHealthPercent < 100)
                 if (WoW.CanCast("EyeOfTyr"))
                 {
                     WoW.CastSpell("EyeOfTyr");
@@ -133,7 +133,7 @@ namespace Frozen.Rotation
 
             if (WoW.CanCast("LightOfTheProtector") &&
                 WoW.PlayerHasBuff("Consecration") &&
-                WoW.HealthPercent < 70)
+                WoW.PlayerHealthPercent < 70)
             {
                 WoW.CastSpell("LightOfTheProtector");
                 return;

@@ -464,12 +464,12 @@ namespace Frozen.Rotation
                 //PVP, Basic PVP with Brutal Slash, Incarnation and Renewal (if enabled)
                 if (WoW.TargetIsPlayer && WoW.TargetIsEnemy && WoW.IsInCombat)
                 {
-                    if (WoW.CanCast("Regrowth") && WoW.PlayerHasBuff("Regrowth") && WoW.HealthPercent <= 80 && WoW.PlayerHasBuff("PredatorySwiftness"))
+                    if (WoW.CanCast("Regrowth") && WoW.PlayerHasBuff("Regrowth") && WoW.PlayerHealthPercent <= 80 && WoW.PlayerHasBuff("PredatorySwiftness"))
                     {
                         WoW.CastSpell("Regrowth");
                         return;
                     }
-                    if (Renewal && WoW.CanCast("Renwal") && WoW.HealthPercent <= 70)
+                    if (Renewal && WoW.CanCast("Renwal") && WoW.PlayerHealthPercent <= 70)
                     {
                         WoW.CastSpell("Renewal");
                         return;

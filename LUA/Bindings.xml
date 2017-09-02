@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<Bindings>	
+	<Binding header="Frozen" description="Toggle Rotation" name="On / Off"> button1:Click('LeftButton'); </Binding>
+	<Binding header="Frozen" description="Toggle Cooldowns" name="Cooldowns"> button2:Click('LeftButton'); </Binding>
+	<Binding header="Frozen" description="Toggle Cleave" name="Cleave"> button3:Click('LeftButton'); </Binding>
+	<Binding header="Frozen" description="Toggle Aoe" name="AOE"> button4:Click('LeftButton'); </Binding>
+</Bindings>

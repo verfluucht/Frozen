@@ -32,14 +32,12 @@ namespace Frozen.Rotation
         {
             if (WoW.IsMounted) return;
 
+            Log.Write(WoW.RangeToTarget.ToString());
+
             if (WoW.IsInCombat && interruptwatch.ElapsedMilliseconds == 0)
             {
                 Log.Write("Starting interrupt timer", Color.Blue);
                 interruptwatch.Start();
-            }
-
-            if (UseCooldowns)
-            {
             }
 
             if (combatRoutine.Type != RotationType.SingleTarget && combatRoutine.Type != RotationType.AOE) return;
@@ -51,34 +49,11 @@ namespace Frozen.Rotation
 
             if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
 
-            if (WoW.HealthPercent < 30 && !WoW.IsSpellOnCooldown("Metamorphasis"))
-            {
-                Log.Write("Metamorphasis");
-                Log.Write("Health low < 70% using CDs...", Color.Red);
-                WoW.CastSpell("Metamorphasis"); // Off the GCD no return needed
-            }
-
-            if (WoW.PlayerHasBuff("Metamorphasis") && WoW.CanCast("Sever"))
-            {
-                WoW.CastSpell("Sever");
-                return;
-            }
-
-            if (WoW.PlayerHasBuff("Metamorphasis") && WoW.PlayerHasBuff("Soul Fragments") && WoW.PlayerBuffStacks("Soul Fragments") >= 5 && WoW.Pain >= 50)
-            {
-                WoW.CastSpell("Soul Cleave");
-                return;
-            }
-
-            if (!WoW.IsSpellInRange("Soul Carver") && !WoW.IsSpellOnCooldown("Throw Glaive") && WoW.IsSpellInRange("Throw Glaive") &&
-                WoW.CanCast("Throw Glaive"))
-            {
-                WoW.CastSpell("Throw Glaive");
-                return;
-            }
-
-            if (!WoW.IsSpellInRange("Soul Carver")) // If we are out of melee range return
-                return;
+            WoW.CastSpell("Metamorphasis", WoW.PlayerHealthPercent < 30 && !WoW.IsSpellOnCooldown("Metamorphasis") && UseCooldowns);
+            if (WoW.CastSpell("Sever", WoW.PlayerHasBuff("Metamorphasis"))) return;
+            if (WoW.CastSpell("Soul Cleave", WoW.PlayerHasBuff("Metamorphasis") && WoW.PlayerHasBuff("Soul Fragments") && WoW.PlayerBuffStacks("Soul Fragments") >= 5 && WoW.Pain >= 50)) return;
+            if (WoW.CastSpell("Throw Glaive", !WoW.IsSpellInRange("Soul Carver") && !WoW.IsSpellOnCooldown("Throw Glaive") && WoW.IsSpellInRange("Throw Glaive"))) return;
+            if (!WoW.IsSpellInRange("Soul Carver")) return; // If we are out of melee range return
 
             if (WoW.TargetIsCastingAndSpellIsInterruptible && interruptwatch.ElapsedMilliseconds > 1200 && WoW.TargetPercentCast > 70)
             {
@@ -110,8 +85,7 @@ namespace Frozen.Rotation
                 }
             }
 
-            if (!WoW.TargetHasDebuff("Fiery Demise") && !WoW.IsSpellOnCooldown("Fiery Brand"))
-                WoW.CastSpell("Fiery Brand");
+            if (WoW.CastSpell("Fiery Brand", !WoW.TargetHasDebuff("Fiery Demise") && !WoW.IsSpellOnCooldown("Fiery Brand"))) return;
 
             if (WoW.CanCast("Demon Spikes") && !WoW.PlayerHasBuff("Demon Spikes") && WoW.Pain > 20 && !WoW.PlayerHasBuff("Magnum Opus"))
                 WoW.CastSpell("Demon Spikes");

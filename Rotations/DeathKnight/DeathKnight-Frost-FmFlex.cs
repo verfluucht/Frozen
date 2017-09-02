@@ -408,10 +408,10 @@ namespace Frozen.Rotation.DKFrost
                     WoW.CastSpell("Sindragosa Airline");
                     return;
                 }
-                if (CanCastNoRange("Anti-Magic Shell") && WoW.HealthPercent <= FrostAMSHPPercent && !WoW.IsSpellOnCooldown("Anti-Magic Shell") &&
+                if (CanCastNoRange("Anti-Magic Shell") && WoW.PlayerHealthPercent <= FrostAMSHPPercent && !WoW.IsSpellOnCooldown("Anti-Magic Shell") &&
                     IsCheckHotkeysFrostIceboundFortitude)
                     WoW.CastSpell("Anti-Magic Shell");
-                if (CanCastNoRange("Icebound Fortitude") && WoW.HealthPercent < FrostIceboundHPPercent && !WoW.IsSpellOnCooldown("Icebound Fortitude") &&
+                if (CanCastNoRange("Icebound Fortitude") && WoW.PlayerHealthPercent < FrostIceboundHPPercent && !WoW.IsSpellOnCooldown("Icebound Fortitude") &&
                     IsCheckHotkeysFrostAntiMagicShield)
                     WoW.CastSpell("Icebound Fortitude");
                 if (useChainofIce && CanCastInRange("ChainofIce") && !isMelee && !WoW.TargetHasDebuff("ChainofIce") && currentRunes >= 1)
@@ -521,7 +521,7 @@ namespace Frozen.Rotation.DKFrost
                     WoW.CastSpell("Frost Strike");
                     return;
                 }
-                if (isMelee && WoW.HealthPercent <= 20 && WoW.PlayerHasBuff("Free DeathStrike") &&
+                if (isMelee && WoW.PlayerHealthPercent <= 20 && WoW.PlayerHasBuff("Free DeathStrike") &&
                     (!IsTalentOblitaration || IsTalentOblitaration && !WoW.PlayerHasBuff("Obliteration")))
                 {
                     WoW.CastSpell("Death Strike");
@@ -605,7 +605,7 @@ namespace Frozen.Rotation.DKFrost
                     WoW.CastSpell("Frost Strike");
                     return;
                 }
-                if (isMelee && WoW.HealthPercent <= 20 && WoW.PlayerHasBuff("Free DeathStrike"))
+                if (isMelee && WoW.PlayerHealthPercent <= 20 && WoW.PlayerHasBuff("Free DeathStrike"))
                 {
                     WoW.CastSpell("Death Strike");
                     return;

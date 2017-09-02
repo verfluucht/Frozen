@@ -116,7 +116,7 @@ namespace Frozen.Rotation
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.Mana < 70 && WoW.HealthPercent > 70 && WoW.CanCast("Life Tap"))
+                    if (WoW.IsInCombat && WoW.Mana < 70 && WoW.PlayerHealthPercent > 70 && WoW.CanCast("Life Tap"))
                     {
                         WoW.CastSpell("Life Tap");
                         return;

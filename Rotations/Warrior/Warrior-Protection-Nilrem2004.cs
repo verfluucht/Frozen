@@ -31,12 +31,12 @@ namespace Frozen.Rotation
         {
             if (WoW.PlayerHasBuff("Mount")) return;
 
-            if (WoW.IsInCombat && WoW.HealthPercent < 35 && WoW.CanCast("Last Stand") && !WoW.IsSpellOnCooldown("Last Stand"))
+            if (WoW.IsInCombat && WoW.PlayerHealthPercent < 35 && WoW.CanCast("Last Stand") && !WoW.IsSpellOnCooldown("Last Stand"))
             {
                 WoW.CastSpell("Last Stand");
                 return;
             }
-            if (WoW.IsInCombat && WoW.HealthPercent < 20 && WoW.CanCast("Shield Wall") && !WoW.IsSpellOnCooldown("Shield Wall"))
+            if (WoW.IsInCombat && WoW.PlayerHealthPercent < 20 && WoW.CanCast("Shield Wall") && !WoW.IsSpellOnCooldown("Shield Wall"))
             {
                 WoW.CastSpell("Shield Wall");
                 return;
@@ -81,9 +81,9 @@ namespace Frozen.Rotation
                 {
                     if (!WoW.TargetHasDebuff("ShockWavestun") && WoW.IsInCombat)
                     {
-                        if (WoW.CanCast("Shield Block") && WoW.Rage >= 15 && !WoW.PlayerIsChanneling && WoW.HealthPercent < 100 &&
+                        if (WoW.CanCast("Shield Block") && WoW.Rage >= 15 && !WoW.PlayerIsChanneling && WoW.PlayerHealthPercent < 100 &&
                             (WoW.PlayerSpellCharges("Shield Block") == 2 ||
-                             WoW.PlayerSpellCharges("Shield Block") >= 1 && WoW.HealthPercent <= 90 && WoW.PlayerBuffTimeRemaining("ShieldBlockAura") <= 2))
+                             WoW.PlayerSpellCharges("Shield Block") >= 1 && WoW.PlayerHealthPercent <= 90 && WoW.PlayerBuffTimeRemaining("ShieldBlockAura") <= 2))
                         {
                             WoW.CastSpell("Shield Block");
                             return;
@@ -105,7 +105,7 @@ namespace Frozen.Rotation
                             return;
                         }
 
-                        if (WoW.CanCast("Ignore Pain") && WoW.Rage > 30 && WoW.HealthPercent < 100 &&
+                        if (WoW.CanCast("Ignore Pain") && WoW.Rage > 30 && WoW.PlayerHealthPercent < 100 &&
                             (!WoW.PlayerHasBuff("Ignore Pain") || WoW.PlayerBuffTimeRemaining("Ignore Pain") <= 2) &&
                             !WoW.PlayerHasBuff("Vengeance: Ignore Pain") && !WoW.PlayerHasBuff("Vengeance: Focused Rage"))
                         {
@@ -147,14 +147,14 @@ namespace Frozen.Rotation
                         }
                         if (WoW.CanCast("Revenge") && !WoW.IsSpellOnCooldown("Revenge") && WoW.IsSpellInRange("Shield Slam") &&
                             !WoW.PlayerHasBuff("Ignore Pain") && WoW.Rage > 35 &&
-                            WoW.HealthPercent < 100)
+                            WoW.PlayerHealthPercent < 100)
                         {
                             WoW.CastSpell("Revenge");
                             return;
                         }
                         if (WoW.CanCast("Revenge") && !WoW.IsSpellOnCooldown("Revenge") && WoW.IsSpellInRange("Shield Slam") &&
                             WoW.PlayerHasBuff("Ignore Pain") &&
-                            WoW.PlayerBuffTimeRemaining("Ignore Pain") <= 3 && WoW.Rage > 40 && WoW.HealthPercent < 100)
+                            WoW.PlayerBuffTimeRemaining("Ignore Pain") <= 3 && WoW.Rage > 40 && WoW.PlayerHealthPercent < 100)
                         {
                             WoW.CastSpell("Revenge");
                             return;
@@ -167,7 +167,7 @@ namespace Frozen.Rotation
                             return;
                         }
                         if (WoW.CanCast("Victory Rush") && !WoW.IsSpellOnCooldown("Victory Rush") && WoW.IsSpellInRange("Shield Slam") &&
-                            WoW.HealthPercent < 90 &&
+                            WoW.PlayerHealthPercent < 90 &&
                             WoW.PlayerHasBuff("VictoryRush"))
                         {
                             WoW.CastSpell("Victory Rush");
