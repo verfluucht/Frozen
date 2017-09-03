@@ -14,10 +14,6 @@ namespace Frozen.Rotation
 
         public override Form SettingsForm { get; set; }
 
-        public override string Name => "Fury";
-
-        public override string Class => "Warrior";
-
         private static Image TopLogo
         {
             get

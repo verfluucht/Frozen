@@ -11,10 +11,6 @@ namespace Frozen.Rotation
 {
     public class ArcaneMage : CombatRoutine
     {
-        public override string Name => "Arcane Mage";
-
-        public override string Class => "Mage";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

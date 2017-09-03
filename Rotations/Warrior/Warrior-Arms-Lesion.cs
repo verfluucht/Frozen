@@ -6,10 +6,6 @@ namespace Frozen.Rotation
 {
     public class ArmsWarriorLe : CombatRoutine
     {
-        public override string Name => "Arms Warrior";
-
-        public override string Class => "Warrior";
-
         public override Form SettingsForm { get; set; }
 
 

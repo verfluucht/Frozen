@@ -21,10 +21,6 @@ namespace Frozen.Rotation
         private CheckBox StellarDriftBox;
         private CheckBox StellarFlareBox;
 
-        public override string Name => "Balance Druid by Scotishdwarf";
-
-        public override string Class => "Druid";
-
         private static bool NaturesBalance
         {
             get

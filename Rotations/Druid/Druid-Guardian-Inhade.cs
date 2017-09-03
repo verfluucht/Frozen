@@ -986,10 +986,6 @@ namespace Frozen.Rotation
 
         // Global methods for CombatRoutine
 
-        public override string Name => "Guardian Rotation";
-
-        public override string Class => "Druid";
-
         private void InterruptibleSpells_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             var lstsetinterruptibleSpells = new List<int>(InterruptibleSpells);

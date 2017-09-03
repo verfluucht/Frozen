@@ -55,11 +55,6 @@ namespace Frozen.Rotation
         }
         
         public override Form SettingsForm { get; set; }
-
-        public override string Name => "Windwalker Monk";
-
-        public override string Class => "Monk";
-
         public override void Initialize()
         {
             Log.DrawHorizontalLine();

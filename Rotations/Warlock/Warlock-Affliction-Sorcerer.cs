@@ -7,10 +7,6 @@ namespace Frozen.Rotation
 {
     public class WarlockAffliction : CombatRoutine
     {
-        public override string Name => "Affliction Warlock";
-
-        public override string Class => "Warlock";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

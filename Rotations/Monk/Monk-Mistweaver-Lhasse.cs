@@ -8,10 +8,6 @@ namespace Frozen.Rotation
 {
     public class Monk_Mistweaver : CombatRoutine
     {
-        public override string Name => "Mistweaver";
-
-        public override string Class => "Monk";
-
         public override Form SettingsForm
         {
             get { return null; }

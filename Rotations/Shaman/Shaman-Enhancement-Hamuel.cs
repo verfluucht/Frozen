@@ -14,10 +14,6 @@ namespace Frozen.Rotation
         public Stopwatch Crash = new Stopwatch();
         public Stopwatch Pets = new Stopwatch();
         public Stopwatch Rotation = new Stopwatch();
-        public override string Name => "Enhancement Hamuel";
-
-        public override string Class => "Shaman";
-
         public override Form SettingsForm { get; set; }
         
         private static bool HailstormCheck

@@ -20,10 +20,6 @@ namespace Frozen.Rotation.DKBlood
         private int runicPower;
         private TextBox spellToKickTextBox;
 
-        public override string Name => "Blood DK by FmFlex";
-
-        public override string Class => "Deathknight";
-
         public override Form SettingsForm { get; set; }
 
         private static bool IsCDDefEnable

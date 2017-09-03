@@ -7,10 +7,6 @@ namespace Frozen.Rotation
 {
     public class Paladin_Retribution : CombatRoutine
     {
-        public override string Name => "Frozen Retribution";
-
-        public override string Class => "Paladin";
-
         public override Form SettingsForm
         {
             get { throw new NotImplementedException(); }

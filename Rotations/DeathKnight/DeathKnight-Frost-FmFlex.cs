@@ -24,10 +24,6 @@ namespace Frozen.Rotation.DKFrost
         private readonly bool useChainofIce = false;
         private bool useNextHRWCharge;
 
-        public override string Name => "Frost DK";
-
-        public override string Class => "Deathknight";
-
         public override Form SettingsForm { get; set; }
         public SettingsFormDFF SettingsFormDFF { get; set; }
 

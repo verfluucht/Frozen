@@ -12,10 +12,6 @@ namespace Frozen.Rotation
     {
         private static bool _ironSkinFired;
 
-        public override string Name => "BrewMaster Rotation";
-
-        public override string Class => "Monk";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

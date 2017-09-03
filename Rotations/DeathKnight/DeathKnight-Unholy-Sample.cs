@@ -10,10 +10,6 @@ namespace Frozen.Rotation
 {
     public class DKUnholy : CombatRoutine
     {
-        public override string Name => "Unholy Sample";
-
-        public override string Class => "Deathknight";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

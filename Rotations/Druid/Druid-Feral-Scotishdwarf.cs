@@ -47,10 +47,6 @@ namespace Frozen.Rotation
         private CheckBox SabertoothBox;
         private CheckBox SavageRoarBox;
 
-        public override string Name =>  "Feral Rotation";
-
-        public override string Class => "Druid";
-
         private static bool Bloodtalons
         {
             get

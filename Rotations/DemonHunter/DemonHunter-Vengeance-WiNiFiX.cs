@@ -12,10 +12,6 @@ namespace Frozen.Rotation
     {
         private readonly Stopwatch interruptwatch = new Stopwatch();
 
-        public override string Name => "Frozen DemonHunter";
-
-        public override string Class => "DemonHunter";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

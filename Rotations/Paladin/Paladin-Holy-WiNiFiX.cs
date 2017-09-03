@@ -11,10 +11,6 @@ namespace Frozen.Rotation
 {
     public class Paladin_Holy : CombatRoutine
     {
-        public override string Name => "Frozen Holy";
-
-        public override string Class => "Paladin";
-
         public override Form SettingsForm
         {
             get { return null; }
@@ -29,7 +25,7 @@ namespace Frozen.Rotation
         {
             Log.Clear();
             Log.WriteFrozen("Welcome to Frozen Holy", Color.Black);
-            Log.Write($"Supported Talents: {supportedTalents}");
+            Log.Write("Supported Talents: " + supportedTalents);
             Log.Write("Ensure you have setup healing keybinds before.", Color.Red);
             
             Log.DrawHorizontalLine();
@@ -50,8 +46,7 @@ namespace Frozen.Rotation
                 string currentTalents = WoW.Talent(1) + "" + WoW.Talent(2) + "" + WoW.Talent(3) + "" + WoW.Talent(4) + "" + WoW.Talent(5) + "" + WoW.Talent(6) + "" + WoW.Talent(7);
                 if (supportedTalents != currentTalents)
                 {
-                    MessageBox.Show($"You are not using the supported talents {supportedTalents}, your currnet talents are {currentTalents}.", "Frozen",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("You are not using the supported talents " + supportedTalents + ", your currnet talents are "+ currentTalents + ".", "Frozen", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
@@ -80,12 +75,7 @@ namespace Frozen.Rotation
 
             if (currentTargetId == 0) return;
             if (lowest == 100) return;
-
-            if (WoW.GroupSize == 5)
-                Log.Write($"Lowest Health Target = [/target party{currentTargetId}] health = {lowest}");
-            else
-                Log.Write($"Lowest Health Target = [/target raid{currentTargetId}] health = {lowest}");
-
+            
             var averageHp = WoW.PartyAverageHealthPercent;
 
             if (WoW.PlayerHealthPercent < 10 && WoW.IsInCombat && WoW.CanCast("Divine Shield") &&

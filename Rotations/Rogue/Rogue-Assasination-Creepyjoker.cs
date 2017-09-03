@@ -9,10 +9,6 @@ namespace Frozen.Rotation
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
 
-        public override string Name => "Rogue-Assassination";
-
-        public override string Class => "Rogue";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

@@ -163,17 +163,6 @@ namespace Frozen.Rotation
         public override Form SettingsForm { get; set; }
 
 
-        public override string Name
-        {
-            get { return "Fire Mage"; }
-        }
-
-        public override string Class
-        {
-            get { return "Mage"; }
-        }
-
-
         public override void Initialize()
         {
             Log.Write("CreepyFireMage Rotation V2.8. Please report any issues #mage with @Creepyjoker tag, on PM Discord channel.", Color.Green);

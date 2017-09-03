@@ -10,16 +10,6 @@ namespace Frozen.Rotation
 {
     public class HunterMarksman : CombatRoutine
     {
-        public override string Name
-        {
-            get { return "Hunter MM"; }
-        }
-
-        public override string Class
-        {
-            get { return "Hunter"; }
-        }
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

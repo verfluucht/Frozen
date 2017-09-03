@@ -10,10 +10,6 @@ namespace Frozen.Rotation
 {
     public class Paladin_Protection : CombatRoutine
     {
-        public override string Name => "Frozen Protection";
-
-        public override string Class => "Paladin";
-
         public override Form SettingsForm
         {
             get { return null; }

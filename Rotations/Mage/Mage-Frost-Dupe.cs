@@ -10,16 +10,6 @@ namespace Frozen.Rotation
 {
     public class FrostMage : CombatRoutine
     {
-        public override string Name
-        {
-            get { return "Frost Mage"; }
-        }
-
-        public override string Class
-        {
-            get { return "Mage"; }
-        }
-
         public override Form SettingsForm { get; set; }
 
 

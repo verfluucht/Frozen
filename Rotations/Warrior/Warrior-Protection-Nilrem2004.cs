@@ -9,10 +9,6 @@ namespace Frozen.Rotation
     {
         public Stopwatch CombatWatch = new Stopwatch();
 
-        public override string Name => "Prot Warrior";
-
-        public override string Class => "Warrior";
-
         public override Form SettingsForm { get; set; }
         
         public override void Initialize()

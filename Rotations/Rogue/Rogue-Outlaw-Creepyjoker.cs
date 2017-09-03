@@ -23,10 +23,6 @@ namespace Frozen.Rotation
             }
         }
 
-        public override string Name => "Rogue-Outlaw";
-
-        public override string Class => "Rogue";
-
         private static int cooldownKey
         {
             set { ConfigFile.WriteValue("Outlaw", "cooldownKey", value.ToString()); }

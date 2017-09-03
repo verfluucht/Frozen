@@ -6,10 +6,6 @@ namespace Frozen.Rotation
 {
     public class Rogue : CombatRoutine
     {
-        public override string Name => "Rogue-Subtlety";
-
-        public override string Class => "Rogue";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

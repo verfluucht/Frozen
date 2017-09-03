@@ -43,13 +43,6 @@ namespace Frozen.Rotation
         /**
          * Member Variables
          */
-
-        //Name of the rotation.
-        public override string Name => "Shadow Rotation by Miestro";
-
-        //Name of the class.
-        public override string Class => "Priest";
-
         //Settings form, Right side.
         public override Form SettingsForm { get; set; }
 

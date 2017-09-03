@@ -6,10 +6,6 @@ namespace Frozen.Rotation
 {
     public class Elemental : CombatRoutine
     {
-        public override string Name => "Elemental Toomicek";
-
-        public override string Class => "Shaman";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()

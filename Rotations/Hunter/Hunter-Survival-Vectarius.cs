@@ -6,10 +6,6 @@ namespace Frozen.Rotation
 {
     public class HunterSurvival : CombatRoutine
     {
-        public override string Name => "Hunter Survival";
-
-        public override string Class => "Hunter";
-
         public override Form SettingsForm { get; set; }
 
         public override void Initialize()
