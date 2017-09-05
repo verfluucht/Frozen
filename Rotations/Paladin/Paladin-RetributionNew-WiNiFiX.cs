@@ -24,13 +24,17 @@ namespace Frozen.Rotation
 
         public override void Stop()
         {
+            Log.Write("Leaving Already?");
         }
 
-        public override void Pulse()
+        public override void OutOfCombatPulse()
         {
             WoW.CastSpell("Greater Blessing of Kings", (!WoW.HasTarget || WoW.TargetIsFriend) && !WoW.PlayerHasBuff("Greater Blessing of Kings"));
             WoW.CastSpell("Greater Blessing of Wisdom", (!WoW.HasTarget || WoW.TargetIsFriend) && !WoW.PlayerHasBuff("Greater Blessing of Wisdom"));
-            
+        }
+
+        public override void Pulse()
+        {   
             if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
 
             WoW.CastSpell("Shield of Vengeance", true, false);  // Off the GCD no return needed
@@ -43,6 +47,11 @@ namespace Frozen.Rotation
             WoW.CastSpell("Blade of Justice", WoW.UnitPower <= 3); // Higher Priority because it can generate 2 holy power in 1 go
             WoW.CastSpell("Crusader Strike", WoW.UnitPower < 5 && WoW.PlayerSpellCharges("Crusader Strike") >= 0);
             WoW.CastSpell("Blade of Justice", true);
+        }
+
+        public override void MountedPulse()
+        {
+            Log.Write("Mounted.");
         }
     }
 }

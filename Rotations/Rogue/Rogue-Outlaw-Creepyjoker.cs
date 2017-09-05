@@ -184,7 +184,7 @@ namespace Frozen.Rotation
             Log.Write("Welcome to CreepyOutlaw rotation. V2.2. Report any issues on #rogue Discord channel with @Creepyjoker tag for further fixes.",
                 Color.Red);
             Log.Write("Suggested build: 1212231");
-            
+            WoW.Speak("Welcome to CreepyOutlaw rotation.");
             SettingsFormCJO = new SettingsFormCJO();
             SettingsForm = SettingsFormCJO;
 
@@ -361,7 +361,7 @@ namespace Frozen.Rotation
                     if (stopwatch.ElapsedMilliseconds > 1000)
                     {
                         combatRoutine.UseCooldowns = !combatRoutine.UseCooldowns;
-                        
+                        WoW.Speak("Cooldowns " + (combatRoutine.UseCooldowns ? "On" : "Off"));
                         stopwatch.Restart();
                     }
                 if (combatRoutine.Type == RotationType.SingleTarget)

@@ -30,8 +30,6 @@ namespace Frozen.Rotation
         {
             if (!WoW.HasTarget || WoW.TargetIsFriend)
             {
-                //Log.Write(WoW.CountEnemyNPCsInRange.ToString());
-
                 if (!WoW.PlayerHasBuff("Greater Blessing of Kings"))
                     if (WoW.CanCast("Greater Blessing of Kings"))
                     {
@@ -45,9 +43,6 @@ namespace Frozen.Rotation
                         WoW.CastSpell("Greater Blessing of Wisdom");
                         return;
                     }
-                //Log.Write("Player Spec: " + WoW.PlayerClassSpec);
-                //Log.Write("Player Race: " + WoW.PlayerRace);
-                Log.Write("Rotation On: " + WoW.RotationOn);
             }
 
             if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
@@ -75,11 +70,6 @@ namespace Frozen.Rotation
                 return;
             }
 
-            //if (WoW.CanCast("Avenging Wrath") && WoW.UnitPower >= 5 && WoW.TargetHasDebuff("Judgment")) {
-            //    WoW.CastSpell("Avenging Wrath");
-            //    return;
-            //}
-
             if (WoW.CanCast("Execution Sentence") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment") &&
                 !WoW.TargetHasDebuff("Execution Sentence"))
             {
@@ -87,20 +77,19 @@ namespace Frozen.Rotation
                 return;
             }
 
-            if (WoW.CanCast("Divine Storm") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment"))
+            if (WoW.CanCast("Divine Storm") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment") && WoW.CountEnemyNPCsInRange > 1)
             {
                 WoW.CastSpell("Divine Storm");
                 return;
             }
 
-            //if (WoW.CanCast("Templars Verdict") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment"))
-            //{
-            //    WoW.CastSpell("Templars Verdict");
-            //    return;
-            //}
+            if (WoW.CanCast("Templars Verdict") && WoW.UnitPower >= 3 && WoW.TargetHasDebuff("Judgment") && WoW.CountEnemyNPCsInRange <= 1)
+            {
+                WoW.CastSpell("Templars Verdict");
+                return;
+            }
 
-            if (WoW.CanCast("Blade of Justice") && WoW.UnitPower <= 3
-            ) // Higher Priority because it can generate 2 holy power in 1 go
+            if (WoW.CanCast("Blade of Justice") && WoW.UnitPower <= 3) // Higher Priority because it can generate 2 holy power in 1 go
             {
                 WoW.CastSpell("Blade of Justice");
                 return;
