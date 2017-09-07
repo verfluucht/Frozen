@@ -274,6 +274,7 @@ local BossIDs = {
 	[98949]  = true, -- Smashspite the Hateful
 	[94923]  = true, -- Lord Kur'talos Ravencrest
 	[99611]  = true, -- Dantalionax
+	[98970]  = true, -- Latosius
 
 	-------------------------------------------------------------------------------
 	-- Caverns of Time: Battle for Mount Hyjal
@@ -355,11 +356,11 @@ local BossIDs = {
 	-------------------------------------------------------------------------------
 	-- Darkheart Thicket
 	-------------------------------------------------------------------------------
-	[ 96512] = true, -- Archdruid Glaidalis
+	[96512] = true, -- Archdruid Glaidalis
 	[103344] = true, -- Oakheart
 	[ 99200] = true, -- Dresaron
 	[101403] = true, -- Shade of Xavius
-	[ 99192] = true, -- Shade of Xavius
+	[99192] = true, -- Shade of Xavius
 
 	-------------------------------------------------------------------------------
 	-- Dire Maul: Arena
@@ -547,13 +548,13 @@ local BossIDs = {
 	-- Halls of Valor
 	-------------------------------------------------------------------------------
 	[110929] = true, -- Hymdall
-	[ 94960] = true, -- Hymdall
-	[ 95833] = true, -- Hyrja
-	[ 96646] = true, -- Hyrja
-	[ 95674] = true, -- Fenryr (Phase 1)
-	[ 99868] = true, -- Fenryr (Phase 2)
-	[ 95675] = true, -- God-King Skovald
-	[ 95676] = true, -- Odyn
+	[94960] = true, -- Hymdall
+	[95833] = true, -- Hyrja
+	[96646] = true, -- Hyrja
+	[95674] = true, -- Fenryr (Phase 1)
+	[99868] = true, -- Fenryr (Phase 2)
+	[95675] = true, -- God-King Skovald
+	[95676] = true, -- Odyn
 	[110962] = true, -- Odyn
 	
 	-------------------------------------------------------------------------------
@@ -914,11 +915,11 @@ local BossIDs = {
 	-------------------------------------------------------------------------------
 	-- Neltharion's Lair
 	-------------------------------------------------------------------------------
-	[ 91003] = true, -- Rokmora
-    [ 91004] = true, -- Ularogg Cragshaper
+	[91003] = true, -- Rokmora
+    [91004] = true, -- Ularogg Cragshaper
     [105300] = true, -- Ularogg Cragshaper
-    [ 91005] = true, -- Naraxas
-    [ 91007] = true, -- Dargrul the Underking
+    [91005] = true, -- Naraxas
+    [91007] = true, -- Dargrul the Underking
     [107704] = true, -- Dargrul the Underking
 
 	-------------------------------------------------------------------------------
@@ -1791,6 +1792,12 @@ local BossIDs = {
     [108678] = true, -- Shar'thos
 	[106984] = true, -- Soultrapper Mevra
     [112350] = true, -- Withered J'im
+	[106981] = true, -- Captain Hring
+	[106982] = true, -- Reaver Jdorn
+	[121124] = true, -- Apocron
+	[117303] = true, -- Malificus
+	[117470] = true, -- Si'vash
+	
 
 	-------------------------------------------------------------------------------
 	-- World Dragons
@@ -1862,6 +1869,74 @@ local BossIDs = {
     --------------------------------------------------------------------------------
     [107484] = true, -- Greater Sparring
     [113636] = true, -- Dummy in Demon hunter hall (Imprisoned Forgefiend)
+	
+	-- Cathedral of the eternal night --
+	[120793] = true, -- Mephistroth 
+	[119542] = true, -- Domatrax
+	[117193] = true, -- Agronox
+	[117194] = true, -- Thrashbite the Scornful
+	-- Tomb of Sargeras -- 
+	[115844] = true, -- Goroth
+	[120996] = true, -- Atrigan
+	[118460] = true, -- engine of souls
+	[120436] = true, -- Fallen Avatar
+	[116407] = true, -- Harjatan
+	[118523] = true, -- Huntress Kasparian
+	[117269] = true, -- Kiljaeden
+	[118289] = true, -- Maiden of vigilance
+	[115767] = true, -- Mistress Sassz'ine
+	[116691] = true, -- Belac
+	[118374] = true, -- Captain Yathae Moonstrike
+	[117522] = true, -- Darkscale Taskmaster
+	[120437] = true, -- maiden of valor
+	[119205] = true, -- Moontalon(Sisters of the moon encounter's bird)
+	[118518] = true, -- Priestess Lunaspyre
+	[118462] = true, -- Soul Queen Dejahna ( Desolate Host )
+	[119072] = true, -- The desolate host
+	-- Trial of Valor Raid --
+	[114344] = true, -- Guarm
+	[114537] = true, -- Helya
+	[114263] = true, -- Odyn
+	-- The nighthold --
+	[104415] = true, -- Chronomatic Anomaly
+	[110965] = true, -- Elisande
+	[105503] = true, -- Gul'dan
+	[104528] = true, -- High Botanist Tel'arn
+	[101002] = true, -- Krosus
+	[102263] = true, -- Skorpyron
+	[107699] = true, -- Spellblade Aluriel
+	[103758] = true, -- Star Augur Etraeus
+	[103685] = true, -- Tichondrius
+	[104288] = true, -- Trilliax
+	[106643] = true, -- Elisande 2nd
+	[104881] = true, -- Spellblade Aluriel 2nd
+	-- Argus -- 
+	[122367] = true, -- Admiral Svirax
+	[124691] = true, -- Aggramar 
+	[124828] = true, -- Argus the Unmaker
+	[125562] = true, -- Essence of Eonar
+	[126916] = true, -- F'harg
+	[123371] = true, -- Garothi Worldbreaker
+	[125055] = true, -- Imonar the Soulhunter
+	[125050] = true, -- Kin'garoth
+	[122468] = true, -- Noura, Mother of Flames
+	[124393] = true, -- Portal Keeper Hasabel
+	[125075] = true, -- Varimathras
+	[122467] = true, -- Asara, Mother of Night (Noura encounter)
+	[122469] = true, -- Diima, Mother of Gloom (Noura encounter)
+	[125436] = true, -- Thu'raya, Mother of the Cosmos (Noura encounter)
+	-- Seat of Triumvirate ( 7.3 dungeon ) --
+	[122314] = true, -- L'ura
+	[122316] = true, -- Saprish
+	[124309] = true, -- Viceroy Nezhar
+	[122313] = true, -- Zuraal the Ascended
+	-- Dummies -- 
+	[113966] = true, -- Dungeoneer's Training Dummy
+    [92166] = true, -- Raider's Training Dummy
+	[87322] = true, -- Tanking dummy Stormshield
+	[88836] = true, -- Tanking dummy Warspear
+	[31146] = true, -- Raider's Training Dummy All capitals
+	[31144] = true, -- Training Dummy All capitals
 }
 
         lib.BossIDs = BossIDs
