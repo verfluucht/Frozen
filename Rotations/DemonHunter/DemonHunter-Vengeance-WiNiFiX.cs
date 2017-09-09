@@ -34,7 +34,7 @@ namespace Frozen.Rotation
 
             if (!WoW.IsSpellInRange("Soul Carver")) return; // If we are out of melee range return
             
-            if (WoW.TargetIsCastingAndSpellIsInterruptible && CombatTime.Milliseconds > 1200 && WoW.TargetPercentCast > Random.Next(50, 70))
+            if (WoW.TargetIsCastingAndSpellIsInterruptible && WoW.TargetPercentCast > Random.Next(50, 70))
             {
                 if (!WoW.IsSpellOnCooldown("Sigil of Silence"))
                 {
