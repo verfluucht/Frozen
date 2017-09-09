@@ -8,7 +8,14 @@ namespace Frozen.Plugins
     internal class SamplePlugin : Plugin
     {
         private readonly Stopwatch jumpInterval = new Stopwatch();
-        public override string Name => "Jump";
+
+        public override string Name
+        {
+            get
+            {
+                return "Jump";
+            }
+        } 
 
         public override Form SettingsForm { get; set; }
 
@@ -28,7 +35,7 @@ namespace Frozen.Plugins
             if (jumpInterval.ElapsedMilliseconds < 5000 + random.Next(5000, 20000) || WoW.PlayerIsCasting || WoW.PlayerIsChanneling) return;
 
             Log.Write("Jumping is so much fun...", Color.Aqua);
-            WoW.KeyPressRelease(WoW.Keys.Space);
+            WoW.KeyPressRelease(Keys.Space);
             jumpInterval.Restart();
         }
     }
